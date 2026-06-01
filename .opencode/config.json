@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    "./plugins/myplugin.ts"
+  ],
+
+  "mcpServers": {
+    "actors-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@apify/actors-mcp-server"],
+      "env": {
+        "APIFY_TOKEN": "{env:APIFY_TOKEN}"
+      }
+    }
+
+}
+}

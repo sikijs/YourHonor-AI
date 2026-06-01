@@ -1,0 +1,1831 @@
+[
+  {
+    "term": "actus reus",
+    "definition": "The physical act or unlawful omission that constitutes the external element of a crime, as opposed to the mental state (mens rea) of the perpetrator.",
+    "etymology": "Latin: 'guilty act'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The prosecution must prove both actus reus and mens rea beyond a reasonable doubt to establish criminal liability.",
+    "related_terms": [
+      "mens rea",
+      "strict liability",
+      "criminal intent"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Always identify the specific act or omission that constitutes the actus reus. Inchoate crimes (attempt, conspiracy) have different actus reus requirements than completed crimes."
+  },
+  {
+    "term": "mens rea",
+    "definition": "The mental state or intent required to establish criminal liability. The defendant must have intended the prohibited act or acted with recklessness or criminal negligence.",
+    "etymology": "Latin: 'guilty mind'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The Model Penal Code categorizes mens rea as purpose, knowledge, recklessness, or negligence.",
+    "related_terms": [
+      "actus reus",
+      "strict liability",
+      "specific intent",
+      "general intent"
+    ],
+    "also_known_as": "criminal intent",
+    "practice_tips": "Check the statute carefully — some crimes require specific intent (e.g., larceny requires intent to permanently deprive) while others only require general intent."
+  },
+  {
+    "term": "habeas corpus",
+    "definition": "A writ requiring a person under arrest to be brought before a judge or into court, ensuring that a prisoner's detention is lawful. A fundamental safeguard against unlawful imprisonment.",
+    "etymology": "Latin: 'you shall have the body'",
+    "jurisdiction": "US federal (Article I, Section 9 of the Constitution), UK, common law",
+    "usage_example": "The prisoner filed a petition for a writ of habeas corpus, challenging the constitutionality of his detention.",
+    "related_terms": [
+      "writ",
+      "due process",
+      "unlawful detention"
+    ],
+    "also_known_as": "Great Writ",
+    "practice_tips": "Habeas corpus petitions in federal court are governed by 28 U.S.C. §§ 2241-2255. State prisoners must exhaust state remedies before filing a federal habeas petition."
+  },
+  {
+    "term": "stare decisis",
+    "definition": "The legal principle of determining points in litigation according to precedent. Courts are bound to follow earlier court decisions (precedents) in cases with substantially similar facts and legal issues.",
+    "etymology": "Latin: 'to stand by things decided'",
+    "jurisdiction": "Common law jurisdictions (US, UK, Canada, Australia)",
+    "usage_example": "Under stare decisis, the lower court was bound to follow the appellate court's ruling in a similar case.",
+    "related_terms": [
+      "precedent",
+      "ratio decidendi",
+      "obiter dictum",
+      "binding authority"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Horizontal stare decisis (same-level courts following their own precedents) is weaker than vertical stare decisis (lower courts bound by higher court rulings). The Supreme Court can overrule its own precedents."
+  },
+  {
+    "term": "res ipsa loquitur",
+    "definition": "A doctrine in tort law that permits a jury to infer negligence from the very nature of an accident, without direct evidence of how the defendant acted, when the accident would not normally occur without negligence and the defendant had exclusive control.",
+    "etymology": "Latin: 'the thing speaks for itself'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff invoked res ipsa loquitur when a barrel of flour rolled out of the defendant's shop window and struck him, as barrels do not ordinarily fall from windows without negligence.",
+    "related_terms": [
+      "negligence",
+      "negligence per se",
+      "burden of proof"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Three elements must be satisfied: (1) the accident would not ordinarily occur without negligence, (2) the defendant had exclusive control, and (3) the plaintiff did not contribute to the accident."
+  },
+  {
+    "term": "prima facie",
+    "definition": "Sufficient to establish a fact or case unless rebutted. At first sight; on the face of it. Refers to evidence that is sufficient to shift the burden of proof to the opposing party.",
+    "etymology": "Latin: 'at first sight' or 'on its face'",
+    "jurisdiction": "Universal in legal systems",
+    "usage_example": "The plaintiff established a prima facie case of discrimination by showing she belonged to a protected class, was qualified, was rejected, and the employer continued to seek applicants with similar qualifications.",
+    "related_terms": [
+      "burden of proof",
+      "prima facie case",
+      "rebuttable presumption"
+    ],
+    "also_known_as": null,
+    "practice_tips": "A prima facie case merely shifts the burden of production. The ultimate burden of persuasion may remain with the moving party. Always check the specific elements required for the particular claim."
+  },
+  {
+    "term": "amicus curiae",
+    "definition": "A person or organization that is not a party to a case but offers information, expertise, or insight that bears on the case. Amicus briefs are filed to assist the court in reaching its decision.",
+    "etymology": "Latin: 'friend of the court'",
+    "jurisdiction": "US federal and state appellate courts",
+    "usage_example": "The American Civil Liberties Union filed an amicus curiae brief in support of the petitioner's First Amendment claim.",
+    "related_terms": [
+      "brief",
+      "appellate procedure",
+      "intervention"
+    ],
+    "also_known_as": "amicus (plural: amici curiae)",
+    "practice_tips": "Federal Rule of Appellate Procedure 29 governs amicus filings. Most courts require consent of all parties or leave of court. Amici cannot introduce new issues or evidence."
+  },
+  {
+    "term": "consideration",
+    "definition": "Something of value exchanged between parties to a contract, which is necessary for the formation of an enforceable contract. Can be a benefit to the promisor or a detriment to the promisee.",
+    "etymology": "Old French: 'considération', from Latin 'consideratio' meaning 'consideration, reflection'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "In a contract for the sale of goods, the price paid by the buyer is the consideration for the seller's promise to deliver the goods.",
+    "related_terms": [
+      "contract formation",
+      "promissory estoppel",
+      "bargained-for exchange"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Consideration must be bargained-for and may be nominal. Preexisting duty rule: performing an existing legal obligation is not valid consideration. Most states have abolished the requirement for contracts under seal."
+  },
+  {
+    "term": "promissory estoppel",
+    "definition": "A legal doctrine that allows a promise to be enforced even without consideration, when the promisor made a promise that the promisee reasonably relied upon to their detriment, and injustice can only be avoided by enforcing the promise.",
+    "etymology": "English: 'promissory' + 'estoppel' (from Old French 'estoupail' meaning 'stopper, bung')",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court applied promissory estoppel when a nephew relied on his uncle's promise of $5,000 to build a house, and the uncle later refused to pay.",
+    "related_terms": [
+      "consideration",
+      "reliance",
+      "detrimental reliance",
+      "contract formation"
+    ],
+    "also_known_as": "detrimental reliance",
+    "practice_tips": "Restatement (Second) of Contracts § 90 defines the doctrine. Unlike contract damages (expectation), promissory estoppel remedies are often limited to reliance damages."
+  },
+  {
+    "term": "voir dire",
+    "definition": "The process of examining prospective jurors to determine their qualifications and suitability to serve on a jury. Also refers to the preliminary examination of a witness to determine competency.",
+    "etymology": "Anglo-French: 'to speak the truth'",
+    "jurisdiction": "US federal and state courts",
+    "usage_example": "During voir dire, the defense attorney asked prospective jurors whether they had any biases against the defendant's race.",
+    "related_terms": [
+      "jury selection",
+      "challenge for cause",
+      "peremptory challenge",
+      "impanel"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Federal judges generally conduct voir dire themselves (FRCP 47). State courts vary. Peremptory challenges are limited; challenges for cause are unlimited. Batson challenges prohibit race-based peremptory strikes."
+  },
+  {
+    "term": "due process",
+    "definition": "The principle that the government must respect all legal rights owed to a person according to the law. Procedural due process requires fair procedures; substantive due process protects certain fundamental rights from government interference.",
+    "etymology": "English: from the phrase 'due process of law' appearing in Magna Carta (1215) as 'per legem terrae' (by the law of the land)",
+    "jurisdiction": "US (Fifth and Fourteenth Amendments)",
+    "usage_example": "The state's failure to provide notice and a hearing before terminating welfare benefits violated the recipient's right to procedural due process.",
+    "related_terms": [
+      "equal protection",
+      "procedural due process",
+      "substantive due process",
+      "incorporation doctrine"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The Mathews v. Eldridge test balances (1) the private interest affected, (2) risk of erroneous deprivation, and (3) the government's interest. Substantive due process protects fundamental rights like marriage, parenting, and bodily autonomy."
+  },
+  {
+    "term": "equal protection",
+    "definition": "A constitutional guarantee that no state shall deny any person within its jurisdiction the equal protection of the laws. Requires the government to treat similarly situated people similarly.",
+    "etymology": "From the Equal Protection Clause of the Fourteenth Amendment (1868)",
+    "jurisdiction": "US (Fourteenth Amendment)",
+    "usage_example": "The court applied strict scrutiny to a law that discriminated on the basis of race, finding it violated the Equal Protection Clause.",
+    "related_terms": [
+      "due process",
+      "strict scrutiny",
+      "intermediate scrutiny",
+      "rational basis test"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Three tiers of scrutiny: strict (race, national origin), intermediate (gender, illegitimacy), rational basis (economic, social welfare). The burden of proof shifts depending on the classification."
+  },
+  {
+    "term": "negligence",
+    "definition": "The failure to exercise the standard of care that a reasonably prudent person would have exercised in the same circumstances, resulting in injury or damage to another.",
+    "etymology": "Latin: 'neglegentia' meaning 'carelessness, neglect'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The driver breached his duty of care by texting while driving, and his negligence caused the plaintiff's injuries.",
+    "related_terms": [
+      "duty of care",
+      "breach",
+      "proximate cause",
+      "actual cause",
+      "damages"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Four elements: duty, breach, causation (actual + proximate), damages. Most states apportion fault under comparative negligence. Some states retain contributory negligence as a complete bar."
+  },
+  {
+    "term": "strict liability",
+    "definition": "Liability that does not depend on proof of negligence or intent. Applies to inherently dangerous activities, product defects, and certain statutory violations. The defendant is liable regardless of fault.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK); civil law equivalents exist",
+    "usage_example": "The construction company was held strictly liable for damage caused by blasting operations, even though they took every possible precaution.",
+    "related_terms": [
+      "negligence",
+      "product liability",
+      "abnormally dangerous activity",
+      "mens rea"
+    ],
+    "also_known_as": "liability without fault",
+    "practice_tips": "Restatement (Second) of Torts § 519 lists factors for abnormally dangerous activities: high risk of serious harm, inability to eliminate risk through reasonable care, and uncommonness in the community."
+  },
+  {
+    "term": "jurisdiction",
+    "definition": "The official power of a court to hear and decide a case. Includes personal jurisdiction (power over the parties), subject-matter jurisdiction (power over the type of case), and territorial jurisdiction (geographic scope).",
+    "etymology": "Latin: 'iuris dictio' meaning 'the speaking of law'",
+    "jurisdiction": "Universal",
+    "usage_example": "The federal court lacked subject-matter jurisdiction because the amount in controversy did not exceed $75,000.",
+    "related_terms": [
+      "personal jurisdiction",
+      "subject-matter jurisdiction",
+      "venue",
+      "forum non conveniens"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Subject-matter jurisdiction cannot be waived. Personal jurisdiction can be waived if not timely raised (FRCP 12(b)(2)). Diversity jurisdiction requires complete diversity and $75,000+ amount in controversy (28 U.S.C. § 1332)."
+  },
+  {
+    "term": "discovery",
+    "definition": "The pretrial phase in which parties exchange information and evidence relevant to the case. Includes depositions, interrogatories, requests for production of documents, and requests for admissions.",
+    "etymology": "English: from 'discover' meaning 'to reveal, uncover'",
+    "jurisdiction": "US federal (FRCP Rules 26-37), US state courts",
+    "usage_example": "During discovery, the plaintiff served interrogatories and requested all emails between the defendant and the regulatory agency.",
+    "related_terms": [
+      "deposition",
+      "interrogatory",
+      "request for production",
+      "subpoena",
+      "privilege"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 26 requires initial mandatory disclosures. Electronically stored information (ESI) is discoverable. Work product and attorney-client privilege limit discovery. Sanctions available for spoliation of evidence."
+  },
+  {
+    "term": "summary judgment",
+    "definition": "A judgment entered by a court in favor of one party without a full trial, when there is no genuine dispute as to any material fact and the moving party is entitled to judgment as a matter of law.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRCP 56), US state courts",
+    "usage_example": "The court granted summary judgment for the defendant because the plaintiff failed to produce evidence establishing a genuine dispute as to causation.",
+    "related_terms": [
+      "motion to dismiss",
+      "judgment as a matter of law",
+      "material fact",
+      "burden of proof"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The moving party must show no genuine dispute of material fact. All reasonable inferences are drawn in favor of the non-moving party. FRCP 56 governs federal practice."
+  },
+  {
+    "term": "res judicata",
+    "definition": "A matter that has been finally adjudicated by a competent court and may not be litigated again by the same parties. Bars claims that were or could have been raised in the prior action.",
+    "etymology": "Latin: 'a matter judged'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff's claim was barred by res judicata because she had already litigated the same claim against the same defendant and received a final judgment.",
+    "related_terms": [
+      "collateral estoppel",
+      "claim preclusion",
+      "issue preclusion",
+      "final judgment"
+    ],
+    "also_known_as": "claim preclusion",
+    "practice_tips": "Res judicata requires: (1) final judgment on the merits, (2) same parties (or privies), (3) same claim. Collateral estoppel (issue preclusion) is narrower — it bars relitigation of specific issues."
+  },
+  {
+    "term": "collateral estoppel",
+    "definition": "A legal doctrine that prevents a party from relitigating an issue that has already been actually litigated and necessarily decided in a prior proceeding involving the same party or their privy.",
+    "etymology": "English legal term; 'estoppel' from Old French 'estoupail' meaning 'stopper, bung'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Collateral estoppel barred the defendant from relitigating the issue of patent validity, which had been decided against him in a prior lawsuit.",
+    "related_terms": [
+      "res judicata",
+      "issue preclusion",
+      "claim preclusion"
+    ],
+    "also_known_as": "issue preclusion",
+    "practice_tips": "Four requirements: (1) same issue, (2) actually litigated, (3) necessarily decided, (4) same parties or privies. Non-mutual collateral estoppel allows a stranger to use estoppel against a party who litigated in a prior case."
+  },
+  {
+    "term": "tort",
+    "definition": "A civil wrong or injury, other than a breach of contract, for which a court will provide a remedy in the form of damages. Torts include negligence, intentional torts, and strict liability.",
+    "etymology": "Old French: 'tort' meaning 'wrong, injury, injustice'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff brought a tort action for battery after the defendant intentionally struck him.",
+    "related_terms": [
+      "negligence",
+      "intentional tort",
+      "strict liability",
+      "damages"
+    ],
+    "also_known_as": "civil wrong",
+    "practice_tips": "Torts are categorized as intentional (assault, battery, false imprisonment), negligent, or strict liability. Each has different elements and defenses. Damages can be compensatory, punitive, or nominal."
+  },
+  {
+    "term": "battery",
+    "definition": "An intentional, harmful or offensive touching of another person without their consent. A complete tort even if no physical injury results.",
+    "etymology": "Anglo-French: 'bater' meaning 'to beat, strike'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Spitting on someone constitutes battery because it is an offensive touching, even if no physical harm occurs.",
+    "related_terms": [
+      "assault",
+      "intentional tort",
+      "consent",
+      "defense of person"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Battery requires intent (purpose or knowledge to substantial certainty), not hostile intent. Transferred intent applies: intent to hit A but hitting B still constitutes battery."
+  },
+  {
+    "term": "assault",
+    "definition": "An intentional act that creates a reasonable apprehension of imminent harmful or offensive touching. No physical contact is required.",
+    "etymology": "Old French: 'assauter' meaning 'to attack, assail'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Raising a fist and threatening to punch someone, while in striking distance, constitutes assault if the victim reasonably apprehends imminent contact.",
+    "related_terms": [
+      "battery",
+      "intentional tort",
+      "apprehension"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Assault requires (1) intent, (2) reasonable apprehension of imminent harmful/offensive contact. Words alone are generally insufficient unless accompanied by threatening gestures. Apprehension ≠ fear — the plaintiff need not be afraid."
+  },
+  {
+    "term": "false imprisonment",
+    "definition": "The intentional confinement or restraint of a person within a bounded area without legal authority or consent.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The security guard committed false imprisonment by locking the suspected shoplifter in an office for three hours without police involvement.",
+    "related_terms": [
+      "battery",
+      "intentional tort",
+      "false arrest",
+      "shopkeeper's privilege"
+    ],
+    "also_known_as": "unlawful detention",
+    "practice_tips": "Elements: (1) intent to confine within bounded area, (2) actual confinement, (3) plaintiff aware of confinement or harmed by it. Shopkeeper's privilege allows reasonable detention of suspected shoplifters in most states."
+  },
+  {
+    "term": "intentional infliction of emotional distress",
+    "definition": "A tort claim for severe emotional trauma caused by extreme and outrageous conduct. Also known as the tort of outrage.",
+    "etymology": "English legal term (20th century development)",
+    "jurisdiction": "Common law (US)",
+    "usage_example": "The court found that the debt collector's repeated calls at 3 a.m. using obscene language constituted intentional infliction of emotional distress.",
+    "related_terms": [
+      "negligent infliction of emotional distress",
+      "outrage",
+      "damages"
+    ],
+    "also_known_as": "IIED, tort of outrage",
+    "practice_tips": "Elements: (1) extreme and outrageous conduct exceeding all bounds of decency, (2) intent or recklessness, (3) severe emotional distress. This is a high bar — mere insults or annoyances are insufficient."
+  },
+  {
+    "term": "breach of contract",
+    "definition": "A failure, without legal excuse, to perform any promise that forms all or part of a contract. May be material (substantial failure to perform) or minor (partial or technical non-performance).",
+    "etymology": "English: 'breach' from Old French 'breche' meaning 'a breaking, fracture'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The contractor's failure to complete the renovation by the specified date constituted a breach of contract.",
+    "related_terms": [
+      "anticipatory repudiation",
+      "material breach",
+      "specific performance",
+      "damages"
+    ],
+    "also_known_as": null,
+    "practice_tips": "A material breach excuses the non-breaching party from further performance. Minor breach entitles the non-breaching party to damages but does not excuse performance. Anticipatory repudiation allows immediate suit before the performance date."
+  },
+  {
+    "term": "specific performance",
+    "definition": "An equitable remedy requiring the party who breached a contract to perform the specific act promised, rather than paying monetary damages. Available only when monetary damages are inadequate.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court ordered specific performance of the contract for the sale of the historic farmhouse, as no two properties are identical.",
+    "related_terms": [
+      "injunction",
+      "equitable remedy",
+      "breach of contract"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Specific performance is never available for personal services contracts (Thirteenth Amendment concerns). Available for real estate (each parcel is unique) and rare chattels. A court of equity may deny if it requires continuous supervision."
+  },
+  {
+    "term": "statute of frauds",
+    "definition": "A legal doctrine requiring certain types of contracts to be in writing and signed by the party to be charged, to prevent fraud and perjury. Applies to contracts for the sale of land, contracts lasting more than one year, and guarantees of another's debts.",
+    "etymology": "From the English Statute of Frauds (1677), formally 'An Act for Prevention of Frauds and Perjuryes'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The oral agreement to sell the commercial property was unenforceable under the statute of frauds because it was not in writing.",
+    "related_terms": [
+      "parol evidence rule",
+      "contract formation",
+      "UCC Article 2"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Five categories typically covered: (1) marriage consideration, (2) one-year rule, (3) land contracts, (4) executor promises, (5) surety promises. UCC Article 2 requires writing for sales of goods over $500."
+  },
+  {
+    "term": "parol evidence rule",
+    "definition": "A substantive rule of contract law that prevents a party from introducing extrinsic evidence (prior or contemporaneous agreements, oral statements) to contradict or modify the terms of a fully integrated written contract.",
+    "etymology": "Anglo-French: 'parol' meaning 'by word of mouth, oral'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court excluded the plaintiff's testimony about oral promises, applying the parol evidence rule because the written contract contained a merger clause.",
+    "related_terms": [
+      "integration clause",
+      "merger clause",
+      "statute of frauds"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The rule does not apply if the contract is not fully integrated, or if evidence is offered to explain ambiguities, show fraud, mistake, or lack of consideration. UCC § 2-202 governs for sales of goods."
+  },
+  {
+    "term": "fee simple",
+    "definition": "The highest and most complete form of land ownership in common law. The owner has the right to possess, use, and dispose of the property freely, subject only to governmental restrictions.",
+    "etymology": "English: 'fee' (from Old French 'fief' meaning 'estate') + 'simple' (unlimited, unrestricted)",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The developer purchased the land in fee simple absolute, giving him full rights to build and develop the property.",
+    "related_terms": [
+      "life estate",
+      "future interest",
+      "fee tail",
+      "easement"
+    ],
+    "also_known_as": "fee simple absolute",
+    "practice_tips": "Fee simple absolute is the default estate when land is conveyed without limiting language. A fee simple defeasible (e.g., fee simple subject to condition subsequent) may terminate upon occurrence of a specified event."
+  },
+  {
+    "term": "easement",
+    "definition": "A non-possessory right to use another person's land for a specific purpose, such as a right of way, utility access, or drainage. Runs with the land (appurtenant) or is held by a person (in gross).",
+    "etymology": "Old French: 'aisement' meaning 'comfort, convenience'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The property owner granted an easement to the neighbor allowing him to use the driveway to access his garage.",
+    "related_terms": [
+      "profit",
+      "covenant",
+      "license",
+      "right of way"
+    ],
+    "also_known_as": "servitude (civil law)",
+    "practice_tips": "Easements are created by: (1) express grant, (2) implication (from prior use or necessity), (3) prescription (adverse use). An easement appurtenant transfers with the dominant estate. Easements can be terminated by merger, release, abandonment, or condemnation."
+  },
+  {
+    "term": "adverse possession",
+    "definition": "A legal doctrine that allows a person who possesses another's land for a statutory period to acquire title to that land, provided the possession is actual, open and notorious, exclusive, adverse (hostile), and continuous.",
+    "etymology": "English legal term; from 'adverse' (opposing) + 'possession' (control)",
+    "jurisdiction": "Common law (US, UK); statutory periods vary by jurisdiction (typically 5-20 years)",
+    "usage_example": "After 15 years of continuously maintaining a garden that extended beyond her property line, the neighbor acquired title to the disputed strip by adverse possession.",
+    "related_terms": [
+      "prescriptive easement",
+      "color of title",
+      "tacking",
+      "quiet title"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Many states require payment of property taxes. Tacking allows successive adverse possessors to combine their time if there is privity. Color of title (a defective deed) may reduce the statutory period in some states."
+  },
+  {
+    "term": "life estate",
+    "definition": "An estate in land that lasts for the duration of a specified person's life. The life tenant has the right to possess and use the property but cannot waste or permanently damage it. After the life tenant dies, the property passes to a remainderman.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The will granted a life estate to the surviving spouse, with the remainder to the children upon the spouse's death.",
+    "related_terms": [
+      "fee simple",
+      "future interest",
+      "remainder",
+      "waste"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Life tenants must pay ordinary taxes and maintain the property. They are liable for waste if they damage the property's value. Convertible waste may be permitted if the proceeds are reinvested."
+  },
+  {
+    "term": "future interest",
+    "definition": "A present right to future ownership or possession of property. Includes reversion (held by the grantor) and remainder (held by a third party). May be vested or contingent.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The testator left the farm to his son for life, remainder to his granddaughter — the granddaughter holds a future interest.",
+    "related_terms": [
+      "life estate",
+      "vested remainder",
+      "contingent remainder",
+      "reversion",
+      "executory interest"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Contingent remainders are conditioned on an uncertain event (e.g., 'to A for life, then to B if B survives A'). The Rule Against Perpetuities restricts certain future interests that may vest too remotely."
+  },
+  {
+    "term": "Rule Against Perpetuities",
+    "definition": "A rule that invalidates future interests that may vest more than 21 years after the death of a life in being at the time the interest was created. Designed to prevent remote control of property by 'dead hand' grantors.",
+    "etymology": "English legal term, developed in the Duke of Norfolk's Case (1682)",
+    "jurisdiction": "Common law (US, UK); many US states have modified or abolished it via the Uniform Statutory Rule Against Perpetuities",
+    "usage_example": "The gift 'to my grandchildren who reach age 25' was void under the Rule Against Perpetuities because some grandchildren might not reach 25 within 21 years after the death of all lives in being.",
+    "related_terms": [
+      "future interest",
+      "vesting",
+      "life in being",
+      "wait-and-see"
+    ],
+    "also_known_as": "RAP",
+    "practice_tips": "The Rule is applied at the time the interest is created, looking forward. 'Wait-and-see' jurisdictions (about half of US states) observe actual events rather than hypothetical possibilities. Common law perpetuity period = life in being + 21 years."
+  },
+  {
+    "term": "double jeopardy",
+    "definition": "A constitutional protection that prohibits a person from being tried twice for the same offense after acquittal or conviction. Found in the Fifth Amendment to the US Constitution.",
+    "etymology": "Old French: 'juparti' from Latin 'jocus partitus' meaning 'divided game, alternative'",
+    "jurisdiction": "US (Fifth Amendment); similar protections exist in common law and civil law jurisdictions",
+    "usage_example": "After being acquitted of murder, the defendant could not be retried for the same killing, as that would violate double jeopardy.",
+    "related_terms": [
+      "Fifth Amendment",
+      "procedural defense",
+      "collateral estoppel"
+    ],
+    "also_known_as": "non bis in idem (civil law)",
+    "practice_tips": "Double jeopardy attaches when the jury is sworn (or first witness sworn in bench trial). The 'same offense' test under Blockburger v. United States: if each crime requires proof of an element the other does not, they are different offenses."
+  },
+  {
+    "term": "Miranda rights",
+    "definition": "Constitutional warnings that police must give to a criminal suspect before custodial interrogation, including the right to remain silent, the right to an attorney, and the warning that anything said can be used in court.",
+    "etymology": "From Miranda v. Arizona (1966), 384 U.S. 436",
+    "jurisdiction": "US (Fifth and Sixth Amendments)",
+    "usage_example": "The police officer read the suspect his Miranda rights before beginning the custodial interrogation.",
+    "related_terms": [
+      "self-incrimination",
+      "Fifth Amendment",
+      "custodial interrogation",
+      "right to counsel"
+    ],
+    "also_known_as": "Miranda warning, Miranda advisement",
+    "practice_tips": "Miranda applies only to custodial interrogations. Both conditions must be met: (1) custody (not free to leave), and (2) interrogation (express questioning or its functional equivalent). Failure to give Miranda warnings results in exclusion of the statement, not the physical evidence."
+  },
+  {
+    "term": "probable cause",
+    "definition": "Reasonable grounds to believe that a person has committed a crime or that evidence of a crime exists in a specific location. Required for obtaining an arrest warrant or search warrant under the Fourth Amendment.",
+    "etymology": "English: 'probable' (likely) + 'cause' (reason, ground)",
+    "jurisdiction": "US (Fourth Amendment); common law",
+    "usage_example": "The officer had probable cause to search the vehicle after smelling marijuana and seeing drug paraphernalia in plain view.",
+    "related_terms": [
+      "reasonable suspicion",
+      "Fourth Amendment",
+      "search warrant",
+      "arrest warrant"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Probable cause requires a 'fair probability' based on the totality of circumstances (Illinois v. Gates, 1983). Less than proof beyond a reasonable doubt but more than mere suspicion. Hearsay can support probable cause if the informant is reliable."
+  },
+  {
+    "term": "reasonable suspicion",
+    "definition": "A lower standard than probable cause, requiring specific and articulable facts that would lead a reasonable officer to suspect criminal activity. Sufficient for a Terry stop (brief investigatory detention) and limited pat-down frisk.",
+    "etymology": "From Terry v. Ohio (1968), 392 U.S. 1",
+    "jurisdiction": "US (Fourth Amendment)",
+    "usage_example": "The officer had reasonable suspicion to stop the defendant based on his nervous behavior, bulging pocket, and presence in a high-crime area at 2 a.m.",
+    "related_terms": [
+      "probable cause",
+      "Terry stop",
+      "Fourth Amendment",
+      "stop and frisk"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Reasonable suspicion requires less than probable cause but more than a 'hunch.' It is an objective standard. Courts consider the totality of circumstances. The scope of a Terry frisk is limited to weapons."
+  },
+  {
+    "term": "hearsay",
+    "definition": "An out-of-court statement offered in evidence to prove the truth of the matter asserted. Generally inadmissible unless an exception applies, because the declarant is unavailable for cross-examination.",
+    "etymology": "English: from 'hear' + 'say' — what the speaker heard another say",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The witness's testimony that 'John told me he saw the defendant at the scene' was excluded as hearsay when offered to prove the defendant was present.",
+    "related_terms": [
+      "admission",
+      "declaration against interest",
+      "dying declaration",
+      "excited utterance"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Federal Rules of Evidence 801-807 govern hearsay. Not hearsay if (1) not offered for its truth, (2) prior consistent/inconsistent statement, (3) opposing party's statement. Over 30 exceptions exist, including excited utterance, business records, and dying declaration."
+  },
+  {
+    "term": "spoliation",
+    "definition": "The intentional or negligent destruction, alteration, or concealment of evidence that is relevant to pending or reasonably foreseeable litigation. May result in sanctions including adverse inference instructions or default judgment.",
+    "etymology": "Latin: 'spoliatio' meaning 'plundering, robbery'",
+    "jurisdiction": "US federal and state courts",
+    "usage_example": "The court imposed spoliation sanctions when the company deleted thousands of emails after receiving notice of a lawsuit.",
+    "related_terms": [
+      "discovery",
+      "duty to preserve",
+      "electronically stored information",
+      "adverse inference"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The duty to preserve arises when litigation is 'reasonably anticipated' (FRCP 37(e) for ESI). FRCP 37(e) governs spoliation of ESI in federal court. Sanctions require a finding of prejudice and intent to deprive."
+  },
+  {
+    "term": "subpoena",
+    "definition": "A writ ordering a person to appear before a court, grand jury, or other tribunal to testify (subpoena ad testificandum) or to produce documents or evidence (subpoena duces tecum).",
+    "etymology": "Latin: 'under penalty'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff served a subpoena duces tecum on the bank requiring production of the defendant's financial records.",
+    "related_terms": [
+      "discovery",
+      "deposition",
+      "contempt"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 45 governs subpoenas in federal court. A subpoena must be served personally. The recipient may object or move to quash. Subpoenas for trial testimony require payment of witness fees and mileage."
+  },
+  {
+    "term": "deposition",
+    "definition": "A pretrial discovery procedure in which a witness gives sworn testimony, recorded by a court reporter, in response to questions from attorneys. Can be used to impeach or as evidence if the witness is unavailable at trial.",
+    "etymology": "Latin: 'depositio' meaning 'a laying down, testimony'",
+    "jurisdiction": "US federal (FRCP 30-32), US state courts",
+    "usage_example": "The plaintiff's deposition lasted six hours, during which she was questioned extensively about the events leading up to the accident.",
+    "related_terms": [
+      "discovery",
+      "interrogatory",
+      "subpoena",
+      "perpetuation of testimony"
+    ],
+    "also_known_as": "deposition upon oral examination (de bene esse)",
+    "practice_tips": "FRCP 30 limits depositions to 7 hours (one day of 7 hours). Parties may be deposed by anyone. Objections are noted but the witness still answers except for privilege or instructions not to answer."
+  },
+  {
+    "term": "interrogatory",
+    "definition": "A written set of questions served on a party during discovery, requiring written answers under oath within a specified time period. Used to obtain basic factual information and identify witnesses and documents.",
+    "etymology": "Latin: 'interrogare' meaning 'to ask, question'",
+    "jurisdiction": "US federal (FRCP 33), US state courts",
+    "usage_example": "The defendant served 25 interrogatories asking the plaintiff to identify all witnesses to the accident and describe any prior similar incidents.",
+    "related_terms": [
+      "discovery",
+      "deposition",
+      "request for production",
+      "request for admissions"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 33 limits interrogatories to 25 (including subparts) unless the court permits more. Answers must be verified under oath. A party may object to an interrogatory but must state the grounds. Option to produce business records instead of answering."
+  },
+  {
+    "term": "venue",
+    "definition": "The geographic location where a case is heard. Determined by where the events occurred or where the parties reside. Venue rules ensure convenience and fairness. Venue is distinct from jurisdiction (authority to hear the case).",
+    "etymology": "Old French: 'venir' meaning 'to come' + Anglo-French legal usage",
+    "jurisdiction": "US federal (28 U.S.C. §§ 1391-1413), US state courts",
+    "usage_example": "The defendant moved to change venue because the extensive pretrial publicity made it impossible to find an impartial jury.",
+    "related_terms": [
+      "jurisdiction",
+      "forum non conveniens",
+      "transfer of venue",
+      "change of venue"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Federal venue statute (28 U.S.C. § 1391): proper in (1) where any defendant resides if all in same state, or (2) where substantial events or property are located. Forum non conveniens allows dismissal if another forum is substantially more appropriate."
+  },
+  {
+    "term": "forum non conveniens",
+    "definition": "A legal doctrine allowing a court to dismiss a case when another court is a significantly more appropriate forum for the case, even if the court has jurisdiction. The plaintiff may refile in the more convenient forum.",
+    "etymology": "Latin: 'inconvenient forum'",
+    "jurisdiction": "Common law (US, UK); recognized internationally",
+    "usage_example": "The federal court dismissed the aviation accident case on forum non conveniens grounds, finding that France was the more appropriate forum because the accident occurred there and all witnesses were French.",
+    "related_terms": [
+      "venue",
+      "jurisdiction",
+      "transfer",
+      "choice of law"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The defendant bears the heavy burden of showing an adequate alternative forum exists and that private/public interest factors strongly favor dismissal. The US Supreme Court cases Gulf Oil v. Gilbert and Piper Aircraft v. Reyno provide the analytical framework."
+  },
+  {
+    "term": "pleading",
+    "definition": "A formal written statement submitted by a party in a lawsuit setting forth the party's claims, defenses, or allegations. Includes complaints, answers, and replies. Governed by rules of civil procedure.",
+    "etymology": "Old French: 'plaidier' meaning 'to plead, argue in court'",
+    "jurisdiction": "US federal (FRCP 7-15), US state courts",
+    "usage_example": "The defendant filed an answer to the complaint, denying the material allegations and asserting affirmative defenses.",
+    "related_terms": [
+      "complaint",
+      "answer",
+      "motion to dismiss",
+      "FRCP 12(b)(6)"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 8 requires a 'short and plain statement' showing entitlement to relief (notice pleading). FRCP 9 requires particularity for fraud and mistake. FRCP 11 imposes certification requirements and sanctions for improper pleadings."
+  },
+  {
+    "term": "motion",
+    "definition": "A formal request to a court asking for a specific ruling, order, or action on a particular matter. Filed before, during, or after trial. May be oral or written depending on the type and court rules.",
+    "etymology": "Latin: 'motio' meaning 'a moving'",
+    "jurisdiction": "Universal in court systems",
+    "usage_example": "The defense attorney filed a motion to suppress the evidence obtained during the warrantless search.",
+    "related_terms": [
+      "motion to dismiss",
+      "motion for summary judgment",
+      "motion in limine"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Written motions must include a notice of motion, the motion itself, and a memorandum of law. FRCP 6 governs timing. Some motions (e.g., motion in limine) are decided before trial to avoid prejudice."
+  },
+  {
+    "term": "motion to dismiss",
+    "definition": "A request to a court to dismiss a lawsuit or a specific claim for legal defects, such as lack of jurisdiction, failure to state a claim, or insufficiency of process. Typically filed before filing an answer.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRCP 12(b)), US state courts",
+    "usage_example": "The court granted the defendant's motion to dismiss for failure to state a claim upon which relief could be granted.",
+    "related_terms": [
+      "FRCP 12(b)(6)",
+      "summary judgment",
+      "pleading"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 12(b) provides seven grounds for dismissal. A 12(b)(6) motion tests the legal sufficiency of the complaint. All well-pleaded facts are taken as true. If granted, the court typically grants leave to amend."
+  },
+  {
+    "term": "judgment notwithstanding the verdict",
+    "definition": "A judgment entered by the court in favor of one party despite a jury verdict for the other party, when the jury's verdict is clearly unsupported by the evidence. Now called renewed judgment as a matter of law.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRCP 50(b)); renamed 'renewed judgment as a matter of law' in 1991",
+    "usage_example": "The judge granted JNOV for the defendant, ruling that no reasonable jury could have found for the plaintiff based on the evidence presented.",
+    "related_terms": [
+      "judgment as a matter of law",
+      "directed verdict",
+      "FRCP 50"
+    ],
+    "also_known_as": "JNOV (judgment non obstante veredicto), renewed JMOL",
+    "practice_tips": "A FRCP 50(a) motion (JMOL) must be made before the case goes to the jury. A FRCP 50(b) motion (renewed JMOL/JNOV) must be filed within 28 days after the verdict. The legal standard is the same: no legally sufficient evidentiary basis."
+  },
+  {
+    "term": "beyond a reasonable doubt",
+    "definition": "The highest standard of proof in the legal system, required in criminal cases to convict a defendant. The evidence must be so convincing that there is no reasonable doubt in the mind of a reasonable person as to the defendant's guilt.",
+    "etymology": "English legal term, established in common law over centuries",
+    "jurisdiction": "Common law (US, UK); US: In re Winship (1970) established this as a constitutional requirement",
+    "usage_example": "The prosecutor argued that the DNA evidence, eyewitness testimony, and the defendant's confession established guilt beyond a reasonable doubt.",
+    "related_terms": [
+      "burden of proof",
+      "preponderance of the evidence",
+      "clear and convincing evidence",
+      "presumption of innocence"
+    ],
+    "also_known_as": null,
+    "practice_tips": "This burden applies to every element of the crime, not to the defense case. The jury is typically instructed that reasonable doubt is not a mere possible doubt but a doubt based on reason and common sense."
+  },
+  {
+    "term": "preponderance of the evidence",
+    "definition": "The standard of proof in most civil cases. The plaintiff must prove that their version of the facts is more likely true than not (greater than 50% probability).",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff met her burden by a preponderance of the evidence, showing it was more likely than not that the defendant's negligence caused her injuries.",
+    "related_terms": [
+      "burden of proof",
+      "clear and convincing evidence",
+      "beyond a reasonable doubt"
+    ],
+    "also_known_as": null,
+    "practice_tips": "This is the lowest standard of proof in US law. Often described as 'the scales of justice tipped ever so slightly.' Applies to most civil claims and some affirmative defenses."
+  },
+  {
+    "term": "clear and convincing evidence",
+    "definition": "An intermediate standard of proof, higher than preponderance of the evidence but lower than beyond a reasonable doubt. Requires that the evidence be highly and substantially more probable to be true than not.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal and state courts",
+    "usage_example": "The plaintiff seeking punitive damages must prove by clear and convincing evidence that the defendant acted with malicious intent.",
+    "related_terms": [
+      "burden of proof",
+      "preponderance of the evidence",
+      "beyond a reasonable doubt"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Applied in specific contexts: fraud, punitive damages, termination of parental rights, civil commitment, certain civil forfeiture proceedings, and establishing certain affirmative defenses."
+  },
+  {
+    "term": "en banc",
+    "definition": "A proceeding in which all the judges of an appellate court hear a case together, rather than the usual panel of three judges. Reserved for cases of exceptional importance or to resolve conflicts between panels.",
+    "etymology": "French: 'in bench' or 'on the bench'",
+    "jurisdiction": "US federal courts of appeals, state appellate courts",
+    "usage_example": "The Ninth Circuit granted en banc rehearing to resolve the conflict between different panel decisions on the scope of the Computer Fraud and Abuse Act.",
+    "related_terms": [
+      "panel",
+      "rehearing",
+      "appellate procedure",
+      "circuit split"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRAP 35 governs en banc procedures. A majority of active judges must vote for en banc review. The party requesting en banc must state why the case involves a question of exceptional importance or a conflict with Supreme Court precedent."
+  },
+  {
+    "term": "mandamus",
+    "definition": "A writ issued by a court ordering a lower court or government official to perform a nondiscretionary duty required by law. An extraordinary remedy granted only when there is no adequate alternative remedy.",
+    "etymology": "Latin: 'we command'",
+    "jurisdiction": "Common law (US, UK); 28 U.S.C. § 1651 (All Writs Act)",
+    "usage_example": "The appellate court issued a writ of mandamus ordering the district judge to vacate the improperly entered protective order.",
+    "related_terms": [
+      "writ",
+      "injunction",
+      "prohibition",
+      "extraordinary remedy"
+    ],
+    "also_known_as": "writ of mandate",
+    "practice_tips": "Three requirements: (1) clear right to relief, (2) no other adequate remedy, (3) exercise of court's discretion. Mandamus is used sparingly and is not a substitute for appeal."
+  },
+  {
+    "term": "injunction",
+    "definition": "A court order requiring a party to do or refrain from doing a specific act. May be temporary (preliminary injunction) or permanent. An equitable remedy granted when monetary damages are inadequate.",
+    "etymology": "Latin: 'injunctio' meaning 'a command, order'",
+    "jurisdiction": "Equity jurisdiction (common law)",
+    "usage_example": "The court issued a preliminary injunction prohibiting the company from using the plaintiff's trade secrets pending trial.",
+    "related_terms": [
+      "specific performance",
+      "equitable remedy",
+      "temporary restraining order",
+      "permanent injunction"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Four-factor test for preliminary injunction: (1) likelihood of success on merits, (2) irreparable harm, (3) balance of equities, (4) public interest. Injunctions must be specific and describe the restrained conduct in detail (FRCP 65(d))."
+  },
+  {
+    "term": "temporary restraining order",
+    "definition": "A short-term emergency injunction issued without notice to the opposing party (ex parte), lasting no longer than 14 days, to prevent immediate irreparable harm before a preliminary injunction hearing.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRCP 65(b)), US state courts",
+    "usage_example": "The court issued a TRO preventing the defendant from destroying evidence, set to expire in 14 days unless extended for good cause.",
+    "related_terms": [
+      "preliminary injunction",
+      "permanent injunction",
+      "FRCP 65"
+    ],
+    "also_known_as": "TRO",
+    "practice_tips": "FRCP 65(b): must certify in writing why notice should not be required. Bond is required to cover costs of wrongful restraint. A TRO cannot last more than 14 days (extendable for 14 more days with good cause)."
+  },
+  {
+    "term": "class action",
+    "definition": "A lawsuit in which one or more persons (representative plaintiffs) sue on behalf of a larger group (the class) who have suffered similar injuries from the same defendant. Class members must be too numerous for individual joinder.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRCP 23), US state courts",
+    "usage_example": "The employees filed a class action alleging the company systematically underpaid overtime wages to all hourly workers.",
+    "related_terms": [
+      "certification",
+      "FRCP 23",
+      "opt-out",
+      "commonality"
+    ],
+    "also_known_as": "representative action",
+    "practice_tips": "FRCP 23(a) requirements: numerosity, commonality, typicality, adequacy of representation. FRCP 23(b) requires one of three types. Class must be certified. Class members may opt out of monetary damage classes."
+  },
+  {
+    "term": "affidavit",
+    "definition": "A written statement of facts made voluntarily and sworn to or affirmed before an authorized officer (usually a notary public). Used as evidence in court proceedings or to support motions.",
+    "etymology": "Latin: 'he has stated on oath', from 'affidare' meaning 'to pledge'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff submitted an affidavit detailing her recollection of the accident in support of her opposition to summary judgment.",
+    "related_terms": [
+      "declaration",
+      "verification",
+      "notary",
+      "perjury"
+    ],
+    "also_known_as": "sworn statement",
+    "practice_tips": "FRCP 56(c)(4) requires affidavits used in summary judgment to be based on personal knowledge, set forth admissible facts, and show the affiant's competency. Affidavits by interested parties are generally permitted."
+  },
+  {
+    "term": "contempt of court",
+    "definition": "An act of disobedience or disrespect toward a court or its orders. Civil contempt (coercive, to compel compliance) and criminal contempt (punitive, to punish past conduct). May result in fines or imprisonment.",
+    "etymology": "Latin: 'contemptus' meaning 'scorn, disrespect'",
+    "jurisdiction": "Universal in court systems",
+    "usage_example": "The witness was held in contempt of court for refusing to answer the prosecutor's questions after being granted immunity.",
+    "related_terms": [
+      "sanctions",
+      "coercive",
+      "obstruction of justice"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Criminal contempt requires proof beyond a reasonable doubt; civil contempt requires clear and convincing evidence. Civil contemnors carry the keys to their own jail cell (can purge contempt by complying)."
+  },
+  {
+    "term": "settlement",
+    "definition": "An agreement between parties to resolve a legal dispute without proceeding to trial. Typically involves payment of money in exchange for a release of claims. Can occur at any stage of litigation.",
+    "etymology": "Old English: 'setlan' meaning 'to place, fix'",
+    "jurisdiction": "Universal",
+    "usage_example": "The parties reached a settlement on the courthouse steps, agreeing to a confidential payment in exchange for dismissal of the lawsuit.",
+    "related_terms": [
+      "mediation",
+      "arbitration",
+      "alternative dispute resolution",
+      "release"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Settlement agreements are contracts and must satisfy the statute of frauds. A settlement agreement should include a release of all claims, confidentiality terms, and mutual general releases if applicable."
+  },
+  {
+    "term": "arbitration",
+    "definition": "A form of alternative dispute resolution in which a neutral third party (arbitrator) hears evidence and renders a binding decision. Governed by the Federal Arbitration Act (FAA) in US federal courts.",
+    "etymology": "Latin: 'arbitrari' meaning 'to be a witness, judge'",
+    "jurisdiction": "US (Federal Arbitration Act, 9 U.S.C. §§ 1-16), international (UNCITRAL Model Law)",
+    "usage_example": "The court compelled arbitration pursuant to the arbitration clause in the employment contract, which covered all disputes arising out of employment.",
+    "related_terms": [
+      "mediation",
+      "alternative dispute resolution",
+      "Federal Arbitration Act",
+      "award"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The FAA preempts state laws that disfavor arbitration. Courts enforce arbitration agreements unless they are invalid under general contract principles (unconscionability, fraud). Arbitration awards are subject to very limited judicial review."
+  },
+  {
+    "term": "mediation",
+    "definition": "A form of alternative dispute resolution in which a neutral third party (mediator) facilitates communication and negotiation between parties to help them reach a voluntary settlement. The mediator does not impose a decision.",
+    "etymology": "Latin: 'mediare' meaning 'to be in the middle'",
+    "jurisdiction": "Universal",
+    "usage_example": "The court ordered the parties to attend mediation, after which they reached a mutually acceptable settlement.",
+    "related_terms": [
+      "arbitration",
+      "settlement",
+      "alternative dispute resolution",
+      "facilitation"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Mediation communications are generally confidential under FRE 408 and state equivalents. Most courts have local mediation programs. The mediator's role is facilitative, not evaluative (unlike arbitration)."
+  },
+  {
+    "term": "appeal",
+    "definition": "A request to a higher court to review the decision of a lower court. The appellant challenges the lower court's ruling on grounds of legal error, abuse of discretion, or insufficiency of evidence.",
+    "etymology": "Latin: 'appellare' meaning 'to address, call upon'",
+    "jurisdiction": "Universal",
+    "usage_example": "The defendant appealed his conviction, arguing that the trial court erred in admitting the co-conspirator's statements.",
+    "related_terms": [
+      "appellate jurisdiction",
+      "standard of review",
+      "brief",
+      "oral argument"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Notice of appeal must be filed within 30 days of final judgment in federal court (FRAP 4). The appellant files a brief; the appellee responds. Oral argument is usually brief (10-30 minutes per side)."
+  },
+  {
+    "term": "standard of review",
+    "definition": "The level of deference an appellate court gives to a lower court's decision. Common standards: de novo (no deference, for questions of law), clearly erroneous (for factual findings), and abuse of discretion (for discretionary rulings).",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The appellate court reviewed the lower court's interpretation of the statute de novo, while applying the clearly erroneous standard to its factual findings.",
+    "related_terms": [
+      "appeal",
+      "de novo",
+      "clearly erroneous",
+      "abuse of discretion",
+      "substantial evidence"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Choosing the wrong standard of review is one of the most common appellate advocacy errors. De novo means the appellate court gives no deference. Abuse of discretion is highly deferential — only if the ruling is arbitrary or capricious."
+  },
+  {
+    "term": "pro se",
+    "definition": "Representing oneself in a legal proceeding without the assistance of an attorney. A party appearing pro se is held to the same procedural rules as licensed attorneys.",
+    "etymology": "Latin: 'for oneself'",
+    "jurisdiction": "Common law (US, UK); US federal courts under 28 U.S.C. § 1654",
+    "usage_example": "The inmate filed a pro se civil rights lawsuit alleging unconstitutional conditions of confinement.",
+    "related_terms": [
+      "self-representation",
+      "counsel",
+      "right to counsel"
+    ],
+    "also_known_as": "in propria persona (pro per)",
+    "practice_tips": "Courts must liberally construe pro se pleadings (Erickson v. Pardus). However, pro se litigants must follow all court rules. FRCP and FRE apply equally to represented and unrepresented parties."
+  },
+  {
+    "term": "pro bono",
+    "definition": "Professional work undertaken voluntarily and without payment as a public service. In law, refers to free legal services provided to low-income clients or nonprofit organizations.",
+    "etymology": "Latin: 'pro bono publico' meaning 'for the public good'",
+    "jurisdiction": "Universal in legal profession",
+    "usage_example": "The law firm represented the asylum seeker pro bono, donating over 200 hours of legal work.",
+    "related_terms": [
+      "legal aid",
+      "public interest law",
+      "volunteer"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Most state bar associations recommend 50 hours of pro bono service per year. FRCP and local rules govern pro bono appointments by courts. Malpractice insurance typically covers pro bono work."
+  },
+  {
+    "term": "quantum meruit",
+    "definition": "A legal doctrine allowing a party to recover the reasonable value of services rendered when no contract exists or the contract is unenforceable. An equitable remedy to prevent unjust enrichment.",
+    "etymology": "Latin: 'as much as he deserved'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The contractor sued in quantum meruit to recover the reasonable value of renovation work performed after the homeowner terminated the contract without cause.",
+    "related_terms": [
+      "unjust enrichment",
+      "restitution",
+      "contract implied in fact",
+      "quasi-contract"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Quantum meruit is a form of quasi-contract (contract implied in law). Elements: (1) services rendered, (2) expected payment, (3) defendant accepted services. Recovery is limited to the reasonable value of services, not the contract price."
+  },
+  {
+    "term": "unjust enrichment",
+    "definition": "A legal doctrine requiring a person who has been unjustly enriched at the expense of another to make restitution. Does not require a contract — based on principles of fairness and equity.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court ordered the employee to disgorge the kickbacks she had received, finding the payments constituted unjust enrichment.",
+    "related_terms": [
+      "restitution",
+      "quantum meruit",
+      "constructive trust",
+      "disgorgement"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Three elements: (1) enrichment of defendant, (2) impoverishment of plaintiff, (3) absence of justification. Restatement (Third) of Restitution and Unjust Enrichment is the leading authority."
+  },
+  {
+    "term": "demurrer",
+    "definition": "A pleading that admits the facts alleged in the complaint but argues that they are insufficient to state a legal claim. Largely replaced by the motion to dismiss under modern procedural codes.",
+    "etymology": "Anglo-French: 'demorer' meaning 'to remain, stay'",
+    "jurisdiction": "US states that retain code pleading (e.g., California); largely obsolete in federal practice",
+    "usage_example": "The defendant filed a demurrer, arguing that even if all allegations were true, the plaintiff had failed to state a cause of action.",
+    "related_terms": [
+      "motion to dismiss",
+      "FRCP 12(b)(6)",
+      "pleading"
+    ],
+    "also_known_as": null,
+    "practice_tips": "In federal court, the demurrer was abolished by FRCP 7(c) and replaced by the FRCP 12(b)(6) motion. California and a few other states still use demurrers. A general demurrer challenges the entire complaint; special demurrer challenges specific defects."
+  },
+  {
+    "term": "estoppel",
+    "definition": "A legal bar preventing a person from asserting a fact or right that contradicts what they previously said or did, when another person has relied on the original representation to their detriment.",
+    "etymology": "Old French: 'estoupail' meaning 'stopper, bung' — from Latin 'stuppa' (plug for a cask)",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The landlord was estopped from enforcing the no-pets clause because she had knowingly allowed the tenant to keep a dog for three years without objection.",
+    "related_terms": [
+      "promissory estoppel",
+      "collateral estoppel",
+      "equitable estoppel",
+      "reliance"
+    ],
+    "also_known_as": "equitable estoppel",
+    "practice_tips": "Elements: (1) representation of fact, (2) reasonable reliance, (3) detriment. Estoppel is a defensive doctrine (a shield, not a sword). The party asserting estoppel must have acted in good faith."
+  },
+  {
+    "term": "waiver",
+    "definition": "The intentional and voluntary relinquishment of a known right, claim, or privilege. May be express (explicitly stated) or implied (by conduct inconsistent with enforcement of the right).",
+    "etymology": "Anglo-French: 'weyver' meaning 'to abandon, renounce'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "By failing to object to the late disclosure of evidence, the defendant waived his right to seek exclusion.",
+    "related_terms": [
+      "estoppel",
+      "forfeiture",
+      "abandonment"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Waiver requires knowledge of the right and intent to relinquish it. Courts typically find implied waiver only for clear, unequivocal conduct. Some rights (e.g., subject-matter jurisdiction) cannot be waived."
+  },
+  {
+    "term": "force majeure",
+    "definition": "A contractual clause that excuses a party's non-performance when extraordinary events beyond their control occur, such as natural disasters, war, strikes, or government action. Often called an 'act of God' clause.",
+    "etymology": "French: 'superior force'",
+    "jurisdiction": "Common law (US, UK); civil law",
+    "usage_example": "The concert promoter invoked the force majeure clause when a hurricane forced cancellation of the event, excusing the obligation to pay the performers.",
+    "related_terms": [
+      "impossibility",
+      "impracticability",
+      "frustration of purpose",
+      "act of God"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Force majeure clauses are interpreted narrowly. COVID-19 litigation centered on whether pandemics were covered. Parties should specifically list events rather than relying on general language. The non-performing party must show causation and lack of fault."
+  },
+  {
+    "term": "impossibility",
+    "definition": "A legal defense that excuses a party's non-performance under a contract when performance has become objectively impossible due to an unforeseen event, and neither party is at fault.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Performance was discharged by impossibility when the concert hall burned down the day before the scheduled performance, making it literally impossible to perform.",
+    "related_terms": [
+      "impracticability",
+      "frustration of purpose",
+      "force majeure",
+      "discharge"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Distinguish objective impossibility (no one could perform) from subjective impossibility (only the particular party cannot perform — not an excuse). The doctrine is narrowly applied; death or incapacity of a personal service provider qualifies."
+  },
+  {
+    "term": "frustration of purpose",
+    "definition": "A legal defense excusing contractual performance when an unforeseen event destroys the principal purpose of the contract, even if performance remains physically possible. The event must substantially frustrate the parties' core expectations.",
+    "etymology": "English legal term; developed from the 'Coronation Cases' (1901-1903)",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The defendant was excused from renting a room to view the King's coronation procession when the coronation was postponed due to the King's illness.",
+    "related_terms": [
+      "impossibility",
+      "impracticability",
+      "discharge"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Restatement (Second) of Contracts § 265. Requirements: (1) principal purpose substantially frustrated, (2) frustration was not foreseeable, (3) neither party at fault. The frustration must destroy the value of the contract for the performing party."
+  },
+  {
+    "term": "restitution",
+    "definition": "A legal remedy requiring the return of benefits or property wrongfully taken or retained, or payment for benefits conferred. Designed to prevent unjust enrichment rather than compensate for loss.",
+    "etymology": "Latin: 'restitutio' meaning 'restoration, restitution'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court ordered the defendant to pay $50,000 in restitution to the victims of the fraud scheme.",
+    "related_terms": [
+      "unjust enrichment",
+      "quantum meruit",
+      "disgorgement",
+      "constructive trust"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Restitution is measured by the defendant's gain (not the plaintiff's loss). Contractual restitution: the non-breaching party may recover the value of benefits conferred. Criminal restitution is mandatory under federal law (18 U.S.C. § 3663A)."
+  },
+  {
+    "term": "constructive trust",
+    "definition": "An equitable remedy imposed by a court to prevent unjust enrichment, treating the person who holds property wrongfully as a trustee for the true owner. The wrongdoer must convey the property to its rightful owner.",
+    "etymology": "English legal term",
+    "jurisdiction": "Equity (common law)",
+    "usage_example": "The court imposed a constructive trust on the proceeds of the life insurance policy after the beneficiary had murdered the insured.",
+    "related_terms": [
+      "restitution",
+      "unjust enrichment",
+      "equitable lien",
+      "trust"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Constructive trust is not a real trust — it is a remedial device. Requires: (1) property acquired by fraud, mistake, or wrongful act, or (2) breach of fiduciary duty. The court may order an accounting."
+  },
+  {
+    "term": "anti-trust",
+    "definition": "Laws that promote competition and prohibit monopolistic practices, including price-fixing, bid-rigging, market allocation, and anticompetitive mergers. Enforced by the Department of Justice and FTC.",
+    "etymology": "From 'trust' (a 19th-century business consolidation) — laws opposing such trusts",
+    "jurisdiction": "US (Sherman Act 1890, Clayton Act 1914, FTC Act 1914)",
+    "usage_example": "The DOJ filed an antitrust lawsuit alleging the technology company engaged in unlawful monopolization of the search market.",
+    "related_terms": [
+      "monopoly",
+      "price-fixing",
+      "restraint of trade",
+      "Sherman Act"
+    ],
+    "also_known_as": "competition law (EU and other jurisdictions)",
+    "practice_tips": "Sherman Act § 1 prohibits contracts in restraint of trade (per se: price-fixing; rule of reason: other restraints). Sherman Act § 2 prohibits monopolization. The Clayton Act governs mergers and interlocking directorates."
+  },
+  {
+    "term": "attorney-client privilege",
+    "definition": "A legal privilege that protects confidential communications between an attorney and their client from compelled disclosure. The client holds the privilege and may waive it. Designed to encourage full and frank disclosure.",
+    "etymology": "English common law; recognized in US since the 18th century",
+    "jurisdiction": "Common law (US, UK); FRE 501 in federal courts",
+    "usage_example": "The court upheld the attorney-client privilege and quashed the subpoena seeking the defendant's communications with his lawyer.",
+    "related_terms": [
+      "work product doctrine",
+      "confidentiality",
+      "ethics",
+      "waiver"
+    ],
+    "also_known_as": "legal professional privilege (UK)",
+    "practice_tips": "Two essential elements: (1) communication, (2) made in confidence for the purpose of seeking/receiving legal advice. The privilege survives death. The crime-fraud exception applies when communications are in furtherance of a crime or fraud."
+  },
+  {
+    "term": "work product doctrine",
+    "definition": "A legal doctrine protecting materials prepared by an attorney in anticipation of litigation from discovery by opposing counsel. Codified in FRCP 26(b)(3)-(4). Provides qualified protection that can be overcome by substantial need and undue hardship.",
+    "etymology": "From Hickman v. Taylor (1947), 329 U.S. 495",
+    "jurisdiction": "US federal (FRCP 26(b)(3)) and state courts",
+    "usage_example": "The plaintiff's request for the defense attorney's interview notes was denied under the work product doctrine.",
+    "related_terms": [
+      "attorney-client privilege",
+      "discovery",
+      "opinion work product"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Ordinary work product: discoverable upon showing of substantial need and inability to obtain equivalent without undue hardship. Opinion work product (attorney's mental impressions, conclusions): nearly absolute protection. The doctrine applies during litigation and in anticipation of litigation."
+  },
+  {
+    "term": "conflict of interest",
+    "definition": "A situation in which an attorney's professional judgment or loyalty to one client is compromised or appears to be compromised by the attorney's own interests or duties to another client. May disqualify an attorney from representation.",
+    "etymology": "English legal term",
+    "jurisdiction": "Universal; governed by ABA Model Rules of Professional Conduct 1.7-1.12",
+    "usage_example": "The law firm was disqualified from representing both co-defendants due to a conflict of interest when their defenses became antagonistic.",
+    "related_terms": [
+      "ethics",
+      "disqualification",
+      "concurrent conflict",
+      "successive conflict",
+      "informed consent"
+    ],
+    "also_known_as": null,
+    "practice_tips": "ABA Model Rule 1.7 prohibits concurrent conflicts unless (1) reasonably believed lawyer can provide competent representation, (2) not prohibited by law, (3) not directly adverse to another client, and (4) informed consent in writing. Imputed disqualification (Rule 1.10) applies to the entire firm."
+  },
+  {
+    "term": "sanctions",
+    "definition": "Penalties or disciplinary measures imposed by a court against a party or attorney for improper conduct, including filing frivolous pleadings, discovery abuse, or violations of court orders. May include monetary penalties or case-dispositive sanctions.",
+    "etymology": "Latin: 'sanctio' meaning 'decree, penalty'",
+    "jurisdiction": "US federal (FRCP 11, 26(g), 37); inherent authority of courts",
+    "usage_example": "The court imposed sanctions on the plaintiff's attorney under FRCP 11 for filing a complaint with no factual basis.",
+    "related_terms": [
+      "FRCP 11",
+      "contempt",
+      "discovery sanctions",
+      "safe harbor"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRCP 11 requires that pleadings are warranted by existing law or a non-frivolous argument for a change in law. A safe harbor provision allows withdrawal within 21 days of a sanctions motion. Monetary sanctions are generally limited to the opposing party's fees and costs."
+  },
+  {
+    "term": "non-disclosure agreement",
+    "definition": "A legal contract that creates a confidential relationship between parties, protecting proprietary or sensitive information from being disclosed to third parties. May be unilateral or mutual.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The employee signed a non-disclosure agreement before being given access to the company's trade secrets.",
+    "related_terms": [
+      "confidentiality agreement",
+      "trade secret",
+      "proprietary information",
+      "injunction"
+    ],
+    "also_known_as": "NDA, confidentiality agreement",
+    "practice_tips": "Key provisions: definition of confidential information, exclusions, term, permitted disclosures (compelled by law), return of materials. Courts may enforce NDA through injunctions. NDAs should be specific in scope to be enforceable."
+  },
+  {
+    "term": "trade secret",
+    "definition": "Information that derives economic value from not being generally known, and is subject to reasonable efforts to maintain its secrecy. Protected by both state law and the federal Defend Trade Secrets Act (2016).",
+    "etymology": "English legal term",
+    "jurisdiction": "US (Defend Trade Secrets Act 2016, 18 U.S.C. § 1836; Uniform Trade Secrets Act)",
+    "usage_example": "The company sued the former employee for misappropriation of its customer list, which it claimed was a trade secret.",
+    "related_terms": [
+      "non-disclosure agreement",
+      "confidential information",
+      "proprietary information",
+      "misappropriation"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Six factors from Restatement of Torts § 757: (1) extent known outside the business, (2) extent known by employees, (3) secrecy measures, (4) value to the business, (5) development effort/cost, (6) ease of duplication. Reasonable protective measures are essential."
+  },
+  {
+    "term": "copyright",
+    "definition": "A form of intellectual property protection for original works of authorship, including literary, dramatic, musical, and artistic works. Gives the creator exclusive rights to reproduce, distribute, and display the work for a limited time.",
+    "etymology": "English: 'copy' + 'right' — the right to make copies",
+    "jurisdiction": "US (Copyright Act of 1976, 17 U.S.C. §§ 101-1401); international (Berne Convention)",
+    "usage_example": "The author filed a copyright infringement lawsuit when another website reproduced her articles without permission.",
+    "related_terms": [
+      "fair use",
+      "public domain",
+      "intellectual property",
+      "DMCA"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Copyright protects expression, not ideas. Duration: life of author + 70 years (works created after 1978). Registration (US) is required before filing suit. Fair use (17 U.S.C. § 107) is a defense with four factors weighed."
+  },
+  {
+    "term": "trademark",
+    "definition": "A word, phrase, symbol, or design that identifies and distinguishes the source of goods or services. Protects brand identity and prevents consumer confusion about the origin of products.",
+    "etymology": "English: 'trade' + 'mark' (a mark used in trade)",
+    "jurisdiction": "US (Lanham Act, 15 U.S.C. §§ 1051-1141); international (Madrid Protocol)",
+    "usage_example": "The company sued for trademark infringement when a competitor used a confusingly similar logo on its products.",
+    "related_terms": [
+      "infringement",
+      "dilution",
+      "service mark",
+      "patent",
+      "copyright"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Trademark rights arise from use in commerce (common law) or federal registration (®). Federal registration provides nationwide priority, incontestability after 5 years, and statutory damages. Trademarks must be renewed every 10 years."
+  },
+  {
+    "term": "patent",
+    "definition": "An exclusive right granted for an invention, giving the patent holder the right to exclude others from making, using, or selling the invention for a limited period (20 years for utility patents).",
+    "etymology": "Latin: 'patentum' meaning 'open, lying open' (letters patent = open letters)",
+    "jurisdiction": "US (Patent Act, 35 U.S.C.), international (Patent Cooperation Treaty)",
+    "usage_example": "The pharmaceutical company's patent on the drug gave it a monopoly on production for 20 years from the filing date.",
+    "related_terms": [
+      "infringement",
+      "prior art",
+      "provisional application",
+      "trademark",
+      "copyright"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Requirements: novel, non-obvious, and useful. Utility patents (20 years from filing) and design patents (15 years). The AIA (2011) changed US from first-to-invent to first-to-file. Patent infringement analysis involves claim construction (Markman hearing)."
+  },
+  {
+    "term": "fair use",
+    "definition": "A legal doctrine that permits limited use of copyrighted material without permission from the copyright holder for purposes such as criticism, comment, news reporting, teaching, scholarship, or research. Determined by a four-factor balancing test.",
+    "etymology": "English legal term; codified in US at 17 U.S.C. § 107",
+    "jurisdiction": "US (Copyright Act of 1976); fair dealing in UK/Commonwealth",
+    "usage_example": "The court found that the parody of the original song was transformative and constituted fair use.",
+    "related_terms": [
+      "copyright",
+      "infringement",
+      "transformative use",
+      "public domain"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Four factors: (1) purpose and character of use (commercial vs. educational, transformative), (2) nature of copyrighted work, (3) amount and substantiality of portion used, (4) effect on potential market. Factor 4 is often the most important."
+  },
+  {
+    "term": "indemnification",
+    "definition": "A contractual obligation by one party (indemnitor) to compensate the other party (indemnitee) for specified losses, damages, or liabilities. Common in commercial contracts, insurance policies, and professional services agreements.",
+    "etymology": "Latin: 'indemnis' meaning 'unhurt, undamaged'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The contractor agreed to indemnify the property owner for any damages caused by the construction work.",
+    "related_terms": [
+      "hold harmless",
+      "indemnity",
+      "subrogation",
+      "insurance"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Types: broad form (all liability), intermediate form (liability from the scope of work), limited form (liability from the indemnitor's sole negligence). Many states have anti-indemnity statutes limiting construction indemnity obligations."
+  },
+  {
+    "term": "severability",
+    "definition": "A contractual provision stating that if any part of the contract is found to be invalid or unenforceable, the remaining provisions remain in effect. Prevents the entire contract from being invalidated by a single unenforceable clause.",
+    "etymology": "Latin: 'separare' meaning 'to separate'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Even though the non-compete clause was unenforceable, the severability clause preserved the remainder of the employment agreement.",
+    "related_terms": [
+      "savings clause",
+      "blue pencil doctrine",
+      "unenforceability"
+    ],
+    "also_known_as": "savings clause, separability clause",
+    "practice_tips": "Courts may 'blue pencil' (strike) unenforceable provisions even without a severability clause. Some states require severability clauses for non-compete agreements. A good severability clause also allows reformation of overbroad terms."
+  },
+  {
+    "term": "arbitrary and capricious",
+    "definition": "A standard of review for agency action under the Administrative Procedure Act. Agency decisions are arbitrary and capricious if they rely on factors Congress did not intend, fail to consider important aspects, offer explanations contrary to evidence, or are implausible.",
+    "etymology": "English legal term; codified at 5 U.S.C. § 706(2)(A)",
+    "jurisdiction": "US federal (Administrative Procedure Act)",
+    "usage_example": "The court overturned the EPA's rulemaking as arbitrary and capricious because the agency failed to consider the cost impact on small businesses.",
+    "related_terms": [
+      "Administrative Procedure Act",
+      "hard look review",
+      "Chevron deference",
+      "agency action"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The APA's 'arbitrary and capricious' standard is highly deferential but not toothless. Agencies must provide a 'reasoned explanation' for their decisions. State Farm (1983) requires agencies to examine relevant data and articulate a satisfactory explanation."
+  },
+  {
+    "term": "certiorari",
+    "definition": "A writ issued by a higher court to review the decision of a lower court. The term is most commonly used for the US Supreme Court's discretionary review of lower court decisions. The Court grants certiorari when at least four justices vote to hear the case.",
+    "etymology": "Latin: 'to be informed of, to be made more certain'",
+    "jurisdiction": "US Supreme Court (28 U.S.C. § 1257); state appellate courts",
+    "usage_example": "The Supreme Court granted certiorari to resolve a circuit split on the constitutionality of the state's abortion law.",
+    "related_terms": [
+      "writ of certiorari",
+      "petition for certiorari",
+      "rule of four",
+      "cert pool"
+    ],
+    "also_known_as": "cert (abbreviation)",
+    "practice_tips": "The Court grants approximately 1% of petitions. Factors: circuit splits, important federal questions, conflict with Supreme Court precedent. Petition must be filed within 90 days of the lower court's judgment. The rule of four: four justices must vote to grant."
+  },
+  {
+    "term": "ultra vires",
+    "definition": "Beyond the legal power or authority of a person, corporation, or government body. An act ultra vires is void or voidable. In corporate law, refers to actions by a corporation that exceed its charter or statutory authority.",
+    "etymology": "Latin: 'beyond the powers'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court declared the school board's action ultra vires because it exceeded the authority granted by the state legislature.",
+    "related_terms": [
+      "intra vires",
+      "void",
+      "voidable",
+      "standing"
+    ],
+    "also_known_as": null,
+    "practice_tips": "In modern corporate law, the ultra vires doctrine has been largely limited. Most corporations have broad powers under general incorporation statutes. The doctrine is more frequently applied to government and administrative agency actions."
+  },
+  {
+    "term": "void ab initio",
+    "definition": "Invalid from the beginning; a contract or action that is void from the moment it is made, having no legal effect whatsoever. Distinguished from voidable, which is valid until challenged.",
+    "etymology": "Latin: 'void from the beginning'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The marriage was declared void ab initio because the parties were within the prohibited degree of consanguinity.",
+    "related_terms": [
+      "void",
+      "voidable",
+      "unenforceable",
+      "nullity"
+    ],
+    "also_known_as": null,
+    "practice_tips": "A void ab initio contract cannot be ratified because there is nothing to ratify. Examples: contracts for an illegal purpose, contracts lacking consideration, contracts entered into by a person lacking mental capacity."
+  },
+  {
+    "term": "writ",
+    "definition": "A formal written order issued by a court directing a person or entity to do or refrain from doing a specific act. Historical forms include habeas corpus, mandamus, prohibition, and certiorari.",
+    "etymology": "Old English: 'gewrit' meaning 'writing, document'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court issued a writ of execution authorizing the sheriff to seize the debtor's property.",
+    "related_terms": [
+      "habeas corpus",
+      "mandamus",
+      "certiorari",
+      "injunction"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Many traditional writs have been replaced by modern procedural rules and motions. FRCP abolished most common law writs (FRCP 81(b)). However, the All Writs Act (28 U.S.C. § 1651) preserves the federal courts' power to issue writs."
+  },
+  {
+    "term": "burden of proof",
+    "definition": "The obligation of a party to prove the facts alleged in their case. Includes the burden of production (producing sufficient evidence) and the burden of persuasion (convincing the fact-finder). Varies by context: beyond reasonable doubt, clear and convincing, or preponderance.",
+    "etymology": "English legal term",
+    "jurisdiction": "Universal",
+    "usage_example": "The prosecution bears the burden of proof beyond a reasonable doubt for every element of the crime.",
+    "related_terms": [
+      "burden of production",
+      "burden of persuasion",
+      "prima facie case",
+      "presumption"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The burden of persuasion never shifts, but the burden of production can shift (e.g., once the plaintiff makes a prima facie case, the defendant must produce evidence to rebut). Presumptions can shift the burden of production."
+  },
+  {
+    "term": "burden of production",
+    "definition": "The obligation to produce sufficient evidence on a particular issue to avoid judgment as a matter of law on that issue. May shift between parties during a trial. If met, the case proceeds; if not, the court may rule without considering the opponent's evidence.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The plaintiff met her burden of production by presenting expert testimony on causation, so the court denied the motion for directed verdict.",
+    "related_terms": [
+      "burden of proof",
+      "burden of persuasion",
+      "prima facie case"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The burden of production is a question of law for the judge. If the party with the burden fails to produce sufficient evidence, the judge may grant JMOL or a directed verdict. The burden of production can shift mid-trial."
+  },
+  {
+    "term": "nominal damages",
+    "definition": "A small sum of money (often $1) awarded to a plaintiff who has proven a legal injury but has not suffered substantial monetary damages. Typically awarded when a legal right has been violated but no actual harm occurred.",
+    "etymology": "Latin: 'nominalis' meaning 'of a name, nominal'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court awarded nominal damages of $1 to the plaintiff whose constitutional rights were violated but who suffered no measurable harm.",
+    "related_terms": [
+      "compensatory damages",
+      "punitive damages",
+      "actual damages",
+      "tort"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Nominal damages cannot exceed the jurisdictional minimum. They may support an award of punitive damages in some jurisdictions. In civil rights cases (42 U.S.C. § 1983), nominal damages are available for constitutional violations without actual injury."
+  },
+  {
+    "term": "punitive damages",
+    "definition": "Damages awarded beyond compensatory damages to punish the defendant for egregious misconduct and deter similar future conduct. Must be proved by clear and convincing evidence in many states. Subject to constitutional limits under the Due Process Clause.",
+    "etymology": "English: 'punitive' from Latin 'punire' meaning 'to punish'",
+    "jurisdiction": "Common law (US, UK); more limited in the UK",
+    "usage_example": "The jury awarded $1 million in compensatory damages and $5 million in punitive damages after finding that the company knowingly sold a defective product.",
+    "related_terms": [
+      "compensatory damages",
+      "nominal damages",
+      "exemplary damages",
+      "BMW v. Gore"
+    ],
+    "also_known_as": "exemplary damages",
+    "practice_tips": "Constitutional limits: (1) reprehensibility of conduct, (2) ratio of punitive to compensatory (single digits generally; 1:1 ratio for large compensatory awards), (3) comparison to civil/criminal penalties. Some states require a portion of punitive damages to go to the state."
+  },
+  {
+    "term": "compensatory damages",
+    "definition": "Monetary damages intended to compensate the injured party for actual losses suffered, including medical expenses, lost wages, property damage, and pain and suffering. Designed to make the plaintiff whole, not to punish the defendant.",
+    "etymology": "English: 'compensatory' from Latin 'compensare' meaning 'to weigh together, balance'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The jury awarded $500,000 in compensatory damages for the plaintiff's medical bills, lost income, and pain and suffering.",
+    "related_terms": [
+      "punitive damages",
+      "nominal damages",
+      "special damages",
+      "general damages"
+    ],
+    "also_known_as": "actual damages",
+    "practice_tips": "Compensatory damages are divided into special (economic: medical bills, lost wages) and general (non-economic: pain and suffering, emotional distress). The plaintiff must prove damages with reasonable certainty."
+  },
+  {
+    "term": "liquidation",
+    "definition": "The process of winding up a company or business by selling its assets to pay creditors, then distributing any remaining proceeds to shareholders. May be voluntary (shareholder decision) or involuntary (court-ordered). Governed by the Bankruptcy Code or state law.",
+    "etymology": "Latin: 'liquefacere' meaning 'to make liquid'",
+    "jurisdiction": "US (Chapter 7 of Bankruptcy Code); UK (Insolvency Act 1986)",
+    "usage_example": "The company filed for Chapter 7 bankruptcy, resulting in liquidation of all assets to pay creditors.",
+    "related_terms": [
+      "bankruptcy",
+      "Chapter 7",
+      "Chapter 11",
+      "receivership",
+      "insolvency"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Chapter 7 (liquidation) vs. Chapter 11 (reorganization). In Chapter 7, a trustee is appointed to liquidate assets. Certain assets are exempt. Secured creditors are paid first, followed by unsecured creditors on a pro rata basis."
+  },
+  {
+    "term": "bankruptcy",
+    "definition": "A legal process for individuals or businesses who cannot repay their debts, providing either a fresh start by discharging debts (Chapter 7) or a reorganization plan to repay over time (Chapter 11, 13). Governed by the US Bankruptcy Code.",
+    "etymology": "Italian: 'banca rotta' meaning 'broken bench' — referring to the practice of breaking the bench of a failed money changer",
+    "jurisdiction": "US federal (Title 11, US Code); Bankruptcy Courts",
+    "usage_example": "The individual filed for Chapter 7 bankruptcy, seeking discharge of $50,000 in credit card debt.",
+    "related_terms": [
+      "liquidation",
+      "Chapter 7",
+      "Chapter 11",
+      "Chapter 13",
+      "automatic stay"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Most common chapters: Chapter 7 (liquidation for individuals/companies), Chapter 13 (wage earner repayment plan), Chapter 11 (business reorganization). The automatic stay prevents creditors from collecting. Some debts (student loans, taxes, child support) are non-dischargeable."
+  },
+  {
+    "term": "fiduciary duty",
+    "definition": "A legal obligation of one party (fiduciary) to act in the best interest of another (principal or beneficiary). Includes duties of loyalty (no self-dealing) and care (competent management). Breach results in liability for resulting damages.",
+    "etymology": "Latin: 'fiducia' meaning 'trust, confidence'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The corporate director breached his fiduciary duty of loyalty by diverting a business opportunity to a company he personally owned.",
+    "related_terms": [
+      "duty of loyalty",
+      "duty of care",
+      "trustee",
+      "agent",
+      "corporate governance"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Fiduciary relationships include trustee/beneficiary, attorney/client, corporate officer/corporation, partner/partner, agent/principal. The business judgment rule protects corporate directors from liability for honest business decisions made with due care and in good faith."
+  },
+  {
+    "term": "duty of care",
+    "definition": "An obligation requiring a person to exercise reasonable care to avoid causing harm to others. In tort law, the first element of a negligence claim. In corporate law, the duty of directors to make informed and careful decisions.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "A property owner owes a duty of care to invitees to maintain the premises in a reasonably safe condition.",
+    "related_terms": [
+      "negligence",
+      "fiduciary duty",
+      "duty of loyalty",
+      "business judgment rule"
+    ],
+    "also_known_as": null,
+    "practice_tips": "In negligence, the court determines duty as a question of law. Foreseeability of harm is central. In corporate law, the business judgment rule presumes directors acted with due care absent gross negligence."
+  },
+  {
+    "term": "duty of loyalty",
+    "definition": "A fiduciary duty requiring the fiduciary to act in the best interest of the principal, avoid conflicts of interest, refrain from self-dealing, and not usurp corporate opportunities. Breach requires disgorgement of profits.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The partner breached the duty of loyalty by secretly competing with the partnership and taking profits that belonged to the firm.",
+    "related_terms": [
+      "fiduciary duty",
+      "duty of care",
+      "conflict of interest",
+      "corporate opportunity"
+    ],
+    "also_known_as": null,
+    "practice_tips": "The duty of loyalty prohibits: (1) self-dealing, (2) usurping corporate opportunities, (3) competing with the principal, (4) receiving undisclosed compensation. Full disclosure and disinterested director approval can cure breaches."
+  },
+  {
+    "term": "business judgment rule",
+    "definition": "A legal presumption that corporate directors and officers acted in good faith, with due care, and in the best interest of the corporation when making business decisions. Courts will not second-guess business decisions absent bad faith or gross negligence.",
+    "etymology": "English legal term; established in US corporate law",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The court applied the business judgment rule to dismiss the shareholder lawsuit, finding that the directors' decision to reject the merger offer was a reasonable business judgment.",
+    "related_terms": [
+      "fiduciary duty",
+      "duty of care",
+      "duty of loyalty",
+      "gross negligence"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Elements: (1) business decision, (2) disinterested, (3) due care, (4) good faith, (5) rational basis. The burden is on the plaintiff to rebut the presumption. The rule applies only to decisions, not inaction."
+  },
+  {
+    "term": "ratification",
+    "definition": "The confirmation or adoption of a previously unauthorized act, making it legally binding as if it had been authorized from the beginning. May be express or implied by conduct. Applies in agency, contract, and corporate law.",
+    "etymology": "Latin: 'ratus' meaning 'fixed, established' + 'facere' meaning 'to make'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The principal ratified the agent's unauthorized contract by accepting the benefits of the agreement with knowledge of the material facts.",
+    "related_terms": [
+      "agency",
+      "authority",
+      "voidable",
+      "confirmation"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Requirements for ratification: (1) principal must have capacity, (2) principal must know all material facts, (3) principal must manifest intent to ratify (express or implied). Ratification is retroactive to the time of the original act."
+  },
+  {
+    "term": "vicarious liability",
+    "definition": "Legal responsibility imposed on one person for the wrongful acts of another, based on their relationship. Most commonly applies to employers for acts of employees within the scope of employment (respondeat superior).",
+    "etymology": "English: 'vicarious' from Latin 'vicarius' meaning 'substitute, deputy'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The delivery company was held vicariously liable for injuries caused by its driver's negligent operation of the truck during working hours.",
+    "related_terms": [
+      "respondeat superior",
+      "scope of employment",
+      "independent contractor",
+      "negligence"
+    ],
+    "also_known_as": "imputed liability, respondeat superior",
+    "practice_tips": "Key factors for scope of employment: (1) conduct of the kind employee is hired to perform, (2) within authorized time/space limits, (3) at least partly motivated to serve the employer. Intentional torts may be within scope if job-related."
+  },
+  {
+    "term": "respondeat superior",
+    "definition": "A legal doctrine holding an employer liable for the tortious acts of an employee committed within the scope of employment. From Latin meaning 'let the master answer.' A form of vicarious liability.",
+    "etymology": "Latin: 'let the master answer'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "Under respondeat superior, the hospital was held liable for the negligence of its nurses in administering medication.",
+    "related_terms": [
+      "vicarious liability",
+      "scope of employment",
+      "independent contractor",
+      "frolic and detour"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Respondeat superior applies to employees, not independent contractors. The 'frolic and detour' doctrine limits employer liability for employee deviations from work duties. Some states limit respondeat superior for certain intentional torts."
+  },
+  {
+    "term": "sovereign immunity",
+    "definition": "A legal doctrine that the sovereign (government) cannot be sued without its consent. The US federal government's immunity is waived in part by the Federal Tort Claims Act (FTCA). States have their own sovereign immunity laws, subject to the 11th Amendment.",
+    "etymology": "English common law: 'the king can do no wrong'",
+    "jurisdiction": "US (11th Amendment, FTCA); common law",
+    "usage_example": "The plaintiff's lawsuit against the federal agency was dismissed on sovereign immunity grounds because the FTCA did not waive immunity for the specific claim asserted.",
+    "related_terms": [
+      "Federal Tort Claims Act",
+      "11th Amendment",
+      "qualified immunity",
+      "discretionary function exception"
+    ],
+    "also_known_as": "governmental immunity",
+    "practice_tips": "The FTCA (28 U.S.C. §§ 1346(b), 2671-2680) waives sovereign immunity for torts of federal employees within the scope of employment. Exceptions include discretionary functions, intentional torts, and combatant activities. State sovereign immunity varies widely."
+  },
+  {
+    "term": "qualified immunity",
+    "definition": "A legal doctrine protecting government officials from civil liability for constitutional violations unless the violated right was 'clearly established' at the time of the violation. Designed to balance accountability with the need for officials to exercise discretion.",
+    "etymology": "English legal term; established in US by Pierson v. Ray (1967) and Harlow v. Fitzgerald (1982)",
+    "jurisdiction": "US federal law (42 U.S.C. § 1983, Bivens actions)",
+    "usage_example": "The police officer was granted qualified immunity because the law regarding the use of force under the specific circumstances was not clearly established at the time of the incident.",
+    "related_terms": [
+      "sovereign immunity",
+      "Section 1983",
+      "clearly established",
+      "Bivens"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Two-pronged test: (1) did the official violate a constitutional right? (2) was that right clearly established? Courts may address the prongs in any order. 'Clearly established' requires particularized precedent putting the unconstitutionality beyond debate."
+  },
+  {
+    "term": "act of God",
+    "definition": "An extraordinary natural event that could not have been reasonably foreseen or prevented, such as earthquakes, floods, hurricanes, or lightning strikes. May excuse contractual performance or tort liability.",
+    "etymology": "English legal term; translation of Latin 'vis major' (superior force)",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The shipping company was excused from liability when an unprecedented typhoon destroyed the cargo, as it was an act of God.",
+    "related_terms": [
+      "force majeure",
+      "impossibility",
+      "unforeseeable",
+      "vis major"
+    ],
+    "also_known_as": "vis major",
+    "practice_tips": "An act of God must be the sole proximate cause of the damage — if human negligence contributed, the defense fails. Common carriers face a higher standard for invoking the act of God defense."
+  },
+  {
+    "term": "estate",
+    "definition": "An interest in land recognized by law, including the extent, duration, and nature of ownership. Also refers to the property and assets left by a deceased person (probate estate).",
+    "etymology": "Old French: 'estat' from Latin 'status' meaning 'condition, position'",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "The testator's estate consisted of a house, investment accounts, and personal property valued at $2 million.",
+    "related_terms": [
+      "probate",
+      "will",
+      "trust",
+      "fee simple",
+      "life estate"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Estate planning tools: will (testate succession), trust (revocable/irrevocable), power of attorney, advance healthcare directive. Probate is the court-supervised process of administering a decedent's estate."
+  },
+  {
+    "term": "probate",
+    "definition": "The court-supervised process of validating a will, identifying and valuing a decedent's assets, paying debts and taxes, and distributing remaining property to beneficiaries. If no will exists, the estate passes by intestate succession.",
+    "etymology": "Latin: 'probare' meaning 'to test, examine, prove'",
+    "jurisdiction": "Common law (US, UK); governed by state probate codes",
+    "usage_example": "The executor filed the will for probate, initiating the process of administering the decedent's estate.",
+    "related_terms": [
+      "will",
+      "estate",
+      "intestate",
+      "executor",
+      "administrator",
+      "trust"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Avoiding probate: living trusts, joint tenancy with right of survivorship, payable-on-death accounts. Probate can be expensive and time-consuming (6-18 months). Small estate procedures are available for estates below certain thresholds."
+  },
+  {
+    "term": "power of attorney",
+    "definition": "A legal document authorizing one person (agent/attorney-in-fact) to act on behalf of another (principal) in legal, financial, or health-related matters. May be durable (survives incapacity) or springing (effective upon a specified event).",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK); governed by state law",
+    "usage_example": "The principal granted her son a durable power of attorney to manage her finances in the event of her incapacitation.",
+    "related_terms": [
+      "durable power of attorney",
+      "healthcare proxy",
+      "guardianship",
+      "conservatorship"
+    ],
+    "also_known_as": "POA",
+    "practice_tips": "Durable POA remains effective after the principal becomes incapacitated. Healthcare POA (also called advance directive) covers medical decisions. A POA terminates on the principal's death. Some states require the POA to be notarized."
+  },
+  {
+    "term": "intestate",
+    "definition": "Dying without a valid will. The decedent's property passes according to state intestacy statutes, typically giving priority to the surviving spouse and children, then parents, siblings, and more distant relatives.",
+    "etymology": "Latin: 'intestatus' meaning 'without a will'",
+    "jurisdiction": "Common law (US, UK); governed by state intestacy statutes",
+    "usage_example": "Because the decedent died intestate, his assets were distributed to his surviving spouse and children according to the state's intestacy laws.",
+    "related_terms": [
+      "testate",
+      "will",
+      "probate",
+      "heir",
+      "escheat"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Intestacy statutes vary by state. Generally, the surviving spouse receives a portion (sometimes all) of the estate. If no relatives exist, the estate escheats to the state. Intestacy does not apply to jointly owned property or assets with designated beneficiaries."
+  },
+  {
+    "term": "hearsay exception",
+    "definition": "A recognized category of out-of-court statements that are admissible despite being hearsay, because they are considered sufficiently reliable or necessary. Over 30 exceptions exist under the Federal Rules of Evidence.",
+    "etymology": "English legal term",
+    "jurisdiction": "US federal (FRE 803, 804); similar under state evidence codes",
+    "usage_example": "The excited utterance exception allowed the admission of the victim's statement 'He's got a gun!' made immediately after witnessing the robbery.",
+    "related_terms": [
+      "hearsay",
+      "excited utterance",
+      "dying declaration",
+      "business records exception",
+      "statement against interest"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRE 803 (declarant's availability immaterial): present sense impression, excited utterance, then-existing mental/emotional condition, medical diagnosis, business records, public records, learned treatises. FRE 804 (declarant unavailable): former testimony, dying declaration, statement against interest, forfeiture by wrongdoing."
+  },
+  {
+    "term": "best evidence rule",
+    "definition": "A rule of evidence requiring the original writing, recording, or photograph to prove the content of that writing, recording, or photograph, unless the original is unavailable through no fault of the proponent.",
+    "etymology": "English legal term; codified in FRE 1002",
+    "jurisdiction": "US federal (FRE 1002-1008); similar in state evidence codes",
+    "usage_example": "The plaintiff was required to produce the original signed contract, not a photocopy, under the best evidence rule.",
+    "related_terms": [
+      "original document rule",
+      "secondary evidence",
+      "FRE 1001"
+    ],
+    "also_known_as": "original document rule",
+    "practice_tips": "Exceptions: originals lost or destroyed (not in bad faith), not obtainable by legal process, in opponent's possession, collateral matter, public records. Duplicates are generally admissible unless a genuine issue exists about the original's authenticity."
+  },
+  {
+    "term": "judicial notice",
+    "definition": "A court's acceptance of a fact as true without requiring formal proof, because the fact is either generally known within the court's jurisdiction or can be accurately and readily determined from reliable sources.",
+    "etymology": "English legal term; codified in FRE 201",
+    "jurisdiction": "US federal (FRE 201); similar under state evidence codes",
+    "usage_example": "The court took judicial notice that the date fell on a Tuesday, as it was a fact not subject to reasonable dispute.",
+    "related_terms": [
+      "adjudicative fact",
+      "legislative fact",
+      "FRE 201"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Adjudicative facts (about the parties) may be judicially noticed only if not subject to reasonable dispute. Legislative facts (general policy facts) are not subject to FRE 201. The court must give an opportunity to be heard before taking judicial notice."
+  },
+  {
+    "term": "relevance",
+    "definition": "Evidence that has any tendency to make a fact of consequence more or less probable than it would be without the evidence. The foundational requirement for admissibility of evidence under the Federal Rules of Evidence.",
+    "etymology": "English legal term; codified in FRE 401-403",
+    "jurisdiction": "US federal (FRE 401-403); similar under state evidence codes",
+    "usage_example": "The court excluded the evidence as irrelevant because it had no bearing on whether the defendant breached the contract.",
+    "related_terms": [
+      "admissibility",
+      "probative value",
+      "unfair prejudice",
+      "FRE 401"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRE 401 defines relevant evidence. FRE 403 allows exclusion of relevant evidence if its probative value is substantially outweighed by the danger of unfair prejudice, confusion, delay, or misleading the jury."
+  },
+  {
+    "term": "character evidence",
+    "definition": "Evidence of a person's character or character trait offered to prove that the person acted in conformity with that character on a particular occasion. Generally inadmissible in civil cases and for criminal propensity, with specific exceptions.",
+    "etymology": "English legal term; codified in FRE 404-405",
+    "jurisdiction": "US federal (FRE 404-405); similar under state evidence codes",
+    "usage_example": "The prosecution could not introduce evidence of the defendant's prior bad acts to prove he had a propensity to commit the crime charged.",
+    "related_terms": [
+      "FRE 404",
+      "propensity evidence",
+      "prior bad acts",
+      "habit evidence"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRE 404(b) prohibits propensity evidence but allows prior bad acts for non-propensity purposes (motive, opportunity, intent, preparation, plan, knowledge, identity, absence of mistake). In criminal cases, the defendant may open the door by introducing character evidence."
+  },
+  {
+    "term": "impeachment",
+    "definition": "The process of attacking a witness's credibility during trial. Methods include showing bias, prior inconsistent statements, character for untruthfulness, contradictory evidence, or defects in capacity to perceive, recall, or relate.",
+    "etymology": "Latin: 'impedicare' meaning 'to fetter, entangle'",
+    "jurisdiction": "Common law (US, UK); FRE 607-609 in federal courts",
+    "usage_example": "The defense attorney impeached the prosecution's key witness with his prior felony conviction for perjury.",
+    "related_terms": [
+      "credibility",
+      "cross-examination",
+      "prior inconsistent statement",
+      "FRE 607"
+    ],
+    "also_known_as": null,
+    "practice_tips": "FRE 607: any party may attack a witness's credibility. FRE 608: opinion/reputation evidence of untruthfulness. FRE 609: impeachment by criminal conviction (10-year limit, balancing test). Extrinsic evidence of a prior inconsistent statement is generally admissible."
+  },
+  {
+    "term": "cross-examination",
+    "definition": "The questioning of a witness during trial by the opposing party after direct examination. Limited in scope to matters covered during direct examination and credibility issues. A fundamental right under the Confrontation Clause.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK); Sixth Amendment right in criminal cases",
+    "usage_example": "During cross-examination, the defense attorney confronted the witness with her prior inconsistent statement to the police.",
+    "related_terms": [
+      "direct examination",
+      "redirect examination",
+      "confrontation clause",
+      "impeachment"
+    ],
+    "also_known_as": null,
+    "practice_tips": "Leading questions are permitted on cross-examination. The scope is limited to matters raised on direct and credibility. The right to cross-examine is a core component of the Sixth Amendment Confrontation Clause (Crawford v. Washington, 2004)."
+  },
+  {
+    "term": "direct examination",
+    "definition": "The initial questioning of a witness by the party who called them to testify. Leading questions are generally prohibited. Designed to elicit the witness's account of facts in a narrative form.",
+    "etymology": "English legal term",
+    "jurisdiction": "Common law (US, UK)",
+    "usage_example": "On direct examination, the plaintiff described the events leading up to the car accident in chronological order.",
+    "related_terms": [
+      "cross-examination",
+      "redirect examination",
+      "leading question",
+      "narrative"
+    ],
+    "also_known_as": "examination-in-chief (UK)",
+    "practice_tips": "Leading questions are prohibited on direct except for preliminary matters or when examining an adverse/hostile witness. Open-ended questions (who, what, when, where, why, how) are preferred. The witness should tell their story, not the attorney."
+  }
+]
