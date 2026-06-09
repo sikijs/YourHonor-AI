@@ -6,7 +6,7 @@ from typing import Optional
 from litellm import completion
 from app.models.tutor import (
     TutorQuestion, TutorStartResponse, TutorAnswerResponse,
-    GeneratedEvaluation,
+    GeneratedEvaluation, GeneratedQuestion,
 )
 from app.services.retrieval import parse_llm_json
 
@@ -87,6 +87,66 @@ TOPICS = {
                 expected_concepts=["condition precedent", "condition subsequent", "concurrent condition", "express vs constructive condition", "material vs minor breach"],
                 difficulty=3,
             ),
+            TutorQuestion(
+                question="What is the difference between an assignment of rights and a delegation of duties under contract law?",
+                hint="One transfers a benefit; the other transfers an obligation.",
+                expected_concepts=["assignment", "delegation", "novation", "delegation of performance", "anti-assignment clause"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What types of damages are available for breach of contract and how are they calculated?",
+                hint="Consider the different purposes damages serve.",
+                expected_concepts=["compensatory damages", "consequential damages", "liquidated damages", "nominal damages", "reliance damages"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the doctrine of impossibility and how does it differ from commercial impracticability?",
+                hint="Both excuse performance but the threshold differs.",
+                expected_concepts=["impossibility", "commercial impracticability", "frustration of purpose", "force majeure", "supervening event"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is the difference between a void contract and a voidable contract? Give an example of each.",
+                hint="One is a nullity from inception; the other can be set aside.",
+                expected_concepts=["void contract", "voidable contract", "lack of capacity", "duress", "undue influence"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the doctrine of anticipatory repudiation and when can the non-breaching party sue immediately?",
+                hint="This applies when performance has not yet become due.",
+                expected_concepts=["anticipatory repudiation", "definite and unconditional statement", "reasonable insecurity", "demand for adequate assurance", "retraction"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="Who is a third-party beneficiary and what rights does an intended beneficiary have to enforce a contract?",
+                hint="The key is whether the contracting parties intended to benefit the third party.",
+                expected_concepts=["intended beneficiary", "incidental beneficiary", "creditor beneficiary", "donee beneficiary", "vesting of rights"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the doctrine of unconscionability and what two types must a party prove?",
+                hint="This doctrine allows courts to refuse to enforce unfair contracts.",
+                expected_concepts=["procedural unconscionability", "substantive unconscionability", "unequal bargaining power", "oppressive terms", "contract of adhesion"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="When is a contract unenforceable for illegality? Give examples of illegal contracts.",
+                hint="Courts will not enforce contracts that violate law or public policy.",
+                expected_concepts=["illegal subject matter", "violation of statute", "public policy", "usury", "contracts in restraint of trade"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What consideration is required for a valid contract modification? How does the UCC treat modifications differently from common law?",
+                hint="The pre-existing duty rule applies at common law but not under the UCC for sale of goods.",
+                expected_concepts=["modification", "pre-existing duty rule", "UCC 2-209", "good faith", "written anti-modification clause"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is a contract of adhesion and how do courts treat them differently in enforcement?",
+                hint="These are take-it-or-leave-it contracts drafted by the stronger party.",
+                expected_concepts=["contract of adhesion", "unequal bargaining power", "reasonable expectations", "drafted against drafter", "unconscionability"],
+                difficulty=3,
+            ),
         ],
     },
     "torts": {
@@ -151,6 +211,66 @@ TOPICS = {
                 question="What is a nuisance and how does it differ from trespass to land?",
                 hint="One involves interference with use and enjoyment; the other involves physical invasion.",
                 expected_concepts=["private nuisance", "public nuisance", "substantial interference", "physical invasion", "reasonable use balancing"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What are the elements of the tort of battery? How does it differ from assault?",
+                hint="One involves harmful or offensive contact; the other involves apprehension of such contact.",
+                expected_concepts=["battery", "assault", "harmful or offensive contact", "intent", "apprehension of imminent contact"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is false imprisonment and what must a plaintiff prove to establish it?",
+                hint="This tort protects the interest in freedom of movement.",
+                expected_concepts=["intent to confine", "confinement within bounded area", "no reasonable means of escape", "awareness of confinement", "shopkeeper's privilege"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the doctrine of respondeat superior and when is an employer vicariously liable for an employee's torts?",
+                hint="Employers can be held liable for acts within the scope of employment.",
+                expected_concepts=["respondeat superior", "scope of employment", "frolic and detour", "employee vs independent contractor", "intentional tort exception"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What must a plaintiff prove in a strict products liability claim under Section 402A of the Restatement?",
+                hint="This claim does not require proof of negligence.",
+                expected_concepts=["defective product", "unreasonably dangerous", "manufacturing defect", "design defect", "failure to warn"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is premises liability? What duty does a landowner owe to invitees, licensees, and trespassers?",
+                hint="The duty of care varies based on the entrant's status.",
+                expected_concepts=["invitee", "licensee", "trespasser", "attractive nuisance doctrine", "reasonable care under circumstances"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What are the elements of a fraudulent misrepresentation claim?",
+                hint="This intentional tort requires a false statement made with knowledge of its falsity.",
+                expected_concepts=["false representation", "material fact", "scienter", "justifiable reliance", "damages"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between slander per se and slander per quod? What damages must be shown for each?",
+                hint="Some defamatory statements are considered inherently harmful.",
+                expected_concepts=["slander per se", "slander per quod", "special damages", "defamatory meaning", "public figure actual malice"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the tort of invasion of privacy? Name and briefly describe the four types.",
+                hint="Privacy torts protect different aspects of a person's right to be left alone.",
+                expected_concepts=["intrusion upon seclusion", "public disclosure of private facts", "false light", "appropriation of likeness", "reasonable expectation of privacy"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between comparative negligence and contributory negligence? Which approach do most states follow?",
+                hint="One completely bars recovery; the other reduces it proportionally.",
+                expected_concepts=["contributory negligence", "comparative negligence", "pure comparative", "modified comparative", "50 percent bar rule"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the objective standard for determining whether conduct is extreme and outrageous for IIED?",
+                hint="Mere insults or annoyances are not enough to satisfy this element.",
+                expected_concepts=["extreme and outrageous", "beyond all possible bounds of decency", "severe emotional distress", "recklessness requirement", "special vulnerability"],
                 difficulty=3,
             ),
         ],
@@ -219,6 +339,66 @@ TOPICS = {
                 expected_concepts=["neutral law of general applicability", "compelling interest test", "individualized exemptions", "RFRA", "religious accommodation"],
                 difficulty=4,
             ),
+            TutorQuestion(
+                question="What is the doctrine of standing and what three elements must a plaintiff establish to invoke federal jurisdiction?",
+                hint="Standing ensures the plaintiff is the proper party to bring the claim.",
+                expected_concepts=["injury in fact", "causation", "redressability", "concrete and particularized", "imminent or actual injury"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between mootness and ripeness? Give an example of each.",
+                hint="One concerns timing before injury; the other concerns timing after the dispute has ended.",
+                expected_concepts=["mootness", "ripeness", "capable of repetition yet evading review", "voluntary cessation exception", "abstract disagreement"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the Takings Clause of the Fifth Amendment and what constitutes a regulatory taking?",
+                hint="Government action that goes too far in restricting property use may require just compensation.",
+                expected_concepts=["regulatory taking", "Penn Central test", "economic impact", "distinct investment-backed expectations", "character of government action"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is the difference between content-based and content-neutral restrictions on speech? What level of scrutiny applies to each?",
+                hint="The level of judicial scrutiny depends on whether the regulation targets the message itself.",
+                expected_concepts=["content-based restriction", "content-neutral restriction", "strict scrutiny", "intermediate scrutiny", "time place manner restrictions"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is prior restraint and why is it generally disfavored under the First Amendment?",
+                hint="This type of restriction prevents speech before it occurs rather than punishing it afterward.",
+                expected_concepts=["prior restraint", "previous restraint", "heavy presumption of unconstitutionality", "Near v. Minnesota", "prior restraint vs subsequent punishment"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the state action doctrine and why is it important for constitutional claims?",
+                hint="The Constitution generally protects against government, not private, conduct.",
+                expected_concepts=["state action", "Fourteenth Amendment", "public function test", "entwinement test", "private conduct exception"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What constitutional provisions protect voting rights and what limits may states impose on voting?",
+                hint="The right to vote is protected by multiple constitutional amendments.",
+                expected_concepts=["Fifteenth Amendment", "Nineteenth Amendment", "Twenty-Sixth Amendment", "poll taxes", "voter ID laws"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the Incorporation Doctrine and how has it applied Bill of Rights protections to the states?",
+                hint="The Bill of Rights originally applied only to the federal government.",
+                expected_concepts=["selective incorporation", "Fourteenth Amendment Due Process", "fundamental rights", "total incorporation", "ordered liberty test"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between the balancing test and the categorical approach in First Amendment analysis?",
+                hint="The Court uses different methods to evaluate different types of speech restrictions.",
+                expected_concepts=["categorical approach", "balancing test", "low value speech", "high value speech", "overbreadth"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is the Nondelegation Doctrine and how does it limit Congress's ability to delegate legislative power?",
+                hint="Congress must provide an intelligible principle when delegating authority to agencies.",
+                expected_concepts=["nondelegation doctrine", "intelligible principle", "separation of powers", "Article I legislative power", "administrative state"],
+                difficulty=4,
+            ),
         ],
     },
     "criminal_procedure": {
@@ -285,6 +465,66 @@ TOPICS = {
                 expected_concepts=["criminal prosecution", "adversarial judicial proceedings", "offense-specific", "deliberate elicitation", "Massiah doctrine"],
                 difficulty=4,
             ),
+            TutorQuestion(
+                question="What is the difference between a lineup, a showup, and a photo array? What constitutional rights apply to each?",
+                hint="Different identification procedures raise different due process concerns.",
+                expected_concepts=["lineup", "showup", "photo array", "suggestive procedure", "independent source test"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the Double Jeopardy Clause and when does it bar a second prosecution?",
+                hint="The Clause protects against multiple punishments for the same offense.",
+                expected_concepts=["double jeopardy", "same offense test", "Blockburger test", "attachment of jeopardy", "dual sovereignty doctrine"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the Speedy Trial right under the Sixth Amendment and what factors do courts consider in evaluating a violation?",
+                hint="The right protects against prejudicial delay between accusation and trial.",
+                expected_concepts=["Speedy Trial Clause", "Barker v. Wingo balancing test", "length of delay", "reason for delay", "prejudice to defendant"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the entrapment defense and how does the subjective test differ from the objective test?",
+                hint="Entrapment focuses on whether the government induced the crime.",
+                expected_concepts=["entrapment", "government inducement", "predisposition", "subjective test", "objective test"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the Confrontation Clause right and how did Crawford v. Washington change its interpretation?",
+                hint="This right guarantees criminal defendants the ability to cross-examine witnesses.",
+                expected_concepts=["Confrontation Clause", "testimonial statement", "Crawford v. Washington", "unavailability and prior opportunity", "primary purpose test"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is the ineffective assistance of counsel standard under Strickland v. Washington?",
+                hint="A defendant must show both deficient performance and prejudice.",
+                expected_concepts=["Strickland standard", "deficient performance", "reasonable competence", "prejudice", "strong presumption of effectiveness"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between probable cause and reasonable suspicion? Give an example of each.",
+                hint="These are different levels of justification for government action.",
+                expected_concepts=["probable cause", "reasonable suspicion", "totality of circumstances", "Terry stop", "arrest warrant requirement"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the exclusionary rule and what policies support it?",
+                hint="This rule prevents the government from using illegally obtained evidence.",
+                expected_concepts=["exclusionary rule", "deterrence rationale", "good faith exception", "standing requirement", "fruit of the poisonous tree"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the right to counsel under the Sixth Amendment and at what stages of criminal proceedings does it attach?",
+                hint="This right is broader than the Miranda right to counsel.",
+                expected_concepts=["Sixth Amendment", "critical stages", "adversarial judicial proceedings", "offense-specific", "waiver of counsel"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the plain feel doctrine under the Fourth Amendment? How does it relate to Terry frisks?",
+                hint="Officers may seize objects detected during a lawful frisk under certain conditions.",
+                expected_concepts=["plain feel doctrine", "Terry frisk", "immediately apparent contraband", "Minnesota v. Dickerson", "limited pat-down scope"],
+                difficulty=3,
+            ),
         ],
     },
     "evidence": {
@@ -349,6 +589,66 @@ TOPICS = {
                 question="What is authentication of evidence? Give examples of how different types of evidence are authenticated.",
                 hint="Authentication requires proof that evidence is what its proponent claims it is.",
                 expected_concepts=["FRE 901", "witness testimony", "distinctive characteristics", "chain of custody", "self-authenticating documents", "public records"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between habit evidence and character evidence under the Federal Rules?",
+                hint="Habit is a regular response to a specific situation; character is a general disposition.",
+                expected_concepts=["habit evidence", "character evidence", "FRE 406", "FRE 404", "specific vs general conduct"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is judicial notice and what types of facts may a court take judicial notice of under FRE 201?",
+                hint="Judicial notice allows courts to accept certain facts without formal proof.",
+                expected_concepts=["judicial notice", "adjudicative facts", "generally known within jurisdiction", "not subject to reasonable dispute", "opportunity to be heard"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between the burden of production and the burden of persuasion?",
+                hint="One determines who must present evidence; the other determines who must convince the fact-finder.",
+                expected_concepts=["burden of production", "burden of persuasion", "preponderance of evidence", "clear and convincing", "beyond a reasonable doubt"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the residual hearsay exception under FRE 807 and what requirements must be met to use it?",
+                hint="This is a catch-all exception for statements that do not fit other hearsay exceptions.",
+                expected_concepts=["residual hearsay", "circumstantial guarantees of trustworthiness", "more probative than other evidence", "notice requirement", "interests of justice"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is the difference between using a prior inconsistent statement for impeachment versus as substantive evidence?",
+                hint="The purpose of the evidence determines its admissibility and proper use.",
+                expected_concepts=["prior inconsistent statement", "impeachment", "substantive evidence", "FRE 613", "prior sworn statement exception"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the best evidence rule and when does it require production of an original document?",
+                hint="This rule applies when a party seeks to prove the content of a writing.",
+                expected_concepts=["original document rule", "writing recording or photograph", "proving content of writing", "FRE 1002", "exceptions for lost or destroyed originals"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the attorney-client privilege and what are its essential elements?",
+                hint="This privilege protects confidential communications between attorney and client.",
+                expected_concepts=["confidential communication", "legal advice", "client intent", "privilege holder", "crime-fraud exception"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between direct examination and cross-examination? What types of questions are permitted on each?",
+                hint="The rules governing questioning depend on whether the witness was called by the examining party.",
+                expected_concepts=["direct examination", "cross-examination", "leading questions", "scope of cross-examination", "redirect examination"],
+                difficulty=1,
+            ),
+            TutorQuestion(
+                question="What is the doctrine of completeness under FRE 106 and when may a party introduce additional parts of a statement?",
+                hint="This rule prevents a party from introducing a statement out of context.",
+                expected_concepts=["rule of completeness", "FRE 106", "fair context", "adverse party right", "timing of introduction"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between a witness's competency to testify and their credibility?",
+                hint="Competency is about whether a witness can testify at all; credibility is about how much weight to give their testimony.",
+                expected_concepts=["witness competency", "credibility", "personal knowledge requirement", "oath or affirmation", "FRE 601"],
                 difficulty=2,
             ),
         ],
@@ -417,6 +717,66 @@ TOPICS = {
                 expected_concepts=["voluntary waste", "permissive waste", "ameliorative waste", "life tenant duties", "reasonable use"],
                 difficulty=3,
             ),
+            TutorQuestion(
+                question="What is the difference between a fixture and personal property? How is a fixture determined?",
+                hint="The classification affects ownership rights when real property is transferred.",
+                expected_concepts=["fixture", "chattel", "annexation", "adaptation to realty", "intent of annexor"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is eminent domain and what limitations does the Fifth Amendment place on its exercise?",
+                hint="Government may take private property but must satisfy certain constitutional requirements.",
+                expected_concepts=["eminent domain", "public use", "just compensation", "fair market value", "regulatory taking limitation"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is zoning and what are the key constitutional limits on a municipality's zoning power?",
+                hint="Zoning regulations must bear a rational relationship to legitimate government objectives.",
+                expected_concepts=["zoning", "Euclidean zoning", "spot zoning", "variance", "nonconforming use"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the recording act and why is it important in real property transactions?",
+                hint="Recording acts determine priority among competing claims to the same property.",
+                expected_concepts=["recording act", "race statute", "notice statute", "race-notice statute", "bona fide purchaser"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between a covenant running with the land and an equitable servitude?",
+                hint="One is enforceable at law for damages; the other is enforceable in equity by injunction.",
+                expected_concepts=["covenant running with the land", "equitable servitude", "touch and concern", "horizontal privity", "notice to successor"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What is trespass to land and what must a plaintiff prove to establish it?",
+                hint="This is an intentional tort against an owner's interest in real property.",
+                expected_concepts=["trespass", "physical invasion", "intent to enter", "owner's consent", "unprivileged entry"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What remedies are available to a landlord when a tenant breaches a lease?",
+                hint="Landlords have both statutory and common law remedies for tenant default.",
+                expected_concepts=["eviction", "distress for rent", "accelerated rent", "duty to mitigate damages", "abandonment"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is partition of real property and when may a co-owner seek it?",
+                hint="This remedy allows co-owners to divide or force the sale of jointly owned property.",
+                expected_concepts=["partition", "partition in kind", "partition by sale", "tenancy in common", "joint tenancy"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between an easement by prescription and adverse possession?",
+                hint="One creates a right to use land; the other creates ownership of land.",
+                expected_concepts=["easement by prescription", "adverse possession", "continuous use", "open and notorious", "hostile claim"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is waste in property law and what types of waste can a life tenant commit?",
+                hint="Waste protects the interests of future interest holders against current possessors.",
+                expected_concepts=["voluntary waste", "permissive waste", "ameliorative waste", "life tenant duties", "reasonable use of property"],
+                difficulty=3,
+            ),
         ],
     },
     "civil_procedure": {
@@ -481,6 +841,66 @@ TOPICS = {
                 question="What is supplemental jurisdiction under 28 U.S.C. Section 1367 and when may a court decline to exercise it?",
                 hint="Supplemental jurisdiction allows federal courts to hear additional claims arising from the same case.",
                 expected_concepts=["same case or controversy", "common nucleus of operative fact", "pendent and ancillary jurisdiction", "novel or complex state issue", "predominate over federal claims"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is venue in civil procedure and how does it differ from jurisdiction?",
+                hint="Venue concerns the proper geographic location for trial; jurisdiction concerns the court's power.",
+                expected_concepts=["venue", "proper venue", "forum non conveniens", "transfer of venue", "local vs transitory actions"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is a class action under Rule 23 and what requirements must be met for class certification?",
+                hint="Class actions allow one or more plaintiffs to sue on behalf of a larger group.",
+                expected_concepts=["numerosity", "commonality", "typicality", "adequate representation", "predominance and superiority"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between intervention as of right and permissive intervention under Rule 24?",
+                hint="One is mandatory if certain conditions are met; the other is within the court's discretion.",
+                expected_concepts=["intervention as of right", "permissive intervention", "interest in property or transaction", "impairment of interest", "inadequate representation"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the difference between a counterclaim and a cross-claim under the Federal Rules?",
+                hint="One is against an opposing party; the other is against a co-party.",
+                expected_concepts=["counterclaim", "cross-claim", "compulsory counterclaim", "permissive counterclaim", "same transaction or occurrence"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is interpleader and when is it available under Rule 22 and the federal interpleader statute?",
+                hint="This remedy allows a stakeholder to join competing claimants in a single action.",
+                expected_concepts=["interpleader", "stakeholder", "competing claimants", "Rule 22 interpleader", "statutory interpleader"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the constitutional right to a jury trial in civil cases under the Seventh Amendment?",
+                hint="This right applies in federal court for suits at common law where the amount in controversy exceeds $20.",
+                expected_concepts=["Seventh Amendment", "jury trial right", "suits at common law", "legal vs equitable claims", "jury demand"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is judgment as a matter of law (JMOL) under Rule 50 and what standard does the court apply?",
+                hint="JMOL is available when a reasonable jury could not find for the non-moving party.",
+                expected_concepts=["JMOL", "directed verdict", "renewed JMOL", "reasonable jury standard", "viewing evidence favorably to non-movant"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What are Rule 11 sanctions and what conduct can trigger them?",
+                hint="Rule 11 requires attorneys to certify that pleadings are well-grounded in fact and law.",
+                expected_concepts=["Rule 11 certification", "frivolous pleading", "improper purpose", "safe harbor provision", "sanctions"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is an appeal as of right and how does it differ from discretionary review by certiorari?",
+                hint="One is guaranteed by statute; the other is at the court's discretion.",
+                expected_concepts=["appeal as of right", "certiorari", "final judgment rule", "interlocutory appeal", "collateral order doctrine"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is the offer of judgment under Rule 68 and how does it affect cost-shifting?",
+                hint="This rule encourages settlement by shifting litigation costs if a party rejects a favorable offer.",
+                expected_concepts=["Rule 68 offer of judgment", "cost-shifting", "more favorable judgment", "defendant's offer", "timing of offer"],
                 difficulty=3,
             ),
         ],
@@ -549,6 +969,66 @@ TOPICS = {
                 expected_concepts=["statutory merger", "asset purchase", "appraisal rights", "shareholder vote required", "successor liability"],
                 difficulty=3,
             ),
+            TutorQuestion(
+                question="What is a close corporation and how does its governance differ from a publicly traded corporation?",
+                hint="Close corporations have fewer shareholders and less formal governance requirements.",
+                expected_concepts=["close corporation", "closely held", "shareholder agreement", "oppression of minority shareholders", "heightened fiduciary duty"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is insider trading under Rule 10b-5 and what must the SEC prove to establish a violation?",
+                hint="Insider trading involves trading securities based on material non-public information.",
+                expected_concepts=["Rule 10b-5", "material non-public information", "duty to disclose or abstain", "tipper and tippee liability", "scienter"],
+                difficulty=4,
+            ),
+            TutorQuestion(
+                question="What rights do shareholders have to vote on fundamental corporate changes?",
+                hint="Shareholders typically vote on major transactions that affect their ownership interests.",
+                expected_concepts=["shareholder voting rights", "merger approval", "sale of substantially all assets", "amendment of articles", "cumulative voting"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between a dividend and a stock repurchase? What restrictions apply to each?",
+                hint="Both return value to shareholders but are treated differently under corporate law.",
+                expected_concepts=["dividend", "stock repurchase", "earned surplus test", "insolvency test", "preferred vs common dividends"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the dissolution of a corporation and how does the winding-up process work?",
+                hint="Dissolution is the legal termination of a corporation's existence.",
+                expected_concepts=["voluntary dissolution", "involuntary dissolution", "winding up", "liquidation", "distribution of assets"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is an LLC operating agreement and what key provisions does it typically include?",
+                hint="The operating agreement is the foundational governance document for an LLC.",
+                expected_concepts=["operating agreement", "member-managed", "manager-managed", "allocations of profits and losses", "voting rights"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is a franchise and what laws govern franchise disclosure requirements?",
+                hint="Franchises are regulated by both federal and state law to protect franchisees.",
+                expected_concepts=["franchise", "franchisor", "franchisee", "FTC Franchise Rule", "franchise disclosure document"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is the difference between a registered securities offering and an exempt offering under the Securities Act?",
+                hint="Not all securities offerings must be registered with the SEC.",
+                expected_concepts=["registered offering", "private placement exemption", "Regulation D", "Rule 506", "accredited investor"],
+                difficulty=3,
+            ),
+            TutorQuestion(
+                question="What is a professional corporation and how does it differ from a regular business corporation?",
+                hint="Certain licensed professionals must organize and operate under professional corporation statutes.",
+                expected_concepts=["professional corporation", "limited liability for professionals", "professional services", "shareholder licensing requirements", "vicarious liability"],
+                difficulty=2,
+            ),
+            TutorQuestion(
+                question="What is a nonprofit corporation and what special restrictions apply to its operations?",
+                hint="Nonprofits are organized for charitable, educational, or other public benefit purposes.",
+                expected_concepts=["nonprofit corporation", "prohibition on private inurement", "dissolution distribution restriction", "501(c)(3) status", "public charity vs private foundation"],
+                difficulty=3,
+            ),
         ],
     },
 }
@@ -564,6 +1044,8 @@ class TutorSession:
         self.wrong_count = 0
         self.attempts_on_question = 0
         self.history: list[dict] = []
+        self.covered_concepts: set[str] = set()
+        self.dynamic_used = False
 
 
 class TutorService:
@@ -592,6 +1074,25 @@ class TutorService:
             questions=session.questions,
         )
 
+    def start_dynamic_session(self, topic_id: str, user_id: int) -> TutorStartResponse:
+        if topic_id not in TOPICS:
+            raise ValueError(f"Unknown topic: {topic_id}")
+        session = TutorSession(topic_id)
+        session.questions = []
+        new_q = self._generate_dynamic_question(session)
+        session.questions.append(new_q)
+        self._sessions[user_id] = session
+        session.dynamic_used = True
+        return TutorStartResponse(
+            topic_id=topic_id,
+            topic_name=session.topic_data["name"],
+            topic_description=session.topic_data["description"],
+            total_questions=len(session.questions),
+            current_question=new_q,
+            current_index=0,
+            questions=session.questions,
+        )
+
     def submit_answer(self, answer: str, user_id: int) -> TutorAnswerResponse:
         session = self._sessions.get(user_id)
         if not session:
@@ -604,28 +1105,19 @@ class TutorService:
         correct_answer_revealed = None
         eval_result = None
 
-        if re.search(r"^(i don'?t know|no idea|not sure|i have no|i'm not sure|i dunno|i don'?t understand|i don'?t have any)", answer.strip().lower()):
-            eval_result = GeneratedEvaluation(
-                evaluation="incorrect",
-                explanation="It's okay not to know — that's what learning is for. Take a moment to review the hint below, then try answering the question again.",
-                follow_up_question=q.question,
-                follow_up_hint=q.hint,
-                is_complete=False,
-            )
-
         system_prompt = """You are a law school tutor using the Socratic method. Evaluate the student's answer and provide constructive feedback.
 
 For each answer:
 1. EVALUATION: Classify as "correct", "partially_correct", or "incorrect"
 2. EXPLANATION: Explain what the student got right and what they missed. Reference the expected concepts.
-3. FOLLOW-UP: If the student needs more help, generate a simpler follow-up question on the same topic. If they answered well, generate a more advanced follow-up.
+3. FOLLOW-UP: If the student needs more help, generate a simpler follow-up question on the same concept. If they answered well, generate a more advanced follow-up on the same concept.
 4. COMPLETE: Set to true only when the student has demonstrated sufficient understanding of the current concept.
 
 Guidelines:
 - Be encouraging but academically rigorous
 - Use the Socratic method — ask probing questions rather than just lecturing
-- If the answer is wrong, break the concept down and ask a simpler version
-- If the answer is correct, build on it with a deeper question
+- If the answer is wrong, generate a SIMPLER VERSION of the SAME question — break it down into smaller parts. Do NOT switch to a different concept.
+- If the answer is correct, build on it with a deeper question on the same concept
 - Never fabricate legal rules or citations
 - If the student admits they don't know or says "no idea", always classify as "incorrect" — do not treat it as correct"""
 
@@ -669,12 +1161,37 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             attempts_exceeded = True
             eval_result.is_complete = True
             eval_result.follow_up_question = None
-            concepts = q.expected_concepts
-            if len(concepts) == 1:
-                correct_answer_revealed = f"The expected concept was: {concepts[0]}."
-            else:
-                formatted = "; ".join(f"{i+1}. {c}" for i, c in enumerate(concepts))
-                correct_answer_revealed = f"The expected concepts were: {formatted}."
+
+            try:
+                answer_response = completion(
+                    model=MODEL,
+                    messages=[
+                        {"role": "system", "content": "You are a law professor. Give a concise, specific answer to the student's question."},
+                        {"role": "user", "content": f"Question: {q.question}\nExpected concepts: {', '.join(q.expected_concepts)}\n\nProvide the correct answer in 2-3 sentences explaining how these concepts apply to the question. Be specific and educational."},
+                    ],
+                    max_tokens=300,
+                    temperature=0.3,
+                )
+                raw = answer_response.choices[0].message.content
+                if raw is None:
+                    raw = getattr(answer_response.choices[0].message, "reasoning_content", None) or ""
+                if raw.strip():
+                    concepts_str = "; ".join(q.expected_concepts) if q.expected_concepts else ""
+                    concepts_line = f"\n\nKey concepts: {concepts_str}" if concepts_str else ""
+                    correct_answer_revealed = raw.strip() + concepts_line
+            except Exception as e:
+                logger.error(f"Correct answer generation failed: {e}")
+
+            if not correct_answer_revealed:
+                concepts = q.expected_concepts
+                if len(concepts) == 0:
+                    correct_answer_revealed = "Review the question and hint above, then try again with a new topic."
+                elif len(concepts) == 1:
+                    correct_answer_revealed = f"The expected concept was: {concepts[0]}."
+                else:
+                    formatted_lst = "; ".join(f"{i+1}. {c}" for i, c in enumerate(concepts))
+                    correct_answer_revealed = f"The expected concepts were: {formatted_lst}."
+
             eval_result.explanation += (
                 "  You've used all " + str(session.attempts_on_question) +
                 " attempts for this question. The correct answer has been shown above. Let's move to the next question."
@@ -694,6 +1211,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
 
         next_question = None
         if eval_result.is_complete:
+            session.covered_concepts.update(q.expected_concepts)
             session.current_index += 1
             session.attempts_on_question = 0
             if session.current_index < len(session.questions):
@@ -705,13 +1223,18 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     difficulty=nq.difficulty,
                 )
         elif eval_result.follow_up_question:
+            follow_up_difficulty = (
+                q.difficulty + 1 if eval_result.evaluation == "correct"
+                else max(1, q.difficulty - 1)
+            )
             next_question = TutorQuestion(
                 question=eval_result.follow_up_question,
                 hint=eval_result.follow_up_hint or q.hint,
                 expected_concepts=q.expected_concepts,
-                difficulty=q.difficulty + 1,
+                difficulty=follow_up_difficulty,
             )
         else:
+            session.covered_concepts.update(q.expected_concepts)
             session.current_index += 1
             session.attempts_on_question = 0
             if session.current_index < len(session.questions):
@@ -755,6 +1278,68 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             "correct_count": session.correct_count,
             "wrong_count": session.wrong_count,
         }
+
+    def _next_difficulty(self, session: TutorSession) -> int:
+        if len(session.questions) == 0:
+            return 2
+        avg = (session.correct_count + 1) / max(len(session.questions), 1)
+        if avg > 0.8:
+            return 4
+        elif avg > 0.6:
+            return 4
+        elif avg > 0.4:
+            return 3
+        else:
+            return 2
+
+    def _generate_dynamic_question(self, session: TutorSession) -> TutorQuestion:
+        topic_name = session.topic_data["name"]
+        difficulty = self._next_difficulty(session)
+        covered = ', '.join(sorted(session.covered_concepts)) if session.covered_concepts else 'none yet'
+
+        prompt = f"""You are a law professor teaching {topic_name}. A student has completed {len(session.questions)} questions with {session.correct_count} correct.
+
+Generate a NEW question on {topic_name} at difficulty {difficulty}. Do NOT repeat any of these already-covered concepts: {covered}.
+
+Return valid JSON with these exact keys:
+- "question": the question text
+- "hint": a helpful hint for the student
+- "expected_concepts": a list of 3-5 key concepts the answer should include
+- "difficulty": {difficulty}"""
+
+        try:
+            response = completion(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You generate legal tutoring questions in JSON format."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format=GeneratedQuestion,
+                max_tokens=1000,
+                temperature=0.7,
+            )
+            raw = response.choices[0].message.content
+            if raw is None:
+                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+            parsed = GeneratedQuestion.model_validate(parse_llm_json(raw))
+            return TutorQuestion(
+                question=parsed.question,
+                hint=parsed.hint,
+                expected_concepts=parsed.expected_concepts,
+                difficulty=parsed.difficulty,
+            )
+        except Exception as e:
+            logger.error(f"Dynamic question generation failed: {e}")
+            raise
+
+    def continue_learning(self, user_id: int) -> TutorQuestion:
+        session = self._sessions.get(user_id)
+        if not session:
+            raise ValueError("No active tutoring session. Start one first.")
+        new_q = self._generate_dynamic_question(session)
+        session.questions.append(new_q)
+        session.dynamic_used = True
+        return new_q
 
 
 tutor_service = TutorService()

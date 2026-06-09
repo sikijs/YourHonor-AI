@@ -24,3 +24,10 @@ Thumbs.db
 # IDE
 .idea/
 .vscode/
+
+# Build output
+frontend/out/
+*.tsbuildinfo
+
+# Build artifacts copied to backend static
+backend/app/static/_next/

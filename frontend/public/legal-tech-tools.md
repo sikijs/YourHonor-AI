@@ -49,7 +49,28 @@ The future lawyer is someone who understands:
 
 ---
 
-## 1. Legal Research Databases
+## 1. Understanding AI — A Foundational Resource
+
+Before diving into specific legal tech tools, it helps to understand how AI actually works — where it came from, how it evolved, and what it can and cannot do.
+
+## Understanding AI: From Neurons to Large Language Models
+Website: https://github.com/sikijs/YourHonor-AI-Resources
+
+### What it does
+
+This book is a beginner-friendly guide covering:
+
+- the history of AI from the 1940s to today,
+- how modern AI systems like ChatGPT actually work,
+- practical concepts like tokens, embeddings, training, and fine-tuning,
+- modern AI systems including RAG, agents, and multimodal AI,
+- the limitations, risks, and future of AI.
+
+It is designed for anyone — including law students and legal professionals — who wants to build a solid mental model of AI without needing a technical background.
+
+---
+
+## 2. Legal Research Databases
 
 These are the giant digital libraries of the legal world.
 
@@ -168,7 +189,7 @@ Open-source-friendly legal search engine for humans and AI systems
 ---
 
 
-## 2. Court Filing and Court Record Systems
+## 3. Court Filing and Court Record Systems
 
 These are the systems courts actually use behind the scenes.
 
@@ -221,7 +242,7 @@ The online portal lawyers use to officially talk to the court
 ---
 
 
-## 3. AI Legal Assistants
+## 4. AI Legal Assistants
 
 This is where law and generative AI start colliding.
 
@@ -289,7 +310,7 @@ A legal chatbot connected to a giant legal database
 ---
 
 
-## 4. Litigation Analytics & Predictive Legal Systems
+## 5. Litigation Analytics & Predictive Legal Systems
 
 This is where law firms start acting like sports analysts.
 
@@ -363,7 +384,7 @@ Moneyball for lawyers
 ---
 
 
-## 5. Contract Review & Document AI
+## 6. Contract Review & Document AI
 
 Corporate law produces mountains of contracts.
 
@@ -412,7 +433,7 @@ AI flashlight for giant piles of legal paperwork
 ---
 
 
-## 6. eDiscovery Platforms
+## 7. eDiscovery Platforms
 
 During lawsuits, companies may need to review:
 
@@ -461,7 +482,7 @@ Collaborative online investigation room for lawyers
 ---
 
 
-## 7. Criminal Justice Risk Assessment Systems
+## 8. Criminal Justice Risk Assessment Systems
 
 This is one of the most controversial areas of legal AI.
 
@@ -522,7 +543,7 @@ Risk calculator used in pretrial decisions
 ---
 
 
-## 8. Law Firm Management Platforms
+## 9. Law Firm Management Platforms
 
 Even lawyers need administrative software.
 
@@ -565,7 +586,7 @@ Digital organizer for lawyers and law firms
 ---
 
 
-## 9. AI Infrastructure Tools Behind Modern Legal AI
+## 10. AI Infrastructure Tools Behind Modern Legal AI
 
 These are the technical engines powering many modern AI systems.
 

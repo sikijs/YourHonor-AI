@@ -35,6 +35,13 @@ class GeneratedEvaluation(BaseModel):
     is_complete: bool
 
 
+class GeneratedQuestion(BaseModel):
+    question: str
+    hint: str
+    expected_concepts: list[str]
+    difficulty: int
+
+
 class TutorAnswerResponse(BaseModel):
     evaluation: str
     explanation: str

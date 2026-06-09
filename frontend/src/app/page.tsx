@@ -642,6 +642,7 @@ function DocumentsView({ user, onError }: { user: User; onError: (err: string) =
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [docType, setDocType] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [viewDoc, setViewDoc] = useState<Document | null>(null);
   const [subMode, setSubMode] = useState<'list' | 'generate'>('list');
@@ -860,8 +861,20 @@ function DocumentsView({ user, onError }: { user: User; onError: (err: string) =
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Content</label>
-                    <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label style={{ margin: 0 }}>Content</label>
+                      <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid #ccc', borderRadius: '4px', overflow: 'hidden' }}>
+                        <button type="button" className={`btn btn-sm ${!showPreview ? 'btn-primary' : ''}`} style={{ borderRadius: 0, border: 'none', padding: '0.25rem 0.75rem', fontSize: '0.8rem', cursor: 'pointer' }} onClick={() => setShowPreview(false)}>Write</button>
+                        <button type="button" className={`btn btn-sm ${showPreview ? 'btn-primary' : ''}`} style={{ borderRadius: 0, border: 'none', padding: '0.25rem 0.75rem', fontSize: '0.8rem', cursor: 'pointer' }} onClick={() => setShowPreview(true)}>Preview</button>
+                      </div>
+                    </div>
+                    {showPreview ? (
+                      <div className="card" style={{ padding: '0.75rem', minHeight: '130px', lineHeight: 1.6, fontSize: '0.9rem' }}>
+                        {content ? <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown> : <span style={{ color: 'var(--gray-text)' }}>Nothing to preview</span>}
+                      </div>
+                    ) : (
+                      <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} />
+                    )}
                   </div>
                   <button type="submit" className="btn btn-primary">Create Document</button>
                 </form>
@@ -871,12 +884,12 @@ function DocumentsView({ user, onError }: { user: User; onError: (err: string) =
 
           {viewDoc && (
             <div className="modal-overlay" onClick={() => setViewDoc(null)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '80vh' }}>
-                <div className="modal-header">
+              <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '85vh', overflowY: 'auto' }}>
+                <div className="modal-header" style={{ position: 'sticky', top: 0, background: 'var(--white)', zIndex: 1 }}>
                   <h2>{viewDoc.title}</h2>
                   <button className="modal-close" onClick={() => setViewDoc(null)}>&times;</button>
                 </div>
-                <div style={{ padding: '1rem', overflowY: 'auto', maxHeight: 'calc(80vh - 80px)', lineHeight: 1.6, fontSize: '0.9rem' }}>
+                <div style={{ padding: '1rem', lineHeight: 1.6, fontSize: '0.9rem' }}>
                   {viewDoc.content ? (
                     <ReactMarkdown components={markdownComponents}>{viewDoc.content}</ReactMarkdown>
                   ) : (
@@ -1522,7 +1535,7 @@ function CitationMapView({ user, onError }: { user: User; onError: (err: string)
     <div>
       <h2>Citation Map</h2>
       <p style={{ color: 'var(--blue-primary)', fontSize: '0.95rem', marginBottom: '1.75rem' }}>
-        A citation map traces how courts have referenced a case over time — whether followed, distinguished, or overruled. This reveals a case's legal lineage and helps you assess its continuing authority.
+        A citation map traces how courts have referenced a case over time — whether followed, distinguished, or overruled. This reveals a case&apos;s legal lineage and helps you assess its continuing authority.
       </p>
       <p style={{ color: 'var(--gray-text)' }}>
         Enter a case name to map cited authorities, statutes, and constitutional provisions.
@@ -1837,6 +1850,9 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
   const [reviewWrong, setReviewWrong] = useState(0);
   const [reviewFlipped, setReviewFlipped] = useState(false);
   const [reviewComplete, setReviewComplete] = useState(false);
+  const [continueLearningLoading, setContinueLearningLoading] = useState(false);
+  const [showCostConfirm, setShowCostConfirm] = useState(false);
+  const [dynamicConfirmTopic, setDynamicConfirmTopic] = useState<string | null>(null);
 
   useEffect(() => {
     api.tutor.listTopics().then(res => setTopics(res.topics)).catch(() => onError('Failed to load topics'));
@@ -1901,6 +1917,50 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
     }
   }
 
+  async function handleStartDynamic(topicId: string) {
+    setDynamicConfirmTopic(null);
+    setLoading(true);
+    onError('');
+    try {
+      const res = await api.tutor.startDynamicSession(topicId);
+      setSession(res);
+      setCurrentQuestion(res.current_question);
+      setCurrentIndex(res.current_index);
+      setTotalQuestions(res.total_questions);
+      setHistory([]);
+      setCorrectCount(0);
+      setWrongCount(0);
+      setIsComplete(false);
+      setAttemptsExceeded(false);
+      setCorrectAnswerRevealed(null);
+      setAnswer('');
+      setReviewMode(false);
+    } catch (err: any) {
+      onError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleContinueLearning() {
+    setShowCostConfirm(false);
+    setContinueLearningLoading(true);
+    onError('');
+    try {
+      const res = await api.tutor.continueLearning();
+      setCurrentQuestion(res.question);
+      setIsComplete(false);
+      setAttemptsExceeded(false);
+      setCorrectAnswerRevealed(null);
+      setAnswer('');
+      setTotalQuestions(prev => prev + 1);
+    } catch (err: any) {
+      onError(err.message);
+    } finally {
+      setContinueLearningLoading(false);
+    }
+  }
+
   function resetSession() {
     setSession(null);
     setCurrentQuestion(null);
@@ -1915,6 +1975,17 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
     setShowHint(false);
   }
 
+  if (loading && !session) {
+    return (
+      <div>
+        <h2 style={{ marginBottom: '1rem' }}>AI Legal Tutor</h2>
+        <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>Generating your first question...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!session) {
     return (
       <div>
@@ -1926,20 +1997,41 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
           Pick a topic to begin an interactive Socratic tutoring session.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-          {topics.map((topic) => (
-            <div
-              key={topic.id}
-              className="card feature-card"
-              onClick={() => startTopic(topic.id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <h3 style={{ color: 'var(--blue-primary)' }}>{topic.name}</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>{topic.description}</p>
-              <span style={{ fontSize: '0.8rem', color: 'var(--gray-text)' }}>
-                {topic.question_count} questions
-              </span>
-            </div>
-          ))}
+          {topics.map((topic) => {
+            const isDynamicConfirming = dynamicConfirmTopic === topic.id;
+            return (
+              <div key={topic.id} className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div>
+                  <h3 style={{ color: 'var(--blue-primary)', margin: '0 0 0.25rem 0' }}>{topic.name}</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', margin: 0 }}>{topic.description}</p>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                    {topic.question_count} questions
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startTopic(topic.id)}>
+                    Start
+                  </button>
+                  <div style={{ position: 'relative' }}>
+                    <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setDynamicConfirmTopic(topic.id)}>
+                      AI Quick Start
+                    </button>
+                  </div>
+                </div>
+                {isDynamicConfirming && (
+                  <div style={{ padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
+                      This will use an AI API call (approx. $0.02–0.04) to generate questions on this topic. Continue?
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => handleStartDynamic(topic.id)}>Yes, start</button>
+                      <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setDynamicConfirmTopic(null)}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -2016,10 +2108,24 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
               ? 'Good job! Review the areas you missed to strengthen your understanding.'
               : 'Keep practicing! Review the concepts you found challenging and try again.'}
           </p>
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={() => startTopic(session.topic_id)}>Retry</button>
             <button className="btn btn-outline" onClick={resetSession}>Pick Another Topic</button>
+            <button className="btn btn-secondary" onClick={() => setShowCostConfirm(true)} disabled={continueLearningLoading}>
+              {continueLearningLoading ? 'Generating...' : 'Continue Learning'}
+            </button>
           </div>
+          {showCostConfirm && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
+              <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
+                This will use an AI API call (approx. $0.02–0.04) to generate a new question on this topic. Continue?
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                <button className="btn btn-primary" onClick={handleContinueLearning}>Yes, generate</button>
+                <button className="btn btn-outline" onClick={() => setShowCostConfirm(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -2035,9 +2141,12 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
         </div>
       )}
 
-      {correctAnswerRevealed && !isComplete && !reviewMode && (
+      {correctAnswerRevealed && !reviewMode && (
         <div className="card" style={{ marginBottom: '1rem', background: '#fff3cd', border: '1px solid #ffc107' }}>
           <h4 style={{ color: '#856404', margin: '0 0 0.5rem 0' }}>Correct Answer</h4>
+          <p style={{ fontSize: '0.85rem', color: '#856404', marginBottom: '0.5rem', fontStyle: 'italic' }}>
+            <strong>Q:</strong> {history[0]?.question}
+          </p>
           <p style={{ margin: 0, fontSize: '0.9rem', color: '#856404' }}>{correctAnswerRevealed}</p>
         </div>
       )}
@@ -2638,7 +2747,7 @@ function GenerateDocumentView({ user, onError }: { user: User; onError: (err: st
                 <h4 style={{ color: 'var(--blue-primary)' }}>{t.name}</h4>
                 <p style={{ fontSize: '0.9rem', color: 'var(--gray-text)' }}>{t.description}</p>
                 <p style={{ fontSize: '0.8rem', color: 'var(--gray-text)', marginTop: '0.25rem' }}>
-                  {t.fields.length} fields
+                  {(t.fields.length + ((t.cover_page_fields || []).filter(cf => !t.fields.some(f => f.name === cf.name)).length))} fields
                 </p>
               </div>
             ))}

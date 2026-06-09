@@ -165,6 +165,15 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ answer }),
       }),
+    continueLearning: () =>
+      fetchApi<{ question: TutorQuestion; disclaimer: string }>('/api/tutor/continue-learning', {
+        method: 'POST',
+      }),
+    startDynamicSession: (topicId: string) =>
+      fetchApi<TutorStartResponse>('/api/tutor/start-dynamic', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId }),
+      }),
   },
 
   templates: {
