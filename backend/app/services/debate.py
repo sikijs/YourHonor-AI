@@ -5,6 +5,7 @@ from typing import Optional
 from litellm import completion
 from app.models.debate import GeneratedDebate, DebateResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 
@@ -184,7 +185,7 @@ class DebateService:
 
         except Exception as e:
             logger.error(f"Debate analysis failed: {e}")
-            raise ValueError(f"Failed to analyze debate: {str(e)}")
+            raise ValueError(f"Failed to analyze debate: {friendly_llm_error(e)}")
 
 
 debate_service = DebateService()

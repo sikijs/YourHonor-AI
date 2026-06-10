@@ -5,6 +5,7 @@ from typing import Optional
 from litellm import completion
 from app.models.case_brief import GeneratedBrief, CaseBriefResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 from connectors.courtlistener import _has_auth
@@ -222,7 +223,7 @@ class CaseBriefService:
 
         except Exception as e:
             logger.error(f"Case brief generation failed: {e}")
-            raise ValueError(f"Failed to generate case brief: {str(e)}")
+            raise ValueError(f"Failed to generate case brief: {friendly_llm_error(e)}")
 
 
 case_brief_service = CaseBriefService()

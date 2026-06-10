@@ -9,6 +9,7 @@ from app.models.tutor import (
     GeneratedEvaluation, GeneratedQuestion,
 )
 from app.services.retrieval import parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 
 logger = logging.getLogger(__name__)
 
@@ -1330,7 +1331,7 @@ Return valid JSON with these exact keys:
             )
         except Exception as e:
             logger.error(f"Dynamic question generation failed: {e}")
-            raise
+            raise ValueError(friendly_llm_error(e))
 
     def continue_learning(self, user_id: int) -> TutorQuestion:
         session = self._sessions.get(user_id)

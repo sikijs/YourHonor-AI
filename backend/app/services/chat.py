@@ -6,6 +6,7 @@ import urllib.parse
 from typing import Optional
 
 from .template_catalog import get_template_catalog
+from app.services.llm_errors import friendly_llm_error, CREDITS_MESSAGE
 
 logger = logging.getLogger(__name__)
 
@@ -293,8 +294,10 @@ Provide a clear, educational response with proper citations. If the documents do
 
         except Exception as e:
             logger.error(f"Chat LLM call failed: {e}")
+            error_msg = friendly_llm_error(e)
+            chat_response = CREDITS_MESSAGE if error_msg != str(e) else f"I found relevant documents but encountered an error generating a response. Try using the **{suggestion['name']}** tool instead.\n\n**{suggestion['name']}**: {suggestion['description']}"
             return {
-                "response": f"I found relevant documents but encountered an error generating a response. Try using the **{suggestion['name']}** tool instead.\n\n**{suggestion['name']}**: {suggestion['description']}",
+                "response": chat_response,
                 "sources": sources,
                 "retrieval_count": len(retrieved_docs),
                 "suggested_tool": suggestion["tool"],

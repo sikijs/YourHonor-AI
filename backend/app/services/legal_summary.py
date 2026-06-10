@@ -5,6 +5,7 @@ from typing import Optional
 from litellm import completion
 from app.models.legal_summary import GeneratedSummary, LegalSummaryResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 
@@ -167,7 +168,7 @@ class LegalSummaryService:
 
         except Exception as e:
             logger.error(f"Legal summary generation failed: {e}")
-            raise ValueError(f"Failed to generate legal summary: {str(e)}")
+            raise ValueError(f"Failed to generate legal summary: {friendly_llm_error(e)}")
 
 
 legal_summary_service = LegalSummaryService()

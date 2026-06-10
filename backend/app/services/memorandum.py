@@ -5,6 +5,7 @@ from typing import Optional
 from litellm import completion
 from app.models.memorandum import GeneratedMemorandum, MemorandumResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 from connectors.courtlistener import search_opinions, case_brief_from_query
@@ -202,7 +203,7 @@ class MemorandumService:
 
         except Exception as e:
             logger.error(f"Memorandum generation failed: {e}")
-            raise ValueError(f"Failed to generate memorandum: {str(e)}")
+            raise ValueError(f"Failed to generate memorandum: {friendly_llm_error(e)}")
 
 
 memorandum_service = MemorandumService()

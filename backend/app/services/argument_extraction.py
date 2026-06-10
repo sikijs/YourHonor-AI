@@ -5,6 +5,7 @@ from typing import Optional
 from litellm import completion
 from app.models.argument_extraction import GeneratedArguments, ArgumentExtractionResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 
@@ -195,7 +196,7 @@ class ArgumentExtractionService:
 
         except Exception as e:
             logger.error(f"Argument extraction failed: {e}")
-            raise ValueError(f"Failed to extract arguments: {str(e)}")
+            raise ValueError(f"Failed to extract arguments: {friendly_llm_error(e)}")
 
 
 argument_extraction_service = ArgumentExtractionService()

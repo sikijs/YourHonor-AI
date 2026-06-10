@@ -6,6 +6,7 @@ from pathlib import Path
 from litellm import completion
 from app.models.legal_glossary import GeneratedGlossaryEntry, GlossaryResponse
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 
 logger = logging.getLogger(__name__)
@@ -198,7 +199,7 @@ class GlossaryService:
 
         except Exception as e:
             logger.error(f"Glossary lookup failed: {e}")
-            raise ValueError(f"Failed to look up term: {str(e)}")
+            raise ValueError(f"Failed to look up term: {friendly_llm_error(e)}")
 
 
 glossary_service = GlossaryService()
