@@ -61,8 +61,8 @@ sudo systemctl start docker
 3. Once logged in, click the **"[+ Create Key]"** button near the top
 4. A long key starting with `sk-or-v1-` will appear. Click the **clipboard icon** next to it to copy it to your clipboard
 5. **Save it somewhere safe** (paste into a temporary text file) — you won't be able to see it again
-
-> **No credit card needed.** New accounts get free credits to start.
+6. Go to https://openrouter.ai/settings/credits and click **"Add Credits"** — the minimum is **$5**
+7. This lasts thousands of responses — every AI feature uses Qwen3-14B, a paid model
 
 ---
 
