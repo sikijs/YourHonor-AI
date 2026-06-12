@@ -197,18 +197,48 @@ Backend available at http://localhost:8000
 
 ## Current API Endpoints
 
-POST /api/auth/signup - Create new user account
-POST /api/auth/signin - Sign in and receive JWT cookie
-POST /api/auth/signout - Clear auth cookie
-GET /api/auth/me - Get current user info
-GET /api/documents - List user's saved documents (auth required)
-POST /api/documents - Save new document (auth required)
-GET /api/documents/{id} - Get specific document (auth required)
-PUT /api/documents/{id} - Update document (auth required)
-DELETE /api/documents/{id} - Delete document (auth required)
-GET /api/chat/greeting - Get AI greeting
-POST /api/chat/message - Send chat message and get AI response
-GET /api/health - Health check
+### Auth
+- POST /api/auth/signup - Create new user account
+- POST /api/auth/signin - Sign in and receive JWT cookie
+- POST /api/auth/signout - Clear auth cookie
+- GET /api/auth/me - Get current user info
+
+### Documents
+- GET /api/documents - List user's saved documents (auth required)
+- POST /api/documents - Save new document (auth required)
+- GET /api/documents/{id} - Get specific document (auth required)
+- PUT /api/documents/{id} - Update document (auth required)
+- DELETE /api/documents/{id} - Delete document (auth required)
+
+### Chat
+- GET /api/chat/greeting - Get AI greeting
+- POST /api/chat/message - Send chat message and get AI response
+
+### Tutor
+- GET  /api/tutor/topics             - List available topics with question counts
+- POST /api/tutor/start              - Start a session (hardcoded questions)
+- POST /api/tutor/start-dynamic      - Start a session (LLM-generated questions)
+- POST /api/tutor/answer             - Submit answer and get evaluation + follow-up
+- POST /api/tutor/continue-learning  - Generate a new dynamic question mid-session
+
+### Legal Tools
+- POST /api/legal/case-brief       - Generate structured case brief
+- POST /api/legal/summary          - Summarize legal content
+- POST /api/legal/arguments        - Extract legal arguments
+- POST /api/legal/citations        - Generate citation map
+- POST /api/legal/memorandum       - Draft IRAC-style legal memorandum
+- POST /api/legal/glossary         - Define legal term
+
+### Debate
+- POST /api/legal/debate           - Analyze both sides of a legal question
+
+### RAG
+- POST /api/rag/retrieve          - Retrieve relevant context
+- POST /api/rag/ingest            - Ingest a document
+- GET  /api/rag/collection/stats  - Get collection statistics
+
+### Other
+- GET /api/health - Health check
 
 ---
 
@@ -244,12 +274,16 @@ GET /api/health - Health check
 - Auto pre-ingestion of 24 landmark cases from CourtListener into Qdrant at startup (background thread, 12s delay between cases for rate limits)
 - Progress tracking: cache hit → skip API, cache miss → fetch → cache → ingest → mark done
 
-### Phase 5 (Advanced Features) - PENDING
+### Phase 5 (Advanced Features) - COMPLETE
 - Memorandum drafting
-- Predictive analytics
-- Legal reasoning graphs
-- AI tutor features
-- Debate/counterargument engine
+- Predictive analytics (pending)
+- Legal reasoning graphs (pending)
+- AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review
+- Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
+
+### Phase 6 (Error Handling) - COMPLETE
+- `app/services/llm_errors.py` — Detects OpenRouter payment/credit errors and returns a user-friendly message: *"Your OpenRouter credits are exhausted. Add funds at openrouter.ai/settings/credits to continue."* instead of raw API errors
+- All 9 LLM service files route errors through `friendly_llm_error()`
 
 ---
 
