@@ -54,7 +54,7 @@ The future lawyer is someone who understands:
 Before diving into specific legal tech tools, it helps to understand how AI actually works — where it came from, how it evolved, and what it can and cannot do.
 
 ## Understanding AI: From Neurons to Large Language Models
-Website: https://github.com/sikijs/YourHonor-AI-Resources
+Website: https://sikijs.github.io/YourHonor-AI-Resources/
 
 ### What it does
 

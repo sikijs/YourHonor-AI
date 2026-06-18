@@ -73,37 +73,6 @@ When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM 
 
 There is an OPENROUTER_API_KEY in the .env file in the project root.
 
-
-#### Legal MCP - Court Record Search
-
-The Legal MCP server from Apify provides court record search capabilities.
-
-**Primary method** (for most AI agents):
-```
-https://mcp.apify.com/?tools=actors,docs,nexgendata/legal-mcp-server
-```
-
-Configure your AI client with this URL. The server auto-discovers available tools.
-
-**Local stdio method** (if your client doesn't support remote MCP):
-```json
-{
-  "mcpServers": {
-    "actors-mcp-server": {
-      "command": "npx",
-      "args": ["-y", "@apify/actors-mcp-server"],
-      "env": {
-        "APIFY_TOKEN": "YOUR_APIFY_TOKEN"
-      }
-    }
-  }
-}
-```
-
-Get your API token from the Apify store or your .env file.
-
----
-
 ## The AI Agent MUST NEVER:
 
 - Generate giant monolithic files
@@ -251,10 +220,10 @@ Backend available at http://localhost:8000
 - Document storage API
 - Start/stop scripts for Mac/Linux/Windows
 
-### Phase 2 (Document Ingestion) - PENDING
-- PDF upload (planned)
-- Text extraction (planned)
-- OCR support (planned)
+### Phase 2 (Document Ingestion) - COMPLETE
+- PDF upload (POST /api/documents/upload)
+- Text extraction (pypdf/PdfReader)
+- OCR support (future upgrade — scanned PDFs not yet supported)
 
 ### Phase 3 (Basic RAG) - COMPLETE
 - Legal document chunking (LangChain)
@@ -264,7 +233,7 @@ Backend available at http://localhost:8000
 - LLM + RAG integration (qwen/qwen3-14b via LiteLLM/OpenRouter)
 - Educational disclaimers and source citations
 
-### Phase 4 (Legal Intelligence) - IN PROGRESS
+### Phase 4 (Legal Intelligence) - COMPLETE
 - Case brief generation
 - Legal summaries
 - Argument extraction

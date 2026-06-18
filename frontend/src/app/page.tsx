@@ -76,7 +76,7 @@ function GlossaryView({ user, onError }: { user: User; onError: (err: string) =>
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Searching legal sources and generating definition...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Searching legal sources and generating definition...</p></div>
         </div>
       )}
 
@@ -158,7 +158,7 @@ function GlossaryView({ user, onError }: { user: User; onError: (err: string) =>
 
           {result.from_seed && (
             <div className="card" style={{ background: '#e8f5e9', border: '1px solid #4caf50', marginTop: '0.5rem' }}>
-              <p style={{ fontSize: '0.85rem', color: '#2e7d32', margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--blue-primary)', margin: 0 }}>
                 This entry is from the curated legal glossary. Definitions have been verified from established legal sources.
               </p>
             </div>
@@ -213,7 +213,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="container" style={{ textAlign: 'center', padding: '4rem' }}>
-        <p>Loading...</p>
+        <div className="spinner-container"><span className="spinner" /><p>Loading...</p></div>
       </div>
     );
   }
@@ -228,27 +228,27 @@ export default function Home() {
         <nav>
           {user ? (
             <>
-              <a href="#" onClick={() => setView('home')}>Home</a>
-              <a href="#" onClick={() => setView('about')}>About</a>
-              <a href="#" onClick={() => setView('briefs')}>Case Briefs</a>
-              <a href="#" onClick={() => setView('summaries')}>Summaries</a>
-              <a href="#" onClick={() => setView('arguments')}>Arguments</a>
-              <a href="#" onClick={() => setView('citations')}>Citations</a>
-              <a href="#" onClick={() => setView('memoranda')}>Memoranda</a>
-              <a href="#" onClick={() => setView('debate')}>Debate</a>
-              <a href="#" onClick={() => setView('tutor')}>AI Tutor</a>
-              <a href="#" onClick={() => setView('documents')}>My Documents</a>
-              <a href="#" onClick={() => setView('glossary')}>Glossary</a>
-              <a href="#" onClick={() => setView('resources')}>Resources</a>
-              <a href="#" onClick={() => setView('chat')}>Chat</a>
+              <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
+              <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
+              <a href="#" onClick={() => setView('briefs')} style={view === 'briefs' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Case Briefs</a>
+              <a href="#" onClick={() => setView('summaries')} style={view === 'summaries' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Summaries</a>
+              <a href="#" onClick={() => setView('arguments')} style={view === 'arguments' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Arguments</a>
+              <a href="#" onClick={() => setView('citations')} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
+              <a href="#" onClick={() => setView('memoranda')} style={view === 'memoranda' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Memoranda</a>
+              <a href="#" onClick={() => setView('debate')} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
+              <a href="#" onClick={() => setView('tutor')} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
+              <a href="#" onClick={() => setView('documents')} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
+              <a href="#" onClick={() => setView('glossary')} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
+              <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
+              <a href="#" onClick={() => setView('chat')} style={view === 'chat' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Chat</a>
               <a href="#" onClick={handleSignOut}>Sign Out</a>
             </>
           ) : (
             <>
-              <a href="#" onClick={() => setView('home')}>Home</a>
-              <a href="#" onClick={() => setView('about')}>About</a>
-              <a href="#" onClick={() => setView('resources')}>Resources</a>
-              <a href="#" onClick={() => setView('auth')}>Sign In</a>
+              <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
+              <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
+              <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
+              <a href="#" onClick={() => setView('auth')} style={view === 'auth' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Sign In</a>
             </>
           )}
         </nav>
@@ -390,7 +390,7 @@ function ResourcesView() {
 }
 
 function HomeView({ user, onNavigate }: { user: User | null; onNavigate: (v: 'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'debate' | 'generator' | 'tutor' | 'glossary' | 'resources' | 'about') => void }) {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['intro']));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   function toggleSection(id: string) {
     setExpandedSections((prev) => {
@@ -416,8 +416,8 @@ function HomeView({ user, onNavigate }: { user: User | null; onNavigate: (v: 'ho
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: depth === 0 ? '0.75rem 1rem' : depth === 1 ? '0.5rem 0.75rem' : '0.35rem 0.6rem',
-            background: depth === 0 ? '#546e7a' : depth === 1 ? '#90a4ae' : '#b0bec5',
-            color: depth === 0 ? '#fff' : 'var(--dark-navy)',
+            background: depth === 0 ? 'var(--dark-navy)' : depth === 1 ? 'var(--blue-primary)' : 'var(--purple-secondary)',
+            color: '#fff',
             borderRadius: depth >= 2 ? '6px' : '8px',
             fontSize: depth === 0 ? '1.1rem' : depth === 1 ? '0.95rem' : '0.85rem',
             fontWeight: depth === 0 ? 700 : 600,
@@ -456,10 +456,7 @@ function HomeView({ user, onNavigate }: { user: User | null; onNavigate: (v: 'ho
     <div>
       <div className="hero">
         <h1>YourHonor AI</h1>
-        <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>AI-Powered Legal Education Platform</p>
-        <p style={{ fontSize: '0.9rem', color: 'var(--gray-text)', maxWidth: '600px', margin: '0 auto 1.5rem' }}>
-          &ldquo;If you graduate without understanding AI, you&rsquo;ll be outdated.<br />If you trust it blindly, you&rsquo;ll be dangerous.&rdquo;
-        </p>
+        <p style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>AI-Powered Legal Education Platform</p>
         {user ? (
           <button className="btn btn-secondary" onClick={() => onNavigate('chat')}>
             Start Chatting
@@ -768,7 +765,7 @@ function DocumentsView({ user, onError }: { user: User; onError: (err: string) =
 
           {uploading && (
             <div className="card" style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem' }}>
-              <p>Uploading and extracting text...</p>
+              <div className="spinner-container"><span className="spinner" /><p>Uploading and extracting text...</p></div>
             </div>
           )}
 
@@ -1007,7 +1004,7 @@ function CaseBriefView({ user, onError }: { user: User; onError: (err: string) =
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Retrieving case and generating brief...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving case and generating brief...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -1066,7 +1063,7 @@ function CaseBriefView({ user, onError }: { user: User; onError: (err: string) =
           )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(caseBriefHtml(brief))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard
@@ -1202,7 +1199,7 @@ function SummaryView({ user, onError }: { user: User; onError: (err: string) => 
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Retrieving content and generating summary...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving content and generating summary...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -1269,7 +1266,7 @@ function SummaryView({ user, onError }: { user: User; onError: (err: string) => 
           )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(summaryHtml(summary))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard
@@ -1392,7 +1389,7 @@ function ArgumentsView({ user, onError }: { user: User; onError: (err: string) =
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Retrieving case and analyzing arguments...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving case and analyzing arguments...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -1472,7 +1469,7 @@ function ArgumentsView({ user, onError }: { user: User; onError: (err: string) =
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(argumentsHtml(result))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard
@@ -1595,7 +1592,7 @@ function CitationMapView({ user, onError }: { user: User; onError: (err: string)
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Analyzing citations...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Analyzing citations...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -1632,19 +1629,19 @@ function CitationMapView({ user, onError }: { user: User; onError: (err: string)
                 <div key={i} style={{ marginBottom: i < result.statutes_cited.length - 1 ? '0.75rem' : 0, paddingBottom: i < result.statutes_cited.length - 1 ? '0.75rem' : 0, borderBottom: i < result.statutes_cited.length - 1 ? '1px solid #eee' : 'none' }}>
                   <p style={{ fontWeight: 600 }}>{item.name}{item.citation ? `, ${item.citation}` : ''}</p>
                   <p style={{ fontSize: '0.9rem' }}>{item.context}</p>
-                  <span style={{ fontSize: '0.8rem', padding: '0.15rem 0.5rem', borderRadius: '3px', background: '#e8f5e9', color: '#2e7d32' }}>{item.treatment}</span>
+                  <span style={{ fontSize: '0.8rem', padding: '0.15rem 0.5rem', borderRadius: '3px', background: '#e8f5e9', color: 'var(--blue-primary)' }}>{item.treatment}</span>
                 </div>
               ))}
             </div>
           )}
           {result.constitutional_provisions.length > 0 && (
             <div className="card" style={{ marginBottom: '0.75rem' }}>
-              <h3 style={{ color: '#2e7d32' }}>Constitutional Provisions</h3>
+              <h3 style={{ color: 'var(--purple-secondary)' }}>Constitutional Provisions</h3>
               {result.constitutional_provisions.map((item, i) => (
                 <div key={i} style={{ marginBottom: i < result.constitutional_provisions.length - 1 ? '0.75rem' : 0, paddingBottom: i < result.constitutional_provisions.length - 1 ? '0.75rem' : 0, borderBottom: i < result.constitutional_provisions.length - 1 ? '1px solid #eee' : 'none' }}>
                   <p style={{ fontWeight: 600 }}>{item.name}{item.citation ? `, ${item.citation}` : ''}</p>
                   <p style={{ fontSize: '0.9rem' }}>{item.context}</p>
-                  <span style={{ fontSize: '0.8rem', padding: '0.15rem 0.5rem', borderRadius: '3px', background: '#e8f5e9', color: '#2e7d32' }}>{item.treatment}</span>
+                  <span style={{ fontSize: '0.8rem', padding: '0.15rem 0.5rem', borderRadius: '3px', background: '#e8f5e9', color: 'var(--blue-primary)' }}>{item.treatment}</span>
                 </div>
               ))}
             </div>
@@ -1656,7 +1653,7 @@ function CitationMapView({ user, onError }: { user: User; onError: (err: string)
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(citationMapHtml(result))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard
@@ -1790,7 +1787,7 @@ function ChatView({ user, onError, onNavigate }: { user: User; onError: (err: st
               )}
             </div>
           ))}
-          {loading && <div className="message assistant"><em>Thinking...</em><div style={{ marginTop: '0.5rem', textAlign: 'center' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Cancel</button></div></div>}
+          {loading && <div className="message assistant"><div className="spinner-container"><span className="spinner" /><em>Thinking...</em></div><div style={{ marginTop: '0.5rem', textAlign: 'center' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Cancel</button></div></div>}
           <div ref={messagesEndRef} />
         </div>
         <form className="chat-input" onSubmit={handleSend}>
@@ -1801,7 +1798,7 @@ function ChatView({ user, onError, onNavigate }: { user: User; onError: (err: st
             placeholder="Ask about legal concepts, cases, templates, or what tool to use..."
             disabled={loading}
             rows={2}
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none' }}
+            style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none' }}
           />
           <button type="submit" className="btn btn-primary" disabled={loading || !input.trim()}>
             Send
@@ -2042,7 +2039,7 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
       <div>
         <h2>{session.topic_name}</h2>
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Starting your session...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Starting your session...</p></div>
         </div>
       </div>
     );
@@ -2085,12 +2082,12 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
         <div className="card" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '1rem' }}>
           {reviewMode ? (
             <>
-              <span style={{ fontSize: '0.85rem', color: '#2e7d32' }}>✓ {reviewCorrect}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--blue-primary)' }}>✓ {reviewCorrect}</span>
               <span style={{ fontSize: '0.85rem', color: '#c62828' }}>✗ {reviewWrong}</span>
             </>
           ) : (
             <>
-              <span style={{ fontSize: '0.85rem', color: '#2e7d32' }}>✓ {correctCount}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--blue-primary)' }}>✓ {correctCount}</span>
               <span style={{ fontSize: '0.85rem', color: '#c62828' }}>✗ {wrongCount}</span>
             </>
           )}
@@ -2098,8 +2095,8 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
       </div>
 
       {isComplete && !reviewMode && (
-        <div className="card" style={{ marginBottom: '1rem', background: '#e8f5e9', border: '1px solid #4caf50', textAlign: 'center', padding: '2rem' }}>
-          <h3 style={{ color: '#2e7d32' }}>Topic Complete! 🎉</h3>
+        <div className="card" style={{ marginBottom: '1rem', background: '#fff8dc', border: '1px solid var(--accent-yellow)', textAlign: 'center', padding: '2rem' }}>
+          <h3 style={{ color: 'var(--accent-yellow)' }}>Topic Complete! 🎉</h3>
           <p>You answered {correctCount} of {totalQuestions} questions correctly.</p>
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
             {correctCount === totalQuestions
@@ -2190,7 +2187,7 @@ function TutorView({ user, onError }: { user: User; onError: (err: string) => vo
 
       {reviewMode && reviewComplete && (
         <div className="card" style={{ marginBottom: '1rem', background: '#e8f5e9', border: '1px solid #4caf50', textAlign: 'center', padding: '2rem' }}>
-          <h3 style={{ color: '#2e7d32' }}>Review Complete! 🎉</h3>
+          <h3 style={{ color: 'var(--accent-yellow)' }}>Review Complete! 🎉</h3>
           <p>You marked {reviewCorrect} of {reviewCorrect + reviewWrong} cards correct ({Math.round((reviewCorrect / Math.max(reviewCorrect + reviewWrong, 1)) * 100)}%).</p>
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
             Ready to test yourself? Switch to Quiz mode to answer questions and get evaluated.
@@ -2372,7 +2369,7 @@ function MemorandumView({ user, onError }: { user: User; onError: (err: string) 
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Retrieving sources and drafting memorandum...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving sources and drafting memorandum...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -2437,7 +2434,7 @@ function MemorandumView({ user, onError }: { user: User; onError: (err: string) 
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(memorandumHtml(result))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard
@@ -2557,7 +2554,7 @@ function DebateView({ user, onError }: { user: User; onError: (err: string) => v
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>Retrieving sources and analyzing arguments...</p>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving sources and analyzing arguments...</p></div>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
@@ -2579,7 +2576,7 @@ function DebateView({ user, onError }: { user: User; onError: (err: string) => v
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
-              <h3 style={{ color: '#2e7d32', marginBottom: '0.75rem' }}>Supporting Arguments</h3>
+              <h3 style={{ color: 'var(--blue-primary)', marginBottom: '0.75rem' }}>Supporting Arguments</h3>
               {result.supporting_arguments.map((arg, i) => (
                 <div key={i} className="card" style={{ marginBottom: '0.75rem', borderLeft: `4px solid ${strengthColor(arg.strength)}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
@@ -2604,7 +2601,7 @@ function DebateView({ user, onError }: { user: User; onError: (err: string) => v
               ))}
             </div>
             <div>
-              <h3 style={{ color: '#c62828', marginBottom: '0.75rem' }}>Opposing Arguments</h3>
+              <h3 style={{ color: 'var(--purple-secondary)', marginBottom: '0.75rem' }}>Opposing Arguments</h3>
               {result.opposing_arguments.map((arg, i) => (
                 <div key={i} className="card" style={{ marginBottom: '0.75rem', borderLeft: `4px solid ${strengthColor(arg.strength)}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
@@ -2622,7 +2619,7 @@ function DebateView({ user, onError }: { user: User; onError: (err: string) => v
                   )}
                   {arg.counter_rebuttal && (
                     <div style={{ marginTop: '0.25rem', padding: '0.4rem', background: '#e8f5e9', borderRadius: '4px', fontSize: '0.8rem', border: '1px solid #c8e6c9' }}>
-                      <strong style={{ color: '#2e7d32' }}>Counter-Rebuttal:</strong> {arg.counter_rebuttal}
+                      <strong style={{ color: 'var(--blue-primary)' }}>Counter-Rebuttal:</strong> {arg.counter_rebuttal}
                     </div>
                   )}
                 </div>
@@ -2658,7 +2655,7 @@ function DebateView({ user, onError }: { user: User; onError: (err: string) => v
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            {saved && <span style={{ color: '#2e7d32', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+            {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
             {copied && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>Copied!</span>}
             <button className="btn btn-outline" onClick={() => { navigator.clipboard.writeText(resultToPlainText(debateHtml(result))); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
               Copy to Clipboard

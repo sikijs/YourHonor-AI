@@ -128,11 +128,6 @@ input:focus, textarea:focus, select:focus {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 1px rgba(32,157,215,0.15);
-}
-
 h1, h2, h3 {
   color: var(--dark-navy);
   margin-bottom: 1rem;
@@ -195,6 +190,34 @@ h1, h2, h3 {
   color: var(--blue-primary);
 }
 
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 1px rgba(32,157,215,0.15);
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #e0e0e0;
+  border-top-color: var(--blue-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .form-group {
   margin-bottom: 1rem;
 }
@@ -243,7 +266,7 @@ h1, h2, h3 {
   gap: 0.5rem;
 }
 
-.chat-input input {
+.chat-input textarea {
   flex: 1;
   margin-bottom: 0;
 }
