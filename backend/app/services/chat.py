@@ -1,9 +1,9 @@
 import os
 import logging
-import re
-import urllib.request
-import urllib.parse
 from typing import Optional
+
+import httpx
+from bs4 import BeautifulSoup
 
 from .template_catalog import get_template_catalog
 from app.services.llm_errors import friendly_llm_error, CREDITS_MESSAGE
@@ -107,51 +107,44 @@ class ChatService:
         try:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.5",
             }
-            data = urllib.parse.urlencode({"q": query}).encode()
-            req = urllib.request.Request(
-                "https://lite.duckduckgo.com/lite/",
-                data=data,
-                headers=headers,
-            )
-            resp = urllib.request.urlopen(req, timeout=15)
-            body = resp.read().decode()
+            with httpx.Client(timeout=15.0, follow_redirects=True) as client:
+                resp = client.post(
+                    "https://lite.duckduckgo.com/lite/",
+                    data={"q": query},
+                    headers=headers,
+                )
+                resp.raise_for_status()
 
-            trs = re.findall(r"<tr>(.*?)</tr>", body, re.DOTALL)
+            soup = BeautifulSoup(resp.text, "html.parser")
             results = []
-            for i, tr in enumerate(trs):
-                tds = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.DOTALL)
+
+            result_rows = soup.select("div#links table tr")
+            i = 0
+            while i < len(result_rows) and len(results) < max_results:
+                tds = result_rows[i].find_all("td")
                 if len(tds) >= 2:
-                    first = re.sub(r"<[^>]+>", "", tds[0]).strip()
-                    first = first.replace("&nbsp;", " ").strip()
-                    if re.search(r"^\d+\.?\s*$", first):
-                        title = re.sub(r"<[^>]+>", "", tds[1]).strip()
-                        description = ""
-                        url = ""
-                        if i + 1 < len(trs):
-                            nd_tds = re.findall(r"<td[^>]*>(.*?)</td>", trs[i + 1], re.DOTALL)
-                            if len(nd_tds) >= 2:
-                                desc_text = re.sub(r"<[^>]+>", "", nd_tds[1]).strip()
-                                desc_text = re.sub(r"\s+", " ", desc_text)
-                                description = desc_text.replace("&nbsp;", " ").strip()
-                        if i + 2 < len(trs):
-                            nn_tds = re.findall(r"<td[^>]*>(.*?)</td>", trs[i + 2], re.DOTALL)
-                            if len(nn_tds) >= 2:
-                                url_text = re.sub(r"<[^>]+>", "", nn_tds[1]).strip()
-                                url = url_text.replace("&nbsp;", " ").strip()
-                        if not url:
-                            url_match = re.search(r"https?://[^\s<]+", body[body.find(title):body.find(title)+500])
-                            if url_match:
-                                url = url_match.group(0)
-                        results.append({
-                            "title": title,
-                            "href": url or "",
-                            "body": description,
-                        })
-                        if len(results) >= max_results:
-                            break
+                    first_text = tds[0].get_text(strip=True)
+                    if first_text.rstrip('.').strip().isdigit():
+                        title = tds[1].get_text(strip=True)
+                        href = ""
+                        snippet = ""
+                        if i + 1 < len(result_rows):
+                            desc_tds = result_rows[i + 1].find_all("td")
+                            if len(desc_tds) >= 2:
+                                snippet = desc_tds[1].get_text(separator=" ", strip=True)
+                        if i + 2 < len(result_rows):
+                            url_tds = result_rows[i + 2].find_all("td")
+                            if len(url_tds) >= 2:
+                                href = url_tds[1].get_text(separator=" ", strip=True)
+                        if title:
+                            results.append({
+                                "title": title,
+                                "href": href,
+                                "body": snippet,
+                            })
+                i += 1
+
             if not results:
                 logger.warning(f"DuckDuckGo returned no parseable results for: {query}")
             return results
