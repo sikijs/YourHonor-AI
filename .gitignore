@@ -4,6 +4,7 @@ __pycache__/
 *.egg-info/
 .venv/
 dist/
+.pytest_cache/
 
 # Node
 node_modules/
@@ -14,6 +15,13 @@ node_modules/
 
 # Docker runtime data
 docker/data/
+
+# Backend runtime data (SQLite database)
+backend/data/
+
+# Coverage reports
+.coverage
+*.coverage.*
 
 # OS files
 .DS_Store
