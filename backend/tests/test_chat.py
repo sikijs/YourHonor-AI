@@ -37,19 +37,17 @@ def test_web_search_parses_ddg_lite_html():
 <html>
 <head><title>DuckDuckGo Lite</title></head>
 <body>
-  <div id="links">
-    <table>
-      <tr><td>1.</td><td><a href="https://example.com/contract">Contract Law Overview</a></td></tr>
-      <tr><td></td><td>An overview of contract law principles including offer, acceptance, and consideration.</td></tr>
-      <tr><td></td><td>https://example.com/contract</td></tr>
-      <tr><td>2.</td><td><a href="https://example.com/torts">Tort Law Basics</a></td></tr>
-      <tr><td></td><td>Introduction to tort law covering negligence, strict liability, and intentional torts.</td></tr>
-      <tr><td></td><td>https://example.com/torts</td></tr>
-      <tr><td>3.</td><td><a href="https://example.com/property">Property Law</a></td></tr>
-      <tr><td></td><td>Overview of property law including real property, personal property, and land use.</td></tr>
-      <tr><td></td><td>https://example.com/property</td></tr>
-    </table>
-  </div>
+  <table>
+    <tr><td>1.</td><td><a href="https://example.com/contract">Contract Law Overview</a></td></tr>
+    <tr><td></td><td>An overview of contract law principles including offer, acceptance, and consideration.</td></tr>
+    <tr><td></td><td>https://example.com/contract</td></tr>
+    <tr><td>2.</td><td><a href="https://example.com/torts">Tort Law Basics</a></td></tr>
+    <tr><td></td><td>Introduction to tort law covering negligence, strict liability, and intentional torts.</td></tr>
+    <tr><td></td><td>https://example.com/torts</td></tr>
+    <tr><td>3.</td><td><a href="https://example.com/property">Property Law</a></td></tr>
+    <tr><td></td><td>Overview of property law including real property, personal property, and land use.</td></tr>
+    <tr><td></td><td>https://example.com/property</td></tr>
+  </table>
 </body>
 </html>"""
 
@@ -76,7 +74,7 @@ def test_web_search_empty_results_returns_empty_list():
     from app.services.chat import ChatService
 
     mock_response = MagicMock()
-    mock_response.text = "<html><body><div id='links'><table></table></div></body></html>"
+    mock_response.text = "<html><body><table></table></body></html>"
     mock_response.raise_for_status = MagicMock()
 
     service = ChatService()

@@ -119,7 +119,7 @@ class ChatService:
             soup = BeautifulSoup(resp.text, "html.parser")
             results = []
 
-            result_rows = soup.select("div#links table tr")
+            result_rows = soup.select("table tr")
             i = 0
             while i < len(result_rows) and len(results) < max_results:
                 tds = result_rows[i].find_all("td")
