@@ -16,6 +16,8 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
   const [chatLoading, setChatLoading] = useState(false);
   const cancelRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (user && messages.length === 0) loadGreeting();
@@ -64,6 +66,11 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
     } finally {
       setChatLoading(false);
     }
+  }
+
+  function scrollToChat() {
+    chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => inputRef.current?.focus(), 500);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -139,8 +146,8 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         <h1>YourHonor AI</h1>
         <p style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>AI-Powered Legal Education Platform</p>
         {user ? (
-          <button className="btn btn-secondary" onClick={() => onNavigate('chat')}>
-            Start Chatting
+          <button className="btn btn-secondary" onClick={scrollToChat}>
+            Ask a Legal Question
           </button>
         ) : (
           <button className="btn btn-secondary" onClick={() => onNavigate('auth')}>
@@ -170,7 +177,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
       </div>
 
       {user && (
-        <div className="card" style={{ marginTop: '2rem', padding: 0, overflow: 'hidden' }}>
+        <div ref={chatRef} className="card" style={{ marginTop: '2rem', padding: 0, overflow: 'hidden', scrollMarginTop: '1rem' }}>
           <div style={{ padding: '1rem 1.5rem', background: 'var(--dark-navy)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ color: '#fff', margin: 0, fontSize: '1.1rem' }}>Ask the AI Assistant</h3>
             <button className="btn btn-outline" onClick={() => onNavigate('chat')} style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem', color: '#fff', borderColor: '#fff' }}>
@@ -226,6 +233,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
             )}
             <form onSubmit={handleSend} style={{ display: 'flex', gap: '0.5rem' }}>
               <textarea
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
