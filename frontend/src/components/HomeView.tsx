@@ -1,13 +1,77 @@
 'use client';
 
-import { useState } from 'react';
-import { User } from '@/lib/api';
+import { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { User, api } from '@/lib/api';
+import { markdownComponents } from '@/components/markdownComponents';
 import { AI_IN_LAW, AiSection } from '@/lib/aiInLawContent';
 
 type NavigateFn = (view: string) => void;
 
 export default function HomeView({ user, onNavigate }: { user: User | null; onNavigate: NavigateFn }) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: { title: string; source: string; relevance_score: number }[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
+  const [input, setInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const cancelRef = useRef<AbortController | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user && messages.length === 0) loadGreeting();
+  }, [user]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    return () => cancelRef.current?.abort();
+  }, []);
+
+  async function loadGreeting() {
+    try {
+      const { greeting } = await api.chat.greeting();
+      setMessages([{ role: 'assistant', content: greeting }]);
+    } catch {
+      // silently fail — greeting is optional
+    }
+  }
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input.trim() || chatLoading || !user) return;
+
+    cancelRef.current = new AbortController();
+    const userMessage = input;
+    setInput('');
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    setChatLoading(true);
+
+    try {
+      const res = await api.chat.message(userMessage, cancelRef.current.signal);
+      setMessages((prev) => [...prev, {
+        role: 'assistant',
+        content: res.response,
+        sources: res.sources,
+        suggested_tool: res.suggested_tool,
+        suggested_name: res.suggested_name,
+        suggested_description: res.suggested_description,
+        suggested_query: res.suggested_query,
+      }]);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+    } finally {
+      setChatLoading(false);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend(e as unknown as React.FormEvent);
+    }
+  }
 
   function toggleSection(id: string) {
     setExpandedSections((prev) => {
@@ -104,6 +168,79 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
           &ldquo;If you graduate without understanding AI, you&rsquo;ll be outdated.<br />If you trust it blindly, you&rsquo;ll be dangerous.&rdquo;
         </p>
       </div>
+
+      {user && (
+        <div className="card" style={{ marginTop: '2rem', padding: 0, overflow: 'hidden' }}>
+          <div style={{ padding: '1rem 1.5rem', background: 'var(--dark-navy)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ color: '#fff', margin: 0, fontSize: '1.1rem' }}>Ask the AI Assistant</h3>
+            <button className="btn btn-outline" onClick={() => onNavigate('chat')} style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem', color: '#fff', borderColor: '#fff' }}>
+              Full Chat &rarr;
+            </button>
+          </div>
+          <div style={{ padding: '1rem 1.5rem' }}>
+            <div style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {messages.map((msg, i) => (
+                <div key={i}>
+                  <div style={{
+                    padding: '0.6rem 0.85rem',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                    background: msg.role === 'user' ? 'var(--blue-primary)' : '#f0f4f8',
+                    color: msg.role === 'user' ? '#fff' : '#333',
+                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '85%',
+                    marginLeft: msg.role === 'user' ? 'auto' : 0,
+                    marginRight: msg.role === 'assistant' ? 'auto' : 0,
+                  }}>
+                    {msg.role === 'assistant' ? (
+                      <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.suggested_tool && msg.suggested_name && (
+                    <div
+                      onClick={() => msg.suggested_tool && onNavigate(msg.suggested_tool)}
+                      style={{ margin: '0.35rem 0 0 0', padding: '0.5rem 0.75rem', cursor: 'pointer', border: '1px solid var(--blue-primary)', borderLeft: '3px solid var(--blue-primary)', borderRadius: '6px', background: '#f8fbff', fontSize: '0.85rem' }}
+                    >
+                      <p style={{ fontWeight: 600, color: 'var(--blue-primary)', margin: '0 0 0.2rem' }}>
+                        Try the {msg.suggested_name} tool &rarr;
+                      </p>
+                      <p style={{ color: 'var(--gray-text)', margin: 0, fontSize: '0.8rem' }}>{msg.suggested_description}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {chatLoading && (
+                <div style={{ padding: '0.6rem 0.85rem', borderRadius: '8px', background: '#f0f4f8', fontSize: '0.9rem', alignSelf: 'flex-start', maxWidth: '85%' }}>
+                  <div className="spinner-container"><span className="spinner" /><em>Thinking...</em></div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            {messages.length === 0 && !chatLoading && (
+              <p style={{ color: 'var(--gray-text)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '0.75rem' }}>
+                Ask about legal concepts, cases, or what document to draft.
+              </p>
+            )}
+            <form onSubmit={handleSend} style={{ display: 'flex', gap: '0.5rem' }}>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask a legal question..."
+                disabled={chatLoading}
+                rows={1}
+                style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none', margin: 0 }}
+              />
+              <button type="submit" className="btn btn-primary" disabled={chatLoading || !input.trim()} style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}>
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="features">
         <div className="card feature-card" onClick={() => onNavigate(user ? 'briefs' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
