@@ -275,7 +275,7 @@ ChatGPT that went to law school and got hired by a giant law firm
 ---
 
 ## CoCounsel
-Website: https://legal.thomsonreuters.com/en/products/cocounsel
+Website: https://legal.thomsonreuters.com/en/products/cocounsel-legal
 
 ### What it does
 
@@ -501,7 +501,7 @@ This area raises major concerns about:
 ---
 
 ## COMPAS
-Website: https://www.equivant.com/compas-analytics
+Website: https://equivant-corrections.com/
 
 ### What it does
 
