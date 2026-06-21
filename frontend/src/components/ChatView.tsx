@@ -44,7 +44,8 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
     setLoading(true);
 
     try {
-      const res = await api.chat.message(userMessage, cancelRef.current.signal);
+      const history = messages.map(m => ({ role: m.role, content: m.content })).slice(-10);
+      const res = await api.chat.message(userMessage, history, cancelRef.current.signal);
       setMessages((prev) => [...prev, {
         role: 'assistant',
         content: res.response,
@@ -71,10 +72,17 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
 
   return (
     <div>
-      <h2>Legal AI Assistant</h2>
-      <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
-        The AI Assistant answers legal questions and guides you to the right tool. It draws from our knowledge base of cases and legal principles — always verify important information against primary sources.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <div>
+          <h2 style={{ margin: 0 }}>AI Assistant</h2>
+          <p style={{ color: 'var(--gray-text)', margin: '0.25rem 0 0' }}>
+            Ask anything — legal research, case analysis, document drafting, or general questions. I draw from our knowledge base of cases, legal documents, and web search results.
+          </p>
+        </div>
+        <button className="btn btn-outline" onClick={() => { setMessages([]); loadGreeting(); }} style={{ whiteSpace: 'nowrap', fontSize: '0.85rem' }}>
+          New Chat
+        </button>
+      </div>
       <div className="chat-container">
         <div className="messages">
           {messages.map((msg, i) => (
@@ -126,7 +134,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about legal concepts, cases, templates, or what tool to use..."
+            placeholder="Ask anything..."
             disabled={loading}
             rows={2}
             style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none' }}

@@ -13,18 +13,17 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
 
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: { title: string; source: string; relevance_score: number }[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
   const [input, setInput] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
   const cancelRef = useRef<AbortController | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const greetingLoaded = useRef(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (user && messages.length === 0) loadGreeting();
-  }, [user]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   useEffect(() => {
@@ -51,7 +50,8 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
     setChatLoading(true);
 
     try {
-      const res = await api.chat.message(userMessage, cancelRef.current.signal);
+      const history = messages.map(m => ({ role: m.role, content: m.content })).slice(-10);
+      const res = await api.chat.message(userMessage, history, cancelRef.current.signal);
       setMessages((prev) => [...prev, {
         role: 'assistant',
         content: res.response,
@@ -68,9 +68,16 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
     }
   }
 
-  function scrollToChat() {
-    chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => inputRef.current?.focus(), 500);
+  function openChat() {
+    setMessages([]);
+    greetingLoaded.current = false;
+    setChatOpen(true);
+    setTimeout(() => {
+      greetingLoaded.current = true;
+      loadGreeting();
+      chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      inputRef.current?.focus();
+    }, 100);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -146,8 +153,8 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         <h1>YourHonor AI</h1>
         <p style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>AI-Powered Legal Education Platform</p>
         {user ? (
-          <button className="btn btn-secondary" onClick={scrollToChat}>
-            Ask a Legal Question
+          <button className="btn btn-secondary" onClick={openChat}>
+            Ask a Question
           </button>
         ) : (
           <button className="btn btn-secondary" onClick={() => onNavigate('auth')}>
@@ -156,36 +163,14 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         )}
       </div>
 
-      <div style={{
-        marginTop: '2rem',
-        padding: '1.5rem 2rem',
-        borderRadius: '12px',
-        border: '2px solid var(--accent-yellow)',
-        background: 'linear-gradient(135deg, #fffdf0 0%, #fff8dc 100%)',
-        textAlign: 'center',
-        boxShadow: '0 4px 16px rgba(236,173,10,0.15)',
-      }}>
-        <p style={{
-          fontSize: '1.3rem',
-          fontWeight: 700,
-          lineHeight: 1.5,
-          color: 'var(--dark-navy)',
-          margin: 0,
-        }}>
-          &ldquo;If you graduate without understanding AI, you&rsquo;ll be outdated.<br />If you trust it blindly, you&rsquo;ll be dangerous.&rdquo;
-        </p>
-      </div>
-
-      {user && (
+      {user && chatOpen && (
         <div ref={chatRef} className="card" style={{ marginTop: '2rem', padding: 0, overflow: 'hidden', scrollMarginTop: '1rem' }}>
           <div style={{ padding: '1rem 1.5rem', background: 'var(--dark-navy)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ color: '#fff', margin: 0, fontSize: '1.1rem' }}>Ask the AI Assistant</h3>
-            <button className="btn btn-outline" onClick={() => onNavigate('chat')} style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem', color: '#fff', borderColor: '#fff' }}>
-              Full Chat &rarr;
-            </button>
+            <button onClick={() => setChatOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.3rem', lineHeight: 1, padding: '0 0.25rem' }} aria-label="Close chat">&times;</button>
           </div>
           <div style={{ padding: '1rem 1.5rem' }}>
-            <div style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div ref={messagesContainerRef} style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {messages.map((msg, i) => (
                 <div key={i}>
                   <div style={{
@@ -224,11 +209,10 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
                   <div className="spinner-container"><span className="spinner" /><em>Thinking...</em></div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
             {messages.length === 0 && !chatLoading && (
               <p style={{ color: 'var(--gray-text)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '0.75rem' }}>
-                Ask about legal concepts, cases, or what document to draft.
+                Ask about legal concepts, current events, or anything on your mind.
               </p>
             )}
             <form onSubmit={handleSend} style={{ display: 'flex', gap: '0.5rem' }}>
@@ -237,7 +221,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask a legal question..."
+                placeholder="Ask anything..."
                 disabled={chatLoading}
                 rows={1}
                 style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none', margin: 0 }}
@@ -249,6 +233,26 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
           </div>
         </div>
       )}
+
+      <div style={{
+        marginTop: '2rem',
+        padding: '1.5rem 2rem',
+        borderRadius: '12px',
+        border: '2px solid var(--accent-yellow)',
+        background: 'linear-gradient(135deg, #fffdf0 0%, #fff8dc 100%)',
+        textAlign: 'center',
+        boxShadow: '0 4px 16px rgba(236,173,10,0.15)',
+      }}>
+        <p style={{
+          fontSize: '1.3rem',
+          fontWeight: 700,
+          lineHeight: 1.5,
+          color: 'var(--dark-navy)',
+          margin: 0,
+        }}>
+          &ldquo;If you graduate without understanding AI, you&rsquo;ll be outdated.<br />If you trust it blindly, you&rsquo;ll be dangerous.&rdquo;
+        </p>
+      </div>
 
       <div className="features">
         <div className="card feature-card" onClick={() => onNavigate(user ? 'briefs' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>

@@ -19,8 +19,13 @@ def get_current_user_id(access_token: Optional[str] = Cookie(None)) -> int:
     return int(user_id)
 
 
+class HistoryEntry(BaseModel):
+    role: str
+    content: str
+
 class ChatMessage(BaseModel):
     message: str
+    history: list[HistoryEntry] = []
 
 
 class SourceInfo(BaseModel):
@@ -42,7 +47,7 @@ class ChatMessageResponse(BaseModel):
 @router.get("/greeting")
 def get_greeting(user_id: int = Depends(get_current_user_id)):
     return {
-        "greeting": "Hello! I'm YourHonor AI, your legal education assistant. I can help you with legal research, document drafting, and learning about legal concepts. What would you like to explore today?"
+        "greeting": "Hello! I'm YourHonor AI, your AI assistant with legal expertise. I can help with legal research, document drafting, case analysis, or answer general questions. What's on your mind?"
     }
 
 
@@ -53,6 +58,7 @@ def send_message(chat: ChatMessage, user_id: int = Depends(get_current_user_id))
         result = chat_service.generate_response(
             user_message=chat.message,
             user_id=user_id,
+            history=[{"role": h.role, "content": h.content} for h in chat.history],
         )
         return result
     except Exception as e:

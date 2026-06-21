@@ -100,10 +100,10 @@ export const api = {
 
   chat: {
     greeting: () => fetchApi<{ greeting: string }>('/api/chat/greeting'),
-    message: (message: string, signal?: AbortSignal) =>
+    message: (message: string, history?: { role: string; content: string }[], signal?: AbortSignal) =>
       fetchApi<ChatMessageResponse>('/api/chat/message', {
         method: 'POST',
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, history: history || [] }),
       }, signal),
   },
 

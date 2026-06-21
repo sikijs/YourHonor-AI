@@ -152,7 +152,7 @@ class ChatService:
             logger.warning(f"DuckDuckGo search failed: {e}")
             return []
 
-    def _build_system_prompt(self) -> str:
+    def _build_system_prompt(self, context: list[dict] | None = None) -> str:
         catalog = get_template_catalog()
         templates = catalog.get_catalog()
         template_lines = []
@@ -161,15 +161,29 @@ class ChatService:
                 fields_str = ", ".join(f.name for f in t.fields) if t.fields else "no fields"
                 template_lines.append(f"- {t.name}: {t.description} (fields: {fields_str})")
 
-        return f"""You are YourHonor AI, a legal education assistant. You serve two roles:
+        context_block = ""
+        if context:
+            has_web = any(d.get("source") == "web" for d in context)
+            parts = []
+            for idx, doc in enumerate(context, 1):
+                parts.append(f"[Document {idx}]: {doc['title']}\n{doc['content']}")
+            context_block = "\n\n### Retrieved Context\n" + "\n\n".join(parts)
+            if has_web:
+                context_block += "\n\n(Some of the above sources are from web search. Use them conversationally.)"
+            else:
+                context_block += "\n\n(The above sources are from legal documents. Cite them with [Document #] and include an educational disclaimer.)"
 
-## Role 1: Direct Answering
-When you can retrieve relevant legal content from your knowledge base, answer the user's question directly. Use ONLY the provided context documents. Cite sources with [Document #] format. Include an educational disclaimer.
+        return f"""You are YourHonor AI, an AI assistant with legal expertise for educational purposes. You help users with both legal and general questions.
 
-## Role 2: Tool Router
-When the user's question falls outside your knowledge base, do NOT say you lack information. Instead, identify the best tool from the available options below and suggest it. Explain what the tool does and what the user should type into it.
-
-### Available Tools
+## How to Answer
+- When context documents are provided below, use them to answer the user's question.
+- If no context is provided, answer from your own knowledge. Never fabricate citations.
+- For general questions, answer conversationally.
+- For legal questions, recommend verifying against primary sources and include an educational disclaimer.
+- If the user asks about creating a legal document, identify the best template and list its fields.
+- Be concise and direct.
+{context_block}
+## Available Legal Tools
 - Case Briefs: Generate structured case briefs with facts, holding, reasoning.
 - Legal Summaries: Summarize cases, statutes, and legal doctrines.
 - Argument Extraction: Extract arguments made by each party in a case.
@@ -179,35 +193,10 @@ When the user's question falls outside your knowledge base, do NOT say you lack 
 - AI Tutor: Interactive Socratic tutoring on legal concepts.
 - Document Generator: Generate legal documents from templates.
 
-### Available Legal Templates
-{chr(10).join(template_lines) if template_lines else "No templates loaded."}
+## Available Legal Templates
+{chr(10).join(template_lines) if template_lines else "No templates loaded."}"""
 
-### Strict Rules
-- NEVER fabricate case names, citations, holdings, or legal references
-- Only reference information that is explicitly present in the provided context documents
-- If the context does not contain enough information, say so clearly and suggest a tool instead
-- If the user asks about creating a legal document, identify the best template and list its fields
-- Always include an educational disclaimer
-- Be concise and direct"""
-
-    def _build_user_prompt(self, context: list[dict], question: str) -> str:
-        context_parts = []
-        for idx, doc in enumerate(context, 1):
-            context_parts.append(
-                f"[Document {idx}]: {doc['title']}\n{doc['content']}"
-            )
-        context_str = "\n\n".join(context_parts)
-        return f"""Based on the following legal documents, answer the question:
-
----CONTEXT---
-{context_str}
-
----QUESTION---
-{question}
-
-Provide a clear, educational response with proper citations. If the documents don't contain enough information, acknowledge what's missing and suggest which tool the user could use instead."""
-
-    def generate_response(self, user_message: str, user_id: Optional[int] = None, top_k: int = 8) -> dict:
+    def generate_response(self, user_message: str, user_id: Optional[int] = None, top_k: int = 8, history: Optional[list[dict]] = None) -> dict:
         retrieved_docs = self.retrieval_service.retrieve(
             query=user_message,
             top_k=top_k,
@@ -247,25 +236,19 @@ Provide a clear, educational response with proper citations. If the documents do
 
         suggestion = self._suggest_tool(user_message)
 
-        if not retrieved_docs:
-            return {
-                "response": f"I don't have specific information about that in my knowledge base. Based on your question, I'd recommend using the **{suggestion['name']}** tool.\n\n**{suggestion['name']}**: {suggestion['description']}\n\nTry typing this into that tool:\n> {suggestion['suggested_query']}",
-                "sources": [],
-                "retrieval_count": 0,
-                "suggested_tool": suggestion["tool"],
-                "suggested_name": suggestion["name"],
-                "suggested_description": suggestion["description"],
-                "suggested_query": suggestion["suggested_query"],
-            }
-
         try:
             from litellm import completion
+            history_messages = (history or [])[-10:]
+            messages = [
+                {"role": "system", "content": self._build_system_prompt(retrieved_docs)},
+            ]
+            for h in history_messages:
+                messages.append({"role": h["role"], "content": h["content"]})
+            messages.append({"role": "user", "content": user_message})
+
             response = completion(
                 model=MODEL,
-                messages=[
-                    {"role": "system", "content": self._build_system_prompt()},
-                    {"role": "user", "content": self._build_user_prompt(retrieved_docs, user_message)},
-                ],
+                messages=messages,
                 max_tokens=1500,
                 temperature=0.3,
                 extra_body=EXTRA_BODY,
@@ -288,7 +271,7 @@ Provide a clear, educational response with proper citations. If the documents do
         except Exception as e:
             logger.error(f"Chat LLM call failed: {e}")
             error_msg = friendly_llm_error(e)
-            chat_response = CREDITS_MESSAGE if error_msg != str(e) else f"I found relevant documents but encountered an error generating a response. Try using the **{suggestion['name']}** tool instead.\n\n**{suggestion['name']}**: {suggestion['description']}"
+            chat_response = CREDITS_MESSAGE if error_msg != str(e) else f"I encountered an error generating a response. Try using the **{suggestion['name']}** tool instead.\n\n**{suggestion['name']}**: {suggestion['description']}"
             return {
                 "response": chat_response,
                 "sources": sources,
