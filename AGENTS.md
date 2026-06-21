@@ -181,7 +181,7 @@ Backend available at http://localhost:8000
 
 ### Chat
 - GET /api/chat/greeting - Get AI greeting
-- POST /api/chat/message - Send chat message and get AI response
+- POST /api/chat/message - Send chat message with optional conversation history and get AI response
 
 ### Tutor
 - GET  /api/tutor/topics             - List available topics with question counts
@@ -248,6 +248,7 @@ Backend available at http://localhost:8000
 - Predictive analytics (pending)
 - Legal reasoning graphs (pending)
 - AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review
+- Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
 
 ### Phase 6 (Error Handling) - COMPLETE
