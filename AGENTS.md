@@ -255,8 +255,7 @@ Backend available at http://localhost:8000
 
 ### Phase 5 (Advanced Features) - COMPLETE
 - Memorandum drafting
-- Predictive analytics (pending)
-- Legal reasoning graphs (pending)
+- Predictive analytics (future development)
 - AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
