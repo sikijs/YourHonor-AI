@@ -150,16 +150,26 @@ Gray Text: #888888
 There should be scripts in scripts/ for:
 
 ## Mac
-scripts/start-mac.sh    # Start
-scripts/stop-mac.sh     # Stop
+setup.command        # Interactive setup (API key, CourtListener)
+start.command        # Start app (port fallback, pre-built pull)
+stop.command         # Stop app
 
 ## Linux
+scripts/setup-linux.sh
 scripts/start-linux.sh
 scripts/stop-linux.sh
 
 ## Windows
-scripts/start-windows.ps1
-scripts/stop-windows.ps1
+setup.bat
+start.bat
+stop.bat
+
+The Docker image is pre-built via GitHub Actions (.github/workflows/publish-image.yml) and
+pushed to ghcr.io/sikijs/yourhonor-ai/backend:latest. Start scripts try pull first, then
+fall back to local build.
+
+A student-friendly landing page is at docs/index.html, served via GitHub Pages at
+https://sikijs.github.io/YourHonor-AI/
 
 Backend available at http://localhost:8000
 
