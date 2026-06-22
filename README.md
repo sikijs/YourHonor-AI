@@ -155,9 +155,9 @@ Right-click `start.command` → "Open With" → "Terminal (default)" → tick "A
 2. Type `Terminal` and press **Enter**
 3. Copy the line below (**including the space at the end**) and paste it into the Terminal window:
 ```bash
-xattr -d com.apple.quarantine 
+xattr -dr com.apple.quarantine 
 ```
-4. **Drag `setup.command` from your folder and drop it onto the same line in Terminal** — the file path appears automatically
+4. In Finder, locate your **YourHonor-AI-main** folder. Click and hold the folder, **drag it into the Terminal window**, and **drop it right after the space** — the folder's full path appears next to the command
 5. Press **Enter**
 6. Now double-click `setup.command` to run it
 

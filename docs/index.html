@@ -121,17 +121,19 @@
         </summary>
         <div style="padding:0.25rem 0 0.75rem;">
 
-        <p><strong>macOS — setup.command blocked?</strong></p>
+        <p><strong>macOS — scripts blocked?</strong></p>
         <ol style="margin:0.25rem 0 0.75rem; padding-left:1.25rem; font-size:0.9rem;">
           <li>Press <strong>Cmd+Space</strong> to open Spotlight</li>
           <li>Type <code>Terminal</code> and press <strong>Enter</strong></li>
-          <li>Copy the line below (<strong>including the space at the end</strong>) and paste it into the Terminal window:<br>
+          <li>Click the <strong>Copy</strong> button below — this copies <code>xattr -dr com.apple.quarantine </code> (with a space at the end):<br>
             <div style="display:flex; align-items:stretch; margin:0.4rem 0; border-radius:4px; overflow:hidden;">
-              <code style="flex:1; background:#f5f5f5; padding:0.5rem; font-size:0.85rem; border:none;">xattr -d com.apple.quarantine </code>
-              <button onclick="navigator.clipboard.writeText('xattr -d com.apple.quarantine ');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#753991;color:#fff;border:none;padding:0.5rem 0.9rem;cursor:pointer;font-size:0.85rem;font-weight:600;">Copy</button>
+              <code style="flex:1; background:#f5f5f5; padding:0.5rem; font-size:0.85rem; border:none;">xattr -dr com.apple.quarantine </code>
+              <button onclick="navigator.clipboard.writeText('xattr -dr com.apple.quarantine ');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#753991;color:#fff;border:none;padding:0.5rem 0.9rem;cursor:pointer;font-size:0.85rem;font-weight:600;">Copy</button>
             </div>
           </li>
-          <li><strong>Drag <code>setup.command</code> from your folder and drop it onto the same line in Terminal</strong> — the file path appears automatically</li>
+          <li>Go to the Terminal window and <strong>paste</strong> — you'll see <code>xattr -dr com.apple.quarantine </code> with a blinking cursor <strong>after the space</strong></li>
+          <li>In Finder, locate your <strong>YourHonor-AI-main</strong> folder. Click and hold the folder, <strong>drag it into the Terminal window</strong>, and <strong>drop it right after the space</strong> — the folder's full path appears next to the command</li>
+          <li>The line should now look something like: <code style="font-size:0.85rem;">xattr -dr com.apple.quarantine /Users/yourname/Desktop/YourHonor-AI-main</code></li>
           <li>Press <strong>Enter</strong></li>
           <li>Now double-click <strong>setup.command</strong> to run it</li>
         </ol>
