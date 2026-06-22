@@ -112,20 +112,41 @@
       <div class="step">
         <strong>Step 1:</strong> Download the ZIP above to any folder of your choice and unzip it.
       </div>
-      <div class="tip">
-        <strong>&#8505; macOS: setup.command blocked?</strong><br>
-        If Apple blocks <strong>setup.command</strong> after downloading and unzipping the app:<br><br>
-        1. Press <strong>Cmd+Space</strong> to open Spotlight<br>
-        2. Type <code>Terminal</code> and press <strong>Enter</strong><br>
-        3. Copy the line below (<strong>including the space at the end</strong>) and paste it into the Terminal window:<br>
-        <div style="display:flex; align-items:stretch; margin:0.5rem 0; border-radius:4px; overflow:hidden;">
-          <code style="flex:1; background:#f5f5f5; padding:0.6rem; font-size:0.85rem; border:none;">xattr -d com.apple.quarantine </code>
-          <button onclick="navigator.clipboard.writeText('xattr -d com.apple.quarantine ');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#753991;color:#fff;border:none;padding:0.6rem 1rem;cursor:pointer;font-size:0.85rem;font-weight:600;">Copy</button>
+      <details style="background:#fffdf0; border:1.5px solid #ecad0a; border-radius:8px; margin:1.5rem 0; padding:0.25rem 1rem;">
+        <summary style="cursor:pointer; font-weight:600; color:#032147; padding:0.5rem 0; font-size:0.95rem;">
+          &#8505; Setup Issues
+        </summary>
+        <div style="padding:0.25rem 0 0.75rem;">
+
+        <p><strong>macOS — setup.command blocked?</strong></p>
+        <ol style="margin:0.25rem 0 0.75rem; padding-left:1.25rem; font-size:0.9rem;">
+          <li>Press <strong>Cmd+Space</strong> to open Spotlight</li>
+          <li>Type <code>Terminal</code> and press <strong>Enter</strong></li>
+          <li>Copy the line below (<strong>including the space at the end</strong>) and paste it into the Terminal window:<br>
+            <div style="display:flex; align-items:stretch; margin:0.4rem 0; border-radius:4px; overflow:hidden;">
+              <code style="flex:1; background:#f5f5f5; padding:0.5rem; font-size:0.85rem; border:none;">xattr -d com.apple.quarantine </code>
+              <button onclick="navigator.clipboard.writeText('xattr -d com.apple.quarantine ');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)" style="background:#753991;color:#fff;border:none;padding:0.5rem 0.9rem;cursor:pointer;font-size:0.85rem;font-weight:600;">Copy</button>
+            </div>
+          </li>
+          <li><strong>Drag <code>setup.command</code> from your folder and drop it onto the same line in Terminal</strong> — the file path appears automatically</li>
+          <li>Press <strong>Enter</strong></li>
+          <li>Now double-click <strong>setup.command</strong> to run it</li>
+        </ol>
+
+        <hr style="border:none; border-top:1px solid #e0d5a0; margin:0.75rem 0;">
+
+        <p><strong>Windows — setup.bat blocked?</strong></p>
+        <ol style="margin:0.25rem 0 0; padding-left:1.25rem; font-size:0.9rem;">
+          <li>Right-click <strong>setup.bat</strong></li>
+          <li>Click <strong>Properties</strong></li>
+          <li>If you see an <strong>Unblock</strong> checkbox at the bottom, check it</li>
+          <li>Click <strong>OK</strong></li>
+          <li>Now double-click <strong>setup.bat</strong> to run it</li>
+        </ol>
+        <p style="font-size:0.85rem; color:#888; margin:0.25rem 0 0;">If SmartScreen still shows a warning, click <strong>More info</strong> then <strong>Run anyway</strong>.</p>
+
         </div>
-        4. <strong>Drag <code>setup.command</code> from your folder and drop it onto the same line in Terminal</strong> — the file path appears automatically<br>
-        5. Press <strong>Enter</strong><br>
-        6. Now double-click <strong>setup.command</strong> to run it
-      </div>
+      </details>
       <div class="step">
         <strong>Step 2:</strong> Double-click <strong>setup.command</strong> (Mac) or <strong>setup.bat</strong> (Windows). Paste your OpenRouter key when prompted.
       </div>

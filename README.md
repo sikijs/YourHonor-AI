@@ -148,9 +148,9 @@ Your key may have expired or was copied incorrectly. Go back to Step 2 and gener
 **`start.command` opens in TextEdit instead of running**
 Right-click `start.command` → "Open With" → "Terminal (default)" → tick "Always Open With".
 
-**`setup.command` is blocked by Apple**
-After downloading and unzipping, macOS may block `setup.command`.
+**`setup.command` (Mac) or `setup.bat` (Windows) is blocked**
 
+**macOS:**
 1. Press **Cmd+Space** to open Spotlight
 2. Type `Terminal` and press **Enter**
 3. Copy the line below (**including the space at the end**) and paste it into the Terminal window:
@@ -160,6 +160,15 @@ xattr -d com.apple.quarantine
 4. **Drag `setup.command` from your folder and drop it onto the same line in Terminal** — the file path appears automatically
 5. Press **Enter**
 6. Now double-click `setup.command` to run it
+
+**Windows:**
+1. Right-click **setup.bat**
+2. Click **Properties**
+3. If you see an **Unblock** checkbox at the bottom, check it
+4. Click **OK**
+5. Now double-click **setup.bat** to run it
+
+If SmartScreen still shows a warning, click **More info** then **Run anyway**.
 
 **The app is slow on the first request**
 The AI model takes 60-90 seconds to warm up. Just wait — subsequent responses will be faster.
