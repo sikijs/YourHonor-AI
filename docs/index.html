@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YourHonor AI — Legal Education Platform</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #333; line-height: 1.6; background: #f8f9fa;
+    }
+    .container { max-width: 780px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    h1 { font-size: 2.4rem; color: #032147; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.5rem; color: #032147; margin: 2rem 0 0.75rem; }
+    h3 { font-size: 1.15rem; color: #032147; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; }
+
+    .subtitle { font-size: 1.15rem; color: #888; margin-bottom: 1.5rem; }
+
+    .badge {
+      display: inline-block; background: #ecad0a; color: #032147;
+      padding: 0.2rem 0.75rem; border-radius: 4px; font-weight: 600;
+      font-size: 0.8rem; margin-bottom: 1rem;
+    }
+
+    .requirements {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0;
+    }
+    .req-card {
+      background: #fff; border: 1px solid #ddd; border-radius: 10px;
+      padding: 1.25rem; flex: 1; min-width: 220px;
+    }
+    .req-card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+    .req-card a { color: #209dd7; text-decoration: none; font-weight: 500; }
+    .req-card a:hover { text-decoration: underline; }
+    .req-card p { font-size: 0.9rem; color: #666; margin: 0; }
+
+    .btn {
+      display: inline-block; background: #753991; color: #fff;
+      padding: 0.9rem 2rem; border-radius: 8px; text-decoration: none;
+      font-weight: 600; font-size: 1.1rem; margin: 1rem 0 0.5rem;
+    }
+    .btn:hover { background: #632f7a; }
+    .btn-secondary {
+      display: inline-block; background: #209dd7; color: #fff;
+      padding: 0.6rem 1.5rem; border-radius: 6px; text-decoration: none;
+      font-weight: 500; font-size: 0.95rem;
+    }
+    .btn-secondary:hover { background: #1a86b8; }
+
+    .steps { margin: 1.5rem 0; }
+    .step {
+      background: #fff; border: 1px solid #e0e0e0; border-radius: 10px;
+      padding: 1.25rem; margin-bottom: 0.75rem;
+    }
+    .step strong { color: #032147; font-size: 1.05rem; }
+    .step p { margin: 0.25rem 0 0; font-size: 0.95rem; color: #555; }
+
+    .feature-grid {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0;
+    }
+    .feature {
+      background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+      padding: 0.9rem 1.1rem; flex: 1; min-width: 160px; font-size: 0.9rem;
+    }
+    .feature strong { color: #032147; }
+
+    .tip {
+      background: #fffdf0; border: 1.5px solid #ecad0a; border-radius: 8px;
+      padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .tip strong { color: #032147; }
+
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+    .footer { text-align: center; color: #999; font-size: 0.85rem; padding: 1rem 0; }
+    .footer a { color: #209dd7; text-decoration: none; }
+    .footer em { font-style: normal; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Educational Software</div>
+    <h1>YourHonor AI</h1>
+    <p class="subtitle">AI-Powered Legal Education Platform for Law Students</p>
+
+    <p>
+      Draft legal documents, analyze cases, research legal concepts, and learn with an
+      interactive AI tutor — all from your browser. No installation skills needed.
+    </p>
+
+    <a class="btn" href="https://github.com/sikijs/YourHonor-AI/archive/refs/heads/main.zip">
+      Download YourHonor AI (ZIP)
+    </a>
+    <p style="font-size: 0.85rem; color: #999;">No GitHub account required.</p>
+
+    <h2>Before You Start</h2>
+    <div class="requirements">
+      <div class="req-card">
+        <h3>Docker Desktop</h3>
+        <p>Free. <a href="https://www.docker.com/products/docker-desktop/" target="_blank">Download here</a> — install and open it (wait for the whale icon).</p>
+      </div>
+      <div class="req-card">
+        <h3>OpenRouter API Key</h3>
+        <p>~$5 minimum. <a href="https://openrouter.ai/keys" target="_blank">Create a key</a>, then add credits under Settings &rarr; Credits.</p>
+      </div>
+    </div>
+
+    <h2>Setup (5 Steps)</h2>
+    <div class="steps">
+      <div class="step">
+        <strong>Step 1:</strong> Download the ZIP above and unzip it. Move the folder to your Desktop or Documents.
+      </div>
+      <div class="step">
+        <strong>Step 2:</strong> Double-click <strong>setup.command</strong> (Mac) or <strong>setup.bat</strong> (Windows). Paste your OpenRouter key when prompted.
+      </div>
+      <div class="step">
+        <strong>Step 3:</strong> Double-click <strong>start.command</strong> (Mac) or <strong>start.bat</strong> (Windows). Wait for the message <em>"YourHonor AI is running..."</em>
+      </div>
+      <div class="step">
+        <strong>Step 4:</strong> Open your browser to <strong>http://localhost:8000</strong>. Click <em>Sign Up</em> and create an account.
+      </div>
+      <div class="step">
+        <strong>Step 5:</strong> Done! Use the Chat, tools, and document generator. Double-click <strong>stop.command</strong> to shut down.
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>&#8505; Port 8000 already in use?</strong> The app will automatically pick another port (e.g. 8001) and show you the correct address.
+    </div>
+
+    <div class="tip">
+      <strong>&#8505; Tip for frequent use:</strong> Drag <strong>start.command</strong> to your Dock (Mac) or pin <strong>start.bat</strong> to your taskbar (Windows) for one-click access. Do the same for <strong>stop.command</strong>.
+    </div>
+
+    <h2>What You Can Do</h2>
+    <div class="feature-grid">
+      <div class="feature"><strong>AI Chat</strong><br>Ask legal questions, research concepts, draft documents</div>
+      <div class="feature"><strong>Case Briefs</strong><br>Generate structured briefs with facts, holdings, reasoning</div>
+      <div class="feature"><strong>Document Generator</strong><br>Create leases, affidavits, complaints from 11 templates</div>
+      <div class="feature"><strong>AI Tutor</strong><br>Interactive Socratic learning across 8 legal topics</div>
+      <div class="feature"><strong>Legal Summaries</strong><br>Summarize cases, statutes, and doctrines</div>
+      <div class="feature"><strong>Debate Engine</strong><br>Analyze both sides of a legal question</div>
+    </div>
+
+    <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">
+      <em>Educational software — not a substitute for professional legal advice.</em>
+    </p>
+
+    <hr>
+    <div class="footer">
+      <a href="https://github.com/sikijs/YourHonor-AI">GitHub Repository</a> &middot;
+      <a href="https://github.com/sikijs/YourHonor-AI/blob/main/README.md">Full Setup Guide</a>
+    </div>
+  </div>
+</body>
+</html>

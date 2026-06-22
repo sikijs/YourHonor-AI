@@ -11,8 +11,9 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.backend
+    image: ghcr.io/sikijs/yourhonor-ai/backend:latest
     ports:
-      - "8000:8000"
+      - "${HOST_PORT:-8000}:8000"
     env_file:
       - ../.env
     volumes:

@@ -60,101 +60,72 @@ sudo systemctl start docker
 2. Click **"Sign Up"** at the top right — use your email, Google, or GitHub
 3. Once logged in, click the **"[+ Create Key]"** button near the top
 4. A long key starting with `sk-or-v1-` will appear. Click the **clipboard icon** next to it to copy it to your clipboard
-5. **Save it somewhere safe** (paste into a temporary text file) — you won't be able to see it again
-6. Go to https://openrouter.ai/settings/credits and click **"Add Credits"** — the minimum is **$5**
-7. This lasts thousands of responses — every AI feature uses Qwen3-14B, a paid model
+5. Go to https://openrouter.ai/settings/credits and click **"Add Credits"** — the minimum is **$5**
+6. This lasts thousands of responses — every AI feature uses Qwen3-14B, a paid model
 
 ---
 
-## Step 3: Get Your CourtListener Token (Optional)
+## Step 3: Run the Setup Script
 
-The app includes 20 landmark US Supreme Court cases pre-loaded (Gideon, Miranda, Roe v. Wade, etc.). If you only need those, skip this step.
+**Mac:** Double-click **`setup.command`** inside your app folder.
 
-If you want to search for any other case (a case your professor assigned, a state court case, etc.), get a free token:
+**Windows:** Double-click **`setup.bat`**.
 
-1. Go to https://www.courtlistener.com/
-2. Click **"Register"** at the top right and create a free account
-3. After confirming your email, log in
-4. Click your username at the top right, then **"Profile"**
-5. Scroll down to the **"API"** section
-6. You'll see a long string labeled **"Token"** — click the **copy icon** next to it
-7. Paste this token somewhere safe alongside your OpenRouter key
+**Linux:** Open a terminal and run:
+```
+bash scripts/setup-linux.sh
+```
 
-> The free tier allows 5 requests per minute and 50 requests per hour — plenty for classroom use.
+The script will guide you through two prompts:
 
----
+1. **OpenRouter API key** — paste the key from Step 2
+2. **CourtListener token (optional)** — the script explains what CourtListener is and how to get a free token. Press Enter to skip if you don't need it.
 
-## Step 4: Set Up the Settings File
-
-1. Open your app folder (`YourHonor-AI-main`)
-2. Inside the folder, create a new file called **`.env`**:
-   - **Mac:** Open TextEdit → File → New → type the two lines below → Save as `.env` in your app folder
-   - **Windows:** Right-click in the folder → New → Text Document → open it → type the two lines below → Save
-3. Type exactly these two lines:
-   ```
-   OPENROUTER_API_KEY=your-openrouter-api-key
-   COURTLISTENER_TOKEN=your-courtlistener-token
-   ```
-4. Replace `your-openrouter-api-key` with the key you copied in Step 2. No spaces. It should look like:
-   ```
-   OPENROUTER_API_KEY=sk-or-v1-abc123def456...
-   ```
-5. If you got a CourtListener token in Step 3, replace `your-courtlistener-token` with it too
-6. Save and close the file
+The script creates your settings file automatically. No manual file editing needed.
 
 ---
 
-## Step 5: Start the App
+## Step 4: Start the App
 
-### On Mac
+**Mac:** Double-click **`start.command`**.
 
-**Double-click** the `start.command` file inside your app folder. A Terminal window will open and the app will start. When you see `YourHonor AI is running at http://localhost:8000`, the app is ready.
+**Windows:** Double-click **`start.bat`**.
 
-> If `start.command` opens in TextEdit instead of running, right-click it → "Open With" → "Terminal (default)" → tick "Always Open With".
-
-### On Windows
-
-**Double-click** the `start.bat` file inside your app folder. A Command Prompt window will open and the app will start. You'll see a message telling you it's ready.
-
-### On Linux
-
-Open a terminal and run:
+**Linux:** Open a terminal and run:
 ```
 bash scripts/start-linux.sh
 ```
 
+The app will download the latest pre-built images and start. When you see:
+```
+YourHonor AI is running at http://localhost:8000
+```
+the app is ready.
+
+> **Port 8000 already in use?** The app will automatically try 8001, 8002, etc., and show you the correct address.
+>
+> **First time?** The initial download takes about 30-60 seconds. Subsequent starts are instant.
+
+> **Tip for frequent use:** Drag `start.command` to your Dock (Mac) or pin `start.bat` to your taskbar (Windows) for one-click access. Do the same for `stop.command`.
+
 ---
 
-## Step 6: Open the App
+## Step 5: Open the App
 
 1. Open your web browser (Chrome, Edge, Safari, Firefox)
-2. Go to **http://localhost:8000**
+2. Go to **http://localhost:8000** (or the port shown when you started the app)
 3. Click **"Sign Up"** to create an account
 4. You're in! Start by clicking **"Chat"** in the top menu
 
 ---
 
-## Step 7: Create a Desktop Shortcut (Optional but Recommended)
+## Step 6: Stop the App
 
-So you don't have to open the app folder every time:
+**Mac:** Double-click **`stop.command`** (from your app folder or Dock shortcut).
 
-**On Mac:**
-Drag `start.command` from your app folder onto the Desktop. That's it — double-click it next time.
+**Windows:** Double-click **`stop.bat`**.
 
-**On Windows:**
-Right-click `start.bat` → "Send to" → "Desktop (create shortcut)".
-
-**Do the same for `stop.command` or `stop.bat`** so you can shut down from your Desktop too.
-
----
-
-## Step 8: Stop the App
-
-**On Mac:** Double-click `stop.command` (from your Desktop shortcut or the app folder).
-
-**On Windows:** Double-click `stop.bat`.
-
-**On Linux:** Open a terminal and run:
+**Linux:** Open a terminal and run:
 ```
 bash scripts/stop-linux.sh
 ```
@@ -166,7 +137,7 @@ The app will shut down. You can close the browser tab.
 ## Troubleshooting
 
 **"Port 8000 is already in use"**
-Another program is using port 8000. Close that program first, or restart your computer.
+The app will automatically pick a different port (8001, 8002, etc.). Look for the address shown in the startup message.
 
 **"docker: command not found"**
 Docker Desktop is not installed or not running. Go back to Step 1 and make sure Docker is open and the whale icon is showing.
