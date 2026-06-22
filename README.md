@@ -20,7 +20,7 @@ A legal education AI platform for law students. Draft documents, analyze cases, 
 4. Find the downloaded file in your Downloads folder — it will be named `YourHonor-AI-main.zip`
 5. **Double-click the ZIP file** to unzip it (or right-click → "Extract All" on Windows)
 6. A new folder called `YourHonor-AI-main` will appear
-7. **Move this folder** somewhere easy to find, like your Desktop or Documents folder
+7. Move the folder to a location of your choice
 
 > **No GitHub account needed. No sign-up required.**
 
