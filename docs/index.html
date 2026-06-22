@@ -112,6 +112,17 @@
       <div class="step">
         <strong>Step 1:</strong> Download the ZIP above and unzip it. Move the folder to your Desktop or Documents.
       </div>
+      <div class="tip">
+        <strong>&#8505; macOS: setup.command blocked?</strong><br>
+        If Apple blocks <strong>setup.command</strong> after downloading and unzipping the app:<br><br>
+        1. Press <strong>Cmd+Space</strong> to open Spotlight<br>
+        2. Type <code>Terminal</code> and press <strong>Enter</strong><br>
+        3. Copy the line below (<strong>including the space at the end</strong>) and paste it into the Terminal window:<br>
+        <code style="display:block; background:#f5f5f5; padding:0.6rem; margin:0.5rem 0; border-radius:4px; font-size:0.85rem;">xattr -d com.apple.quarantine </code>
+        4. <strong>Drag <code>setup.command</code> from your folder and drop it onto the same line in Terminal</strong> — the file path appears automatically<br>
+        5. Press <strong>Enter</strong><br>
+        6. Now double-click <strong>setup.command</strong> to run it
+      </div>
       <div class="step">
         <strong>Step 2:</strong> Double-click <strong>setup.command</strong> (Mac) or <strong>setup.bat</strong> (Windows). Paste your OpenRouter key when prompted.
       </div>
