@@ -145,8 +145,8 @@ Docker Desktop is not installed or not running. Go back to Step 1 and make sure 
 **"OpenRouter API key is invalid"**
 Your key may have expired or was copied incorrectly. Go back to Step 2 and generate a new key.
 
-**`start.command` opens in TextEdit instead of running**
-Right-click `start.command` → "Open With" → "Terminal (default)" → tick "Always Open With".
+**`setup.command` or `start.command` opens in TextEdit instead of running**
+Right-click the `.command` file → "Open With" → "Terminal (default)" → tick "Always Open With".
 
 **`setup.command` (Mac) or `setup.bat` (Windows) is blocked**
 
