@@ -87,9 +87,9 @@ The script creates your settings file automatically. No manual file editing need
 
 ## Step 4: Start the App
 
-**Mac:** Double-click **`start.command`**.
+**Mac:** Double-click **`Start YourHonor AI.command`**.
 
-**Windows:** Double-click **`start.bat`**.
+**Windows:** Double-click **`Start YourHonor AI.bat`**.
 
 **Linux:** Open a terminal and run:
 ```
@@ -106,7 +106,7 @@ the app is ready.
 >
 > **First time?** The initial download takes about 30-60 seconds. Subsequent starts are instant.
 
-> **Tip for frequent use:** Drag `start.command` to your Dock (Mac) or pin `start.bat` to your taskbar (Windows) for one-click access. Do the same for `stop.command`.
+> **Tip for frequent use:** Drag `Start YourHonor AI.command` to your Dock (Mac) or pin `Start YourHonor AI.bat` to your taskbar (Windows) for one-click access. Do the same for `Stop YourHonor AI.command`.
 
 ---
 
@@ -121,9 +121,9 @@ the app is ready.
 
 ## Step 6: Stop the App
 
-**Mac:** Double-click **`stop.command`** (from your app folder or Dock shortcut).
+**Mac:** Double-click **`Stop YourHonor AI.command`** (from your app folder or Dock shortcut).
 
-**Windows:** Double-click **`stop.bat`**.
+**Windows:** Double-click **`Stop YourHonor AI.bat`**.
 
 **Linux:** Open a terminal and run:
 ```
@@ -145,7 +145,7 @@ Docker Desktop is not installed or not running. Go back to Step 1 and make sure 
 **"OpenRouter API key is invalid"**
 Your key may have expired or was copied incorrectly. Go back to Step 2 and generate a new key.
 
-**`setup.command` or `start.command` opens in TextEdit instead of running**
+**`setup.command` or `Start YourHonor AI.command` opens in TextEdit instead of running**
 Right-click the `.command` file → "Open With" → "Terminal (default)" → tick "Always Open With".
 
 **`setup.command` (Mac) or `setup.bat` (Windows) is blocked**

@@ -111,6 +111,6 @@ echo ""
 echo "=============================="
 echo "  Setup complete!"
 echo ""
-echo "  Next step: Double-click start.command"
+echo "  Next step: Double-click 'Start YourHonor AI.command'"
 echo "=============================="
 read -n1 -p "Press any key to exit..." key

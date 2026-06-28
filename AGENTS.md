@@ -150,9 +150,9 @@ Gray Text: #888888
 There should be scripts in scripts/ for:
 
 ## Mac
-setup.command        # Interactive setup (API key, CourtListener)
-start.command        # Start app (port fallback, pre-built pull)
-stop.command         # Stop app
+setup.command                 # Interactive setup (API key, CourtListener)
+Start YourHonor AI.command    # Start app (port fallback, pre-built pull)
+Stop YourHonor AI.command     # Stop app
 
 ## Linux
 scripts/setup-linux.sh
@@ -161,8 +161,8 @@ scripts/stop-linux.sh
 
 ## Windows
 setup.bat
-start.bat
-stop.bat
+Start YourHonor AI.bat
+Stop YourHonor AI.bat
 
 The Docker image is pre-built via GitHub Actions (.github/workflows/publish-image.yml) and
 pushed to ghcr.io/sikijs/yourhonor-ai/backend:latest. Start scripts try pull first, then

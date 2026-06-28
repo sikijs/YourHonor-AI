@@ -105,6 +105,6 @@ echo.
 echo ==============================
 echo   Setup complete!
 echo.
-echo   Next step: Double-click start.bat
+echo   Next step: Double-click "Start YourHonor AI.bat"
 echo ==============================
 pause
