@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from typing import Optional
 from pydantic import BaseModel
 from app.services.auth import decode_token
@@ -49,6 +50,20 @@ def get_greeting(user_id: int = Depends(get_current_user_id)):
     return {
         "greeting": "Hello! I'm YourHonor AI, your AI assistant with legal expertise. I can help with legal research, document drafting, case analysis, or answer general questions. What's on your mind?"
     }
+
+
+@router.post("/stream")
+def stream_message(chat: ChatMessage, user_id: int = Depends(get_current_user_id)):
+    chat_service = get_chat_service()
+    return StreamingResponse(
+        chat_service.generate_response_stream(
+            user_message=chat.message,
+            user_id=user_id,
+            history=[{"role": h.role, "content": h.content} for h in chat.history],
+        ),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/message", response_model=ChatMessageResponse)

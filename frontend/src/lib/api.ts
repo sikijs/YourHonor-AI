@@ -105,6 +105,34 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ message, history: history || [] }),
       }, signal),
+    async *stream(message: string, history: { role: string; content: string }[] = [], signal?: AbortSignal): AsyncGenerator<StreamEvent> {
+      const response = await fetch(`${API_BASE}/api/chat/stream`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history }),
+        signal,
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
+        throw new Error(error.detail || 'An error occurred');
+      }
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() ?? '';
+        for (const part of parts) {
+          if (part.startsWith('data: ')) {
+            yield JSON.parse(part.slice(6)) as StreamEvent;
+          }
+        }
+      }
+    },
   },
 
   legal: {
@@ -316,6 +344,12 @@ export interface ChatMessageResponse {
   suggested_description: string | null;
   suggested_query: string | null;
 }
+
+export type StreamEvent =
+  | { type: 'meta'; sources: SourceInfo[]; retrieval_count: number; suggested_tool: string | null; suggested_name: string | null; suggested_description: string | null; suggested_query: string | null }
+  | { type: 'chunk'; text: string }
+  | { type: 'done' }
+  | { type: 'error'; text: string };
 
 export interface DebateArgument {
   side: string;

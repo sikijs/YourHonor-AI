@@ -9,6 +9,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: SourceInfo[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<AbortController | null>(null);
 
@@ -35,7 +36,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || isStreaming) return;
 
     cancelRef.current = new AbortController();
     const userMessage = input;
@@ -45,21 +46,47 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content })).slice(-10);
-      const res = await api.chat.message(userMessage, history, cancelRef.current.signal);
-      setMessages((prev) => [...prev, {
-        role: 'assistant',
-        content: res.response,
-        sources: res.sources,
-        suggested_tool: res.suggested_tool,
-        suggested_name: res.suggested_name,
-        suggested_description: res.suggested_description,
-        suggested_query: res.suggested_query,
-      }]);
+
+      for await (const event of api.chat.stream(userMessage, history, cancelRef.current.signal)) {
+        if (event.type === 'meta') {
+          setLoading(false);
+          setIsStreaming(true);
+          setMessages((prev) => [...prev, {
+            role: 'assistant',
+            content: '',
+            sources: event.sources,
+            suggested_tool: event.suggested_tool,
+            suggested_name: event.suggested_name,
+            suggested_description: event.suggested_description,
+            suggested_query: event.suggested_query,
+          }]);
+        } else if (event.type === 'chunk') {
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = { ...next[next.length - 1] };
+            last.content += event.text;
+            next[next.length - 1] = last;
+            return next;
+          });
+        } else if (event.type === 'error') {
+          setMessages((prev) => {
+            const next = [...prev];
+            next[next.length - 1] = { ...next[next.length - 1], content: event.text };
+            return next;
+          });
+        }
+      }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
+      setMessages((prev) => {
+        const next = [...prev];
+        if (next[next.length - 1]?.role === 'assistant' && next[next.length - 1]?.content === '') next.pop();
+        return next;
+      });
       onError(err.message);
     } finally {
       setLoading(false);
+      setIsStreaming(false);
     }
   }
 
@@ -127,6 +154,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
             </div>
           ))}
           {loading && <div className="message assistant"><div className="spinner-container"><span className="spinner" /><em>Thinking...</em></div><div style={{ marginTop: '0.5rem', textAlign: 'center' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Cancel</button></div></div>}
+          {isStreaming && <div style={{ textAlign: 'center', marginTop: '0.25rem' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setIsStreaming(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Stop</button></div>}
           <div ref={messagesEndRef} />
         </div>
         <form className="chat-input" onSubmit={handleSend}>
@@ -135,11 +163,11 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask anything..."
-            disabled={loading}
+            disabled={loading || isStreaming}
             rows={2}
             style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'none' }}
           />
-          <button type="submit" className="btn btn-primary" disabled={loading || !input.trim()}>
+          <button type="submit" className="btn btn-primary" disabled={loading || isStreaming || !input.trim()}>
             Send
           </button>
         </form>

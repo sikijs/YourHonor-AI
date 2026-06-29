@@ -3,7 +3,6 @@ name = "yourhonor-backend"
 version = "0.1.0"
 description = "YourHonor AI Backend"
 requires-python = ">=3.12"
-torch = ">=2.0,<2.4"
 dependencies = [
     "torch>=2.2.0,<2.3",
     "numpy<2",
@@ -53,5 +52,13 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "pragma: no cover",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
 
 [tool.uv.pip]

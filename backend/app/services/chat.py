@@ -196,6 +196,52 @@ class ChatService:
 ## Available Legal Templates
 {chr(10).join(template_lines) if template_lines else "No templates loaded."}"""
 
+    def generate_response_stream(self, user_message: str, user_id: Optional[int] = None, top_k: int = 8, history: Optional[list[dict]] = None):
+        import json
+
+        retrieved_docs = self.retrieval_service.retrieve(query=user_message, top_k=top_k, min_score=0.35)
+        from .retrieval import deduplicate_rag_results
+        retrieved_docs = deduplicate_rag_results(retrieved_docs, min_content_length=200)
+
+        sources = [
+            {"title": doc["title"], "source": doc.get("source", "unknown"), "relevance_score": round(doc.get("score", 0), 3)}
+            for doc in retrieved_docs
+        ]
+
+        if len(retrieved_docs) < 3:
+            web_results = self._web_search(user_message)
+            for r in web_results:
+                retrieved_docs.append({"title": r["title"], "content": f"{r['body']}\n\n(source: web — {r['href']})", "source": "web", "score": 0.0})
+                sources.append({"title": r["title"], "source": "web", "relevance_score": 0.0})
+
+        suggestion = self._suggest_tool(user_message)
+
+        yield f"data: {json.dumps({'type': 'meta', 'sources': sources, 'retrieval_count': len(retrieved_docs), 'suggested_tool': suggestion['tool'], 'suggested_name': suggestion['name'], 'suggested_description': suggestion['description'], 'suggested_query': suggestion['suggested_query']})}\n\n"
+
+        try:
+            from litellm import completion
+            history_messages = (history or [])[-10:]
+            messages = [{"role": "system", "content": self._build_system_prompt(retrieved_docs)}]
+            for h in history_messages:
+                messages.append({"role": h["role"], "content": h["content"]})
+            messages.append({"role": "user", "content": user_message})
+
+            response = completion(model=MODEL, messages=messages, max_tokens=1500, temperature=0.3, extra_body=EXTRA_BODY, stream=True)
+
+            for chunk in response:
+                delta = chunk.choices[0].delta
+                text = getattr(delta, "content", None) or getattr(delta, "reasoning_content", None) or ""
+                if text:
+                    yield f"data: {json.dumps({'type': 'chunk', 'text': text})}\n\n"
+
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+        except Exception as e:
+            logger.error(f"Chat stream LLM call failed: {e}")
+            error_msg = friendly_llm_error(e)
+            chat_response = CREDITS_MESSAGE if error_msg != str(e) else f"I encountered an error generating a response. Try using the **{suggestion['name']}** tool instead.\n\n**{suggestion['name']}**: {suggestion['description']}"
+            yield f"data: {json.dumps({'type': 'error', 'text': chat_response})}\n\n"
+
     def generate_response(self, user_message: str, user_id: Optional[int] = None, top_k: int = 8, history: Optional[list[dict]] = None) -> dict:
         retrieved_docs = self.retrieval_service.retrieve(
             query=user_message,
