@@ -100,3 +100,64 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Open landing page in editor | `open ~/YourHonor\ AI/docs/index.html` |
 | Open README in editor | `open ~/YourHonor\ AI/README.md` |
 | Open this notes file | `open ~/YourHonor\ AI/NOTES.md` |
+
+---
+
+## Releasing a New Version
+
+Run all commands from `~/YourHonor AI/` unless noted.
+
+**1. Make your code changes and commit them**
+```bash
+git add <files>
+git commit -m "your message"
+git push
+```
+
+**2. Rebuild the frontend**
+```bash
+cd frontend && npm run build
+cp -r out/. ../backend/app/static/
+cd ..
+```
+
+**3. Commit the rebuilt frontend**
+```bash
+git add backend/app/static/
+git commit -m "Rebuild frontend for vX.Y.Z"
+git push
+```
+
+**4. Build the Docker image** (replace `vX.Y.Z` with the new version)
+```bash
+docker build -f docker/Dockerfile.backend \
+  -t ghcr.io/sikijs/yourhonor-ai/backend:vX.Y.Z \
+  -t ghcr.io/sikijs/yourhonor-ai/backend:latest .
+```
+
+**5. Push the image to ghcr.io**
+```bash
+docker push ghcr.io/sikijs/yourhonor-ai/backend:vX.Y.Z
+docker push ghcr.io/sikijs/yourhonor-ai/backend:latest
+```
+
+**6. Update the image tag in docker-compose.yml**
+
+Edit `docker/docker-compose.yml` and change the `image:` line to the new version tag:
+```
+image: ghcr.io/sikijs/yourhonor-ai/backend:vX.Y.Z
+```
+
+Then commit and push:
+```bash
+git add docker/docker-compose.yml
+git commit -m "Bump image tag to vX.Y.Z"
+git push
+```
+
+**7. Restart your local container**
+```bash
+cd docker
+docker compose pull
+docker compose up -d
+```
