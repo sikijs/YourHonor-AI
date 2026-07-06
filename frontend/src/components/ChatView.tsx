@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { User, SourceInfo, api } from '@/lib/api';
+import { User, SourceInfo, SourceDocument, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function ChatView({ user, onError, onNavigate }: { user: User; onError: (err: string) => void; onNavigate: (v: string) => void }) {
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: SourceInfo[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: SourceInfo[]; source_docs?: SourceDocument[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -55,6 +56,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
             role: 'assistant',
             content: '',
             sources: event.sources,
+            source_docs: event.source_docs,
             suggested_tool: event.suggested_tool,
             suggested_name: event.suggested_name,
             suggested_description: event.suggested_description,
@@ -121,16 +123,8 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
                   msg.content
                 )}
               </div>
-              {msg.sources && msg.sources.length > 0 && (
-                <div style={{ padding: '0.25rem 1rem 0.5rem', fontSize: '0.75rem', color: 'var(--gray-text)' }}>
-                  <strong>Sources:</strong>{' '}
-                  {msg.sources.map((s, j) => (
-                    <span key={j} style={{ marginRight: '0.75rem' }}>
-                      {s.title} <span style={{ opacity: 0.6 }}>(score: {s.relevance_score})</span>
-                      {j < msg.sources!.length - 1 ? ', ' : ''}
-                    </span>
-                  ))}
-                </div>
+              {(msg.source_docs && msg.source_docs.length > 0) && (
+                <SourcePanel sources={msg.source_docs} />
               )}
               {msg.suggested_tool && msg.suggested_name && (
                 <div

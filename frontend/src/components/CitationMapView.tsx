@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, CitationMapResponse, api } from '@/lib/api';
 import { printContent, citationMapHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function CitationMapView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -123,6 +124,7 @@ export default function CitationMapView({ user, onError }: { user: User; onError
               Total authorities cited: {result.total_citations} | Source: {result.source}
             </p>
           </div>
+          <SourcePanel sources={result.sources} />
 
           {result.cases_cited.length > 0 && (
             <div className="card" style={{ marginBottom: '0.75rem' }}>

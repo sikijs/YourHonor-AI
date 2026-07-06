@@ -11,6 +11,18 @@ from app.db import get_db
 COURTLISTENER_BASE = "https://www.courtlistener.com/api/rest/v4"
 COURTLISTENER_TOKEN = os.getenv("COURTLISTENER_TOKEN", "")
 
+
+def opinion_url(opinion_id: Optional[int]) -> Optional[str]:
+    if opinion_id:
+        return f"https://www.courtlistener.com/opinion/{opinion_id}/"
+    return None
+
+
+def cluster_url(cluster_id: Optional[int]) -> Optional[str]:
+    if cluster_id:
+        return f"https://www.courtlistener.com/opinion/{cluster_id}/"
+    return None
+
 _cache: dict[str, dict] = {}
 _cache_ttl: int = 300
 
@@ -19,7 +31,7 @@ def _cache_get(query_key: str) -> Optional[dict]:
     try:
         conn = get_db()
         row = conn.execute(
-            "SELECT case_name, court, date_filed, citations, opinion_text FROM opinions_cache WHERE query_key = ?",
+            "SELECT case_name, court, date_filed, citations, opinion_text, opinion_id, cluster_id FROM opinions_cache WHERE query_key = ?",
             (query_key,)
         ).fetchone()
         conn.close()
@@ -30,6 +42,8 @@ def _cache_get(query_key: str) -> Optional[dict]:
                 "date_filed": row["date_filed"] or "",
                 "citations": json.loads(row["citations"]) if row["citations"] else [],
                 "opinion_text": row["opinion_text"] or "",
+                "opinion_id": row["opinion_id"],
+                "cluster_id": row["cluster_id"],
             }
     except Exception:
         pass
@@ -41,8 +55,8 @@ def _cache_set(query_key: str, data: dict):
         conn = get_db()
         conn.execute(
             """INSERT OR REPLACE INTO opinions_cache
-               (query_key, case_name, court, date_filed, citations, opinion_text)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               (query_key, case_name, court, date_filed, citations, opinion_text, opinion_id, cluster_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 query_key,
                 data["case_name"],
@@ -50,6 +64,8 @@ def _cache_set(query_key: str, data: dict):
                 data.get("date_filed", ""),
                 json.dumps(data.get("citations", [])),
                 data.get("opinion_text", ""),
+                data.get("opinion_id"),
+                data.get("cluster_id"),
             )
         )
         conn.commit()

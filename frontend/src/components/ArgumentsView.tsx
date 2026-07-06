@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, ArgumentExtractionResponse, api } from '@/lib/api';
 import { printContent, argumentsHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function ArgumentsView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -123,6 +124,7 @@ export default function ArgumentsView({ user, onError }: { user: User; onError: 
               {result.petitioner} vs {result.respondent} | Source: {result.source}
             </p>
           </div>
+          <SourcePanel sources={result.sources} />
 
           <div className="card" style={{ marginBottom: '0.75rem' }}>
             <h3 style={{ color: 'var(--purple-secondary)' }}>Parties</h3>

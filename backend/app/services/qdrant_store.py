@@ -56,6 +56,11 @@ def add_documents(chunks: list[dict], batch_size: int = 100):
                 "source": chunk.get("source", "unknown"),
                 "title": chunk.get("title", "Unknown"),
                 "heading": chunk.get("heading"),
+                "opinion_id": chunk.get("opinion_id"),
+                "cluster_id": chunk.get("cluster_id"),
+                "citation": chunk.get("citation"),
+                "court": chunk.get("court"),
+                "date_filed": chunk.get("date_filed"),
             },
         }
         points.append(point)
@@ -103,6 +108,11 @@ def search_similar(
             "title": result.payload.get("title", "Unknown"),
             "source": result.payload.get("source", "unknown"),
             "doc_type": result.payload.get("doc_type", "general_legal"),
+            "opinion_id": result.payload.get("opinion_id"),
+            "cluster_id": result.payload.get("cluster_id"),
+            "citation": result.payload.get("citation"),
+            "court": result.payload.get("court"),
+            "date_filed": result.payload.get("date_filed"),
         }
         for result in results.points
     ]

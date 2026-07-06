@@ -54,6 +54,18 @@ def init_db():
         cursor.execute("ALTER TABLE opinions_cache ADD COLUMN qdrant_ingested INTEGER DEFAULT 0")
     except Exception:
         pass
+    try:
+        cursor.execute("ALTER TABLE opinions_cache ADD COLUMN opinion_id INTEGER")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE opinions_cache ADD COLUMN cluster_id INTEGER")
+    except Exception:
+        pass
+    try:
+        conn.execute("UPDATE opinions_cache SET qdrant_ingested = 0 WHERE opinion_id IS NULL AND qdrant_ingested = 1")
+    except Exception:
+        pass
 
     for col in ["file_path", "original_filename", "file_type", "mime_type"]:
         try:

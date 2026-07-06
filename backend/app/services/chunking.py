@@ -56,10 +56,15 @@ class LegalTextSplitter:
 
     def split_documents(self, documents: list[Document]) -> list[dict]:
         all_chunks = []
+        extra_fields = ["opinion_id", "cluster_id", "citation", "court", "date_filed", "category", "year", "doc_type"]
         for doc in documents:
             chunks = self.split_text(doc.page_content)
             for chunk in chunks:
                 chunk["source"] = doc.metadata.get("source", "unknown")
                 chunk["title"] = doc.metadata.get("title", "Unknown")
+                for field in extra_fields:
+                    val = doc.metadata.get(field)
+                    if val is not None:
+                        chunk[field] = val
             all_chunks.extend(chunks)
         return all_chunks

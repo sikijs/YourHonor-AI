@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, LegalSummaryResponse, api } from '@/lib/api';
 import { printContent, summaryHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function SummaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -136,6 +137,7 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
               Type: {summary.summary_type} | Source: {summary.source}
             </p>
           </div>
+          <SourcePanel sources={summary.sources} />
 
           <div className="card" style={{ marginBottom: '0.75rem' }}>
             <h3 style={{ color: 'var(--blue-primary)' }}>Overview</h3>

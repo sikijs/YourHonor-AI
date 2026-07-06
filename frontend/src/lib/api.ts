@@ -227,6 +227,7 @@ export interface CitationMapResponse {
   total_citations: number;
   key_precedent: string;
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 
@@ -249,6 +250,7 @@ export interface ArgumentExtractionResponse {
   winning_party: string;
   rationale: string;
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 
@@ -262,6 +264,7 @@ export interface LegalSummaryResponse {
   key_points: string[];
   sources_consulted: string[];
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 
@@ -280,6 +283,7 @@ export interface CaseBriefResponse {
   dissent: string | null;
   significance: string;
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 
@@ -326,7 +330,18 @@ export interface MemorandumResponse {
   issues: LegalIssue[];
   overall_conclusion: string;
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
+}
+
+export interface SourceDocument {
+  title: string;
+  source_type: string;
+  url?: string | null;
+  citation?: string | null;
+  court?: string | null;
+  date_filed?: string | null;
+  relevance_score?: number | null;
 }
 
 export interface SourceInfo {
@@ -338,6 +353,7 @@ export interface SourceInfo {
 export interface ChatMessageResponse {
   response: string;
   sources: SourceInfo[];
+  source_docs: SourceDocument[];
   retrieval_count: number;
   suggested_tool: string | null;
   suggested_name: string | null;
@@ -346,7 +362,7 @@ export interface ChatMessageResponse {
 }
 
 export type StreamEvent =
-  | { type: 'meta'; sources: SourceInfo[]; retrieval_count: number; suggested_tool: string | null; suggested_name: string | null; suggested_description: string | null; suggested_query: string | null }
+  | { type: 'meta'; sources: SourceInfo[]; source_docs?: SourceDocument[]; retrieval_count: number; suggested_tool: string | null; suggested_name: string | null; suggested_description: string | null; suggested_query: string | null }
   | { type: 'chunk'; text: string }
   | { type: 'done' }
   | { type: 'error'; text: string };
@@ -371,6 +387,7 @@ export interface DebateResponse {
   rationale: string;
   practice_tips: string[];
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 
@@ -386,6 +403,7 @@ export interface GlossaryResponse {
   citations: string[];
   from_seed: boolean;
   source: string;
+  sources: SourceDocument[];
   disclaimer: string;
 }
 

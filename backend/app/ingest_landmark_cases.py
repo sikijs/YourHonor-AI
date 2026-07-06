@@ -85,7 +85,7 @@ def _load_seed_data() -> dict:
         return {}
 
 
-def _get_or_fetch(case: dict, seed_data: dict) -> Optional[str]:
+def _get_or_fetch(case: dict, seed_data: dict) -> Optional[dict]:
     name_lower = case["name"].lower()
     if name_lower in seed_data:
         entry = seed_data[name_lower]
@@ -93,6 +93,11 @@ def _get_or_fetch(case: dict, seed_data: dict) -> Optional[str]:
             "case_name": entry.get("case_name", case["name"]),
             "opinion_text": entry.get("opinion_text", ""),
             "source": "seed",
+            "opinion_id": entry.get("opinion_id"),
+            "cluster_id": entry.get("cluster_id"),
+            "court": entry.get("court", ""),
+            "date_filed": entry.get("date_filed", ""),
+            "citation": entry.get("citation", []),
         }
         if result["opinion_text"] and len(result["opinion_text"]) >= 200:
             logger.info(f"  {case['name']} — using pre-seeded data")
@@ -121,6 +126,8 @@ def _save_to_cache(case_name: str, result: dict):
             "date_filed": result.get("date_filed", ""),
             "citations": result.get("citation", []),
             "opinion_text": result.get("opinion_text", ""),
+            "opinion_id": result.get("opinion_id"),
+            "cluster_id": result.get("cluster_id"),
         })
     except Exception:
         pass
@@ -165,12 +172,14 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
             get_ingestion_service().ingest_document(
                 content=result["opinion_text"],
                 title=name,
-                source="courtlistener",
+                source="courtlistener_ingested",
                 metadata={
                     "doc_type": "case_law",
                     "category": "landmark_case",
                     "citation": citation,
                     "year": case["year"],
+                    "opinion_id": result.get("opinion_id"),
+                    "cluster_id": result.get("cluster_id"),
                 },
             )
             _mark_ingested(name.lower())

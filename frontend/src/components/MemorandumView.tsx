@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, MemorandumResponse, api } from '@/lib/api';
 import { printContent, memorandumHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function MemorandumView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -112,6 +113,7 @@ export default function MemorandumView({ user, onError }: { user: User; onError:
               <span><strong>RE:</strong> {result.re}</span>
             </div>
           </div>
+          <SourcePanel sources={result.sources} />
 
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h3 style={{ color: 'var(--blue-primary)' }}>Question Presented</h3>
@@ -152,9 +154,6 @@ export default function MemorandumView({ user, onError }: { user: User; onError:
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h3 style={{ color: 'var(--blue-primary)' }}>Conclusion</h3>
             <p>{result.overall_conclusion}</p>
-            <p style={{ fontSize: '0.8rem', color: 'var(--gray-text)', marginTop: '0.5rem' }}>
-              Source: {result.source}
-            </p>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>

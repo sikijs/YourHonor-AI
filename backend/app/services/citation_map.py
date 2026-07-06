@@ -4,6 +4,7 @@ from typing import Optional
 
 from litellm import completion
 from app.models.citation_map import GeneratedCitationMap, CitationMapResponse
+from app.models.source import SourceDocument, from_rag_results, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
@@ -62,32 +63,32 @@ class CitationMapService:
     def __init__(self):
         self.retrieval_service = get_retrieval_service()
 
-    def _retrieve_from_rag(self, query: str) -> Optional[dict]:
+    def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
             query=query, top_k=10, min_score=0.3
         )
         if not results:
-            return None
+            return None, []
         results = deduplicate_rag_results(results, min_content_length=200)
         combined_parts = []
         titles = set()
-        sources = set()
+        source_labels = set()
         for r in results:
             content = r.get("content", "")
             combined_parts.append(content)
             title = r.get("title", "")
             if title:
                 titles.add(title)
-            source = r.get("source", "")
-            if source:
-                sources.add(source)
+            sl = r.get("source", "")
+            if sl:
+                source_labels.add(sl)
         if not combined_parts:
-            return None
+            return None, []
         return {
             "context_text": "\n\n---\n\n".join(combined_parts),
             "titles": list(titles),
-            "sources": list(sources),
-        }
+            "sources": list(source_labels),
+        }, from_rag_results(results)
 
     @staticmethod
     def _citation_to_markdown(cit: GeneratedCitationMap) -> str:
@@ -127,22 +128,25 @@ class CitationMapService:
             if user_doc and user_doc["content"]:
                 user_content = user_doc
 
-        rag_data = self._retrieve_from_rag(query)
+        rag_data, rag_sources = self._retrieve_from_rag(query)
 
         context_parts = []
-        sources = set()
+        source_labels = set()
         source_label = "rag"
+        doc_sources: list[SourceDocument] = []
         if user_content:
             context_parts.append(
                 f"## USER UPLOADED DOCUMENT\nTitle: {user_content['title']}\n\n{user_content['content']}"
             )
-            sources.add(user_content["title"])
+            source_labels.add(user_content["title"])
             source_label = "user_upload"
+            doc_sources = from_user_upload(user_content["title"])
         if rag_data:
             context_parts.append(rag_data["context_text"])
             for s in rag_data.get("sources", []):
-                sources.add(s)
+                source_labels.add(s)
             source_label = "rag"
+            doc_sources = rag_sources
 
         if not context_parts:
             context_parts.append(
@@ -188,6 +192,7 @@ class CitationMapService:
                 total_citations=cit.total_citations,
                 key_precedent=cit.key_precedent,
                 source=source_label,
+                sources=doc_sources,
             )
 
         except Exception as e:

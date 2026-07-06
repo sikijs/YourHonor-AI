@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 from .template_catalog import get_template_catalog
 from app.services.llm_errors import friendly_llm_error, CREDITS_MESSAGE
+from app.models.source import from_rag_results, from_web_search
 
 logger = logging.getLogger(__name__)
 
@@ -203,20 +204,24 @@ class ChatService:
         from .retrieval import deduplicate_rag_results
         retrieved_docs = deduplicate_rag_results(retrieved_docs, min_content_length=200)
 
-        sources = [
-            {"title": doc["title"], "source": doc.get("source", "unknown"), "relevance_score": round(doc.get("score", 0), 3)}
-            for doc in retrieved_docs
+        sources = from_rag_results(retrieved_docs)
+        sources_flat = [
+            {"title": s.title, "source": s.source_type, "relevance_score": s.relevance_score or 0.0, "url": s.url}
+            for s in sources
         ]
 
         if len(retrieved_docs) < 3:
             web_results = self._web_search(user_message)
             for r in web_results:
                 retrieved_docs.append({"title": r["title"], "content": f"{r['body']}\n\n(source: web — {r['href']})", "source": "web", "score": 0.0})
-                sources.append({"title": r["title"], "source": "web", "relevance_score": 0.0})
+            web_sources = from_web_search(web_results)
+            for ws in web_sources:
+                sources.append(ws)
+                sources_flat.append({"title": ws.title, "source": ws.source_type, "relevance_score": ws.relevance_score or 0.0, "url": ws.url})
 
         suggestion = self._suggest_tool(user_message)
 
-        yield f"data: {json.dumps({'type': 'meta', 'sources': sources, 'retrieval_count': len(retrieved_docs), 'suggested_tool': suggestion['tool'], 'suggested_name': suggestion['name'], 'suggested_description': suggestion['description'], 'suggested_query': suggestion['suggested_query']})}\n\n"
+        yield f"data: {json.dumps({'type': 'meta', 'sources': sources_flat, 'source_docs': [s.model_dump() for s in sources], 'retrieval_count': len(retrieved_docs), 'suggested_tool': suggestion['tool'], 'suggested_name': suggestion['name'], 'suggested_description': suggestion['description'], 'suggested_query': suggestion['suggested_query']})}\n\n"
 
         try:
             from litellm import completion
@@ -252,16 +257,16 @@ class ChatService:
         from .retrieval import deduplicate_rag_results
         retrieved_docs = deduplicate_rag_results(retrieved_docs, min_content_length=200)
 
-        sources = []
-        if retrieved_docs:
-            sources = [
-                {
-                    "title": doc["title"],
-                    "source": doc.get("source", "unknown"),
-                    "relevance_score": round(doc.get("score", 0), 3),
-                }
-                for doc in retrieved_docs
-            ]
+        source_docs = from_rag_results(retrieved_docs)
+        sources = [
+            {
+                "title": s.title,
+                "source": s.source_type,
+                "relevance_score": s.relevance_score or 0.0,
+                "url": s.url,
+            }
+            for s in source_docs
+        ]
 
         web_results = []
         if len(retrieved_docs) < 3:
@@ -274,10 +279,14 @@ class ChatService:
                         "source": "web",
                         "score": 0.0,
                     })
+                web_sources = from_web_search(web_results)
+                for ws in web_sources:
+                    source_docs.append(ws)
                     sources.append({
-                        "title": r["title"],
-                        "source": "web",
-                        "relevance_score": 0.0,
+                        "title": ws.title,
+                        "source": ws.source_type,
+                        "relevance_score": ws.relevance_score or 0.0,
+                        "url": ws.url,
                     })
 
         suggestion = self._suggest_tool(user_message)
@@ -307,6 +316,7 @@ class ChatService:
             return {
                 "response": raw,
                 "sources": sources,
+                "source_docs": [s.model_dump() for s in source_docs],
                 "retrieval_count": len(retrieved_docs),
                 "suggested_tool": suggestion["tool"],
                 "suggested_name": suggestion["name"],
@@ -321,6 +331,7 @@ class ChatService:
             return {
                 "response": chat_response,
                 "sources": sources,
+                "source_docs": [s.model_dump() for s in source_docs],
                 "retrieval_count": len(retrieved_docs),
                 "suggested_tool": suggestion["tool"],
                 "suggested_name": suggestion["name"],

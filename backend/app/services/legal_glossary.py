@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from litellm import completion
 from app.models.legal_glossary import GeneratedGlossaryEntry, GlossaryResponse
+from app.models.source import SourceDocument, from_rag_results, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
@@ -97,36 +98,40 @@ class GlossaryService:
                 return entry
         return None
 
-    def _retrieve_from_rag(self, query: str) -> Optional[dict]:
+    def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
         results = self.retrieval_service.retrieve(
             query=query, top_k=10, min_score=0.3
         )
         if not results:
-            return None
+            return None, []
         results = deduplicate_rag_results(results, min_content_length=200)
         combined_parts = []
         titles = set()
-        sources = set()
+        source_labels = set()
         for r in results:
             content = r.get("content", "")
             combined_parts.append(content)
             title = r.get("title", "")
             if title:
                 titles.add(title)
-            source = r.get("source", "")
-            if source:
-                sources.add(source)
+            sl = r.get("source", "")
+            if sl:
+                source_labels.add(sl)
         if not combined_parts:
-            return None
+            return None, []
         return {
             "context_text": "\n\n---\n\n".join(combined_parts),
             "titles": list(titles),
-            "sources": list(sources),
-        }
+            "sources": list(source_labels),
+        }, from_rag_results(results)
 
     def lookup(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> GlossaryResponse:
         seed_entry = self._lookup_seed(query)
         if seed_entry:
+            seed_sources = [SourceDocument(
+                title=seed_entry.get("term", query),
+                source_type="seed",
+            )]
             return GlossaryResponse(
                 term=seed_entry.get("term", query),
                 definition=seed_entry.get("definition", ""),
@@ -139,6 +144,7 @@ class GlossaryService:
                 citations=seed_entry.get("citations", []),
                 from_seed=True,
                 source="seed",
+                sources=seed_sources,
             )
 
         user_content = None
@@ -147,19 +153,22 @@ class GlossaryService:
             if user_doc and user_doc["content"]:
                 user_content = user_doc
 
-        rag_data = self._retrieve_from_rag(query)
+        rag_data, rag_sources = self._retrieve_from_rag(query)
 
         context_parts = []
-        sources = set()
+        source_labels = set()
+        doc_sources: list[SourceDocument] = []
         if user_content:
             context_parts.append(
                 f"## USER UPLOADED DOCUMENT\nTitle: {user_content['title']}\n\n{user_content['content']}"
             )
-            sources.add(user_content["title"])
+            source_labels.add(user_content["title"])
+            doc_sources = from_user_upload(user_content["title"])
         if rag_data:
             context_parts.append(rag_data["context_text"])
             for s in rag_data.get("sources", []):
-                sources.add(s)
+                source_labels.add(s)
+            doc_sources = rag_sources
 
         context_text = "\n\n---\n\n".join(context_parts) if context_parts else "No specific source material available. Base the definition on established legal principles."
 
@@ -195,6 +204,7 @@ class GlossaryService:
                 citations=entry.citations,
                 from_seed=False,
                 source="user_upload" if user_content else "rag",
+                sources=doc_sources,
             )
 
         except Exception as e:

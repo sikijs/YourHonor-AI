@@ -11,7 +11,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.backend
-    image: ghcr.io/sikijs/yourhonor-ai/backend:v1.1.0
+    image: ghcr.io/sikijs/yourhonor-ai/backend:v1.2.0
     ports:
       - "${HOST_PORT:-8000}:8000"
     healthcheck:

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, DebateResponse, api } from '@/lib/api';
 import { printContent, debateHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function DebateView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -122,6 +123,7 @@ export default function DebateView({ user, onError }: { user: User; onError: (er
               </p>
             </div>
           </div>
+          <SourcePanel sources={result.sources} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>

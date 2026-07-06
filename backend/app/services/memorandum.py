@@ -4,6 +4,7 @@ from typing import Optional
 
 from litellm import completion
 from app.models.memorandum import GeneratedMemorandum, MemorandumResponse
+from app.models.source import SourceDocument, from_rag_results, from_courtlistener_case, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
@@ -60,45 +61,49 @@ class MemorandumService:
     def __init__(self):
         self.retrieval_service = get_retrieval_service()
 
-    def _retrieve_from_rag(self, query: str) -> Optional[dict]:
+    def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
         results = self.retrieval_service.retrieve(
             query=query, top_k=10, min_score=0.3
         )
         if not results:
-            return None
+            return None, []
         results = deduplicate_rag_results(results, min_content_length=200)
         context_parts = []
-        sources = []
+        source_labels = []
         for r in results:
             content = r.get("content", "")
             title = r.get("title", "")
             source = r.get("source", "")
             if content:
                 context_parts.append(content)
-                sources.append(title or source)
+                source_labels.append(title or source)
         if not context_parts:
-            return None
+            return None, []
         return {
             "context_text": "\n\n---\n\n".join(context_parts),
-            "sources": sources,
-        }
+            "sources": source_labels,
+        }, from_rag_results(results)
 
-    def _search_courtlistener(self, query: str) -> Optional[str]:
+    def _search_courtlistener(self, query: str) -> tuple[Optional[str], list[SourceDocument]]:
         case = case_brief_from_query(query)
         if case and case.get("opinion_text") and len(case["opinion_text"]) >= 200:
-            return f"Case: {case.get('case_name', query)}\nCitation: {', '.join(case.get('citation', []))}\nCourt: {case.get('court', '')}\nDate: {case.get('date_filed', '')}\n\nFull Opinion:\n{case['opinion_text']}"
+            text = f"Case: {case.get('case_name', query)}\nCitation: {', '.join(case.get('citation', []))}\nCourt: {case.get('court', '')}\nDate: {case.get('date_filed', '')}\n\nFull Opinion:\n{case['opinion_text']}"
+            return text, from_courtlistener_case(case)
 
         results = search_opinions(query, page_size=3)
         if not results:
-            return None
+            return None, []
         context_parts = []
+        cl_sources: list[SourceDocument] = []
+        seen: set[str] = set()
         for r in results:
             name = r.get("case_name", "")
             citation = r.get("citation", [])
             snippet = r.get("snippet", "")
             court = r.get("court", "")
             date = r.get("date_filed", "")
-            if name:
+            if name and name not in seen:
+                seen.add(name)
                 parts = [f"Case: {name}"]
                 if citation:
                     parts.append(f"Citation: {', '.join(citation)}")
@@ -109,9 +114,18 @@ class MemorandumService:
                 if snippet:
                     parts.append(f"Syllabus: {snippet[:2000]}")
                 context_parts.append("\n".join(parts))
+                from connectors.courtlistener import cluster_url
+                cl_sources.append(SourceDocument(
+                    title=name,
+                    source_type="courtlistener",
+                    url=cluster_url(r.get("cluster_id")),
+                    citation=", ".join(citation) if citation else None,
+                    court=court,
+                    date_filed=date,
+                ))
         if not context_parts:
-            return None
-        return "\n\n---\n\n".join(context_parts)
+            return None, []
+        return "\n\n---\n\n".join(context_parts), cl_sources
 
     @staticmethod
     def _memo_to_markdown(memo: GeneratedMemorandum) -> str:
@@ -138,24 +152,28 @@ class MemorandumService:
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> MemorandumResponse:
         context_text = ""
         source = "rag"
+        doc_sources: list[SourceDocument] = []
 
         if document_id and user_id:
             user_doc = load_user_document_content(document_id, user_id)
             if user_doc and user_doc["content"]:
                 context_text = user_doc["content"]
                 source = "user_upload"
+                doc_sources = from_user_upload(user_doc["title"])
 
         if not context_text:
-            rag_data = self._retrieve_from_rag(query)
+            rag_data, rag_sources = self._retrieve_from_rag(query)
             if rag_data:
                 context_text = rag_data["context_text"]
                 source = "rag"
+                doc_sources = rag_sources
 
         if not context_text:
-            cl_data = self._search_courtlistener(query)
-            if cl_data:
-                context_text = cl_data
+            cl_text, cl_sources = self._search_courtlistener(query)
+            if cl_text:
+                context_text = cl_text
                 source = "courtlistener"
+                doc_sources = cl_sources
 
         if not context_text:
             context_text = "No reference materials were found for this query. Analyze the question based on general legal principles, and note that a more specific citation lookup may be needed for authoritative sources."
@@ -199,6 +217,7 @@ class MemorandumService:
                 issues=memo.issues,
                 overall_conclusion=memo.overall_conclusion,
                 source=source,
+                sources=doc_sources,
             )
 
         except Exception as e:

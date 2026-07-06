@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Document, CaseBriefResponse, api } from '@/lib/api';
 import { printContent, caseBriefHtml, resultToPlainText } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function CaseBriefView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -124,6 +125,7 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
               <br />Source: {brief.source}
             </p>
           </div>
+          <SourcePanel sources={brief.sources} />
 
           {[
             { label: 'Facts', content: brief.facts },

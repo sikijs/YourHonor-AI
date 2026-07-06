@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, Document, GlossaryResponse, api } from '@/lib/api';
 import { printContent, glossaryHtml } from '@/lib/print';
+import SourcePanel from '@/components/SourcePanel';
 
 export default function GlossaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -98,6 +99,7 @@ export default function GlossaryView({ user, onError }: { user: User; onError: (
               </p>
             )}
           </div>
+          <SourcePanel sources={result.sources} />
 
           {result.usage_example && (
             <div className="card" style={{ background: '#f9f9f9', borderLeft: '4px solid var(--blue-primary)' }}>

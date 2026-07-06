@@ -4,6 +4,7 @@ from typing import Optional
 
 from litellm import completion
 from app.models.case_brief import GeneratedBrief, CaseBriefResponse
+from app.models.source import SourceDocument, from_rag_results, from_courtlistener_case, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
@@ -54,36 +55,38 @@ class CaseBriefService:
     def __init__(self):
         self.retrieval_service = get_retrieval_service()
 
-    def _retrieve_from_rag(self, query: str) -> Optional[dict]:
+    def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
             query=query, top_k=10, min_score=0.35
         )
         results = deduplicate_rag_results(results, min_content_length=200)
         if not results:
-            return None
+            return None, None
         combined_parts = []
         titles = set()
-        sources = set()
+        source_labels = set()
         for r in results:
             content = r.get("content", "")
             combined_parts.append(content)
             title = r.get("title", "")
             if title:
                 titles.add(title)
-            source = r.get("source", "")
-            if source:
-                sources.add(source)
+            sl = r.get("source", "")
+            if sl:
+                source_labels.add(sl)
         combined_text = "\n\n---\n\n".join(combined_parts) if combined_parts else ""
         if not combined_text or len(combined_text) < 200:
-            return None
-        return {
+            return None, None
+        case_data = {
             "case_name": (titles.pop() if titles else query),
             "citation": [],
             "court": "",
             "date_filed": "",
             "opinion_text": combined_text,
-            "source": " | ".join(sorted(sources)) if sources else "rag",
+            "source": " | ".join(sorted(source_labels)) if source_labels else "rag",
         }
+        sources = from_rag_results(results)
+        return case_data, sources
 
     @staticmethod
     def _brief_to_markdown(
@@ -115,6 +118,7 @@ class CaseBriefService:
 
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> CaseBriefResponse:
         case_data = None
+        sources: list[SourceDocument] = []
 
         if document_id and user_id:
             user_doc = load_user_document_content(document_id, user_id)
@@ -127,12 +131,19 @@ class CaseBriefService:
                     "opinion_text": user_doc["content"],
                     "source": "user_upload",
                 }
+                sources = from_user_upload(user_doc["title"])
 
         if not case_data:
-            case_data = self._retrieve_from_rag(query)
+            rag_result, rag_sources = self._retrieve_from_rag(query)
+            if rag_result:
+                case_data = rag_result
+                sources = rag_sources
 
         if not case_data and _has_auth():
-            case_data = self.retrieval_service.retrieve_case(query)
+            cl_data = self.retrieval_service.retrieve_case(query)
+            if cl_data:
+                case_data = cl_data
+                sources = from_courtlistener_case(cl_data)
 
         if not case_data:
             case_data = {
@@ -219,6 +230,7 @@ class CaseBriefService:
                 dissent=brief.dissent,
                 significance=brief.significance,
                 source=source,
+                sources=sources,
             )
 
         except Exception as e:
