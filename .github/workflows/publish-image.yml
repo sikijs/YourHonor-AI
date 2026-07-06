@@ -1,16 +1,11 @@
-name: Build & Push Docker Image
+name: Publish Docker Image
 
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - "AGENTS.md"
-      - ".gitignore"
 
 jobs:
-  publish:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,29 +14,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Build frontend
+      - name: Extract image tag
+        id: tag
         run: |
-          cd frontend
-          npm ci
-          npm run build
-          cp -r out/* ../backend/app/static/
+          TAG=$(grep -oP 'yourhonor-ai/backend:\K[^"]+' docker/docker-compose.yml)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Log in to GHCR
+      - name: Log in to ghcr
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile.backend
+          tags: ghcr.io/sikijs/yourhonor-ai/backend:${{ steps.tag.outputs.tag }}
           push: true
-          tags: ghcr.io/sikijs/yourhonor-ai/backend:latest
