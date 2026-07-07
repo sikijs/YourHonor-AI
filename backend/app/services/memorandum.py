@@ -151,33 +151,28 @@ class MemorandumService:
 
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> MemorandumResponse:
         context_text = ""
-        source = "rag"
         doc_sources: list[SourceDocument] = []
 
         if document_id and user_id:
             user_doc = load_user_document_content(document_id, user_id)
             if user_doc and user_doc["content"]:
                 context_text = user_doc["content"]
-                source = "user_upload"
                 doc_sources = from_user_upload(user_doc["title"])
 
         if not context_text:
             rag_data, rag_sources = self._retrieve_from_rag(query)
             if rag_data:
                 context_text = rag_data["context_text"]
-                source = "rag"
                 doc_sources = rag_sources
 
         if not context_text:
             cl_text, cl_sources = self._search_courtlistener(query)
             if cl_text:
                 context_text = cl_text
-                source = "courtlistener"
                 doc_sources = cl_sources
 
         if not context_text:
             context_text = "No reference materials were found for this query. Analyze the question based on general legal principles, and note that a more specific citation lookup may be needed for authoritative sources."
-            source = "none"
 
         user_prompt = _build_user_prompt(query, context_text)
 
@@ -216,7 +211,6 @@ class MemorandumService:
                 facts=memo.facts,
                 issues=memo.issues,
                 overall_conclusion=memo.overall_conclusion,
-                source=source,
                 sources=doc_sources,
             )
 

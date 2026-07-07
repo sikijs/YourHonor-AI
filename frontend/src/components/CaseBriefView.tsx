@@ -122,7 +122,6 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
             <h2>{brief.case_name}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
               {brief.citation.join(', ')} | {brief.court} | {brief.date_filed}
-              <br />Source: {brief.source}
             </p>
           </div>
           <SourcePanel sources={brief.sources} />

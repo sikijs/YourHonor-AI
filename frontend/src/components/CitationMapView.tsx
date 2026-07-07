@@ -121,7 +121,7 @@ export default function CitationMapView({ user, onError }: { user: User; onError
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h2>{result.case_name}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
-              Total authorities cited: {result.total_citations} | Source: {result.source}
+              Total authorities cited: {result.total_citations}
             </p>
           </div>
           <SourcePanel sources={result.sources} />

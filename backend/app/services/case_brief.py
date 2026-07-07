@@ -83,7 +83,6 @@ class CaseBriefService:
             "court": "",
             "date_filed": "",
             "opinion_text": combined_text,
-            "source": " | ".join(sorted(source_labels)) if source_labels else "rag",
         }
         sources = from_rag_results(results)
         return case_data, sources
@@ -129,7 +128,6 @@ class CaseBriefService:
                     "court": "",
                     "date_filed": "",
                     "opinion_text": user_doc["content"],
-                    "source": "user_upload",
                 }
                 sources = from_user_upload(user_doc["title"])
 
@@ -157,7 +155,6 @@ class CaseBriefService:
                     "The case was not found in the local database or via CourtListener. "
                     "Try a more specific case name or citation."
                 ),
-                "source": "none",
             }
 
         case_name = case_data.get("case_name", query)
@@ -165,8 +162,6 @@ class CaseBriefService:
         court = case_data.get("court", "")
         date_filed = case_data.get("date_filed", "")
         opinion_text = case_data.get("opinion_text", "")
-        source = case_data.get("source", "unknown")
-
         if not opinion_text or len(opinion_text) < 200:
             case_data = {
                 "case_name": case_name,
@@ -179,14 +174,12 @@ class CaseBriefService:
                     "The case could not be found in our database or via CourtListener. "
                     "Try a more specific case name or citation."
                 ),
-                "source": "none",
             }
             case_name = case_data["case_name"]
             citation = case_data["citation"]
             court = case_data["court"]
             date_filed = case_data["date_filed"]
             opinion_text = case_data["opinion_text"]
-            source = case_data["source"]
 
         user_prompt = _build_user_prompt(case_name, opinion_text)
 
@@ -229,7 +222,6 @@ class CaseBriefService:
                 concurrence=brief.concurrence,
                 dissent=brief.dissent,
                 significance=brief.significance,
-                source=source,
                 sources=sources,
             )
 

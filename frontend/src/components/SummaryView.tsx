@@ -134,7 +134,7 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h2>{summary.title}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
-              Type: {summary.summary_type} | Source: {summary.source}
+              Type: {summary.summary_type}
             </p>
           </div>
           <SourcePanel sources={summary.sources} />
@@ -178,10 +178,21 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
 
           {summary.sources_consulted.length > 0 && (
             <div className="card" style={{ marginBottom: '0.75rem' }}>
-              <h3 style={{ color: 'var(--blue-primary)' }}>Sources Consulted</h3>
+              <h3 style={{ color: 'var(--blue-primary)' }}>
+                Sources Consulted — Generated {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+              </h3>
               <ul>
                 {summary.sources_consulted.map((item, i) => (
-                  <li key={i}>{item}</li>
+                  <li key={i}>
+                    <a
+                      href={`https://www.courtlistener.com/?q=${encodeURIComponent(item)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--blue-primary)', textDecoration: 'none' }}
+                    >
+                      {item} ↗
+                    </a>
+                  </li>
                 ))}
               </ul>
             </div>

@@ -132,21 +132,14 @@ class ArgumentExtractionService:
         rag_data, rag_sources = self._retrieve_from_rag(query)
 
         context_parts = []
-        source_labels = set()
-        source_label = "rag"
         doc_sources: list[SourceDocument] = []
         if user_content:
             context_parts.append(
                 f"## USER UPLOADED DOCUMENT\nTitle: {user_content['title']}\n\n{user_content['content']}"
             )
-            source_labels.add(user_content["title"])
-            source_label = "user_upload"
             doc_sources = from_user_upload(user_content["title"])
         if rag_data:
             context_parts.append(rag_data["context_text"])
-            for s in rag_data.get("sources", []):
-                source_labels.add(s)
-            source_label = "rag"
             doc_sources = rag_sources
 
         if not context_parts:
@@ -155,7 +148,6 @@ class ArgumentExtractionService:
                 "Provide a general educational overview based on established legal principles, "
                 "noting that authoritative sources may be needed for a complete analysis."
             )
-            source_label = "none"
 
         context_text = "\n\n---\n\n".join(context_parts)
         user_prompt = _build_user_prompt(query, context_text)
@@ -195,7 +187,6 @@ class ArgumentExtractionService:
                 key_doctrines_statutes=args.key_doctrines_statutes,
                 winning_party=args.winning_party,
                 rationale=args.rationale,
-                source=source_label,
                 sources=doc_sources,
             )
 

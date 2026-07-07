@@ -143,7 +143,6 @@ class GlossaryService:
                 practice_tips=seed_entry.get("practice_tips"),
                 citations=seed_entry.get("citations", []),
                 from_seed=True,
-                source="seed",
                 sources=seed_sources,
             )
 
@@ -156,18 +155,14 @@ class GlossaryService:
         rag_data, rag_sources = self._retrieve_from_rag(query)
 
         context_parts = []
-        source_labels = set()
         doc_sources: list[SourceDocument] = []
         if user_content:
             context_parts.append(
                 f"## USER UPLOADED DOCUMENT\nTitle: {user_content['title']}\n\n{user_content['content']}"
             )
-            source_labels.add(user_content["title"])
             doc_sources = from_user_upload(user_content["title"])
         if rag_data:
             context_parts.append(rag_data["context_text"])
-            for s in rag_data.get("sources", []):
-                source_labels.add(s)
             doc_sources = rag_sources
 
         context_text = "\n\n---\n\n".join(context_parts) if context_parts else "No specific source material available. Base the definition on established legal principles."
@@ -203,7 +198,6 @@ class GlossaryService:
                 practice_tips=entry.practice_tips,
                 citations=entry.citations,
                 from_seed=False,
-                source="user_upload" if user_content else "rag",
                 sources=doc_sources,
             )
 

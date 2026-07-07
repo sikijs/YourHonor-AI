@@ -121,7 +121,7 @@ export default function ArgumentsView({ user, onError }: { user: User; onError: 
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h2>{result.case_name}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
-              {result.petitioner} vs {result.respondent} | Source: {result.source}
+              {result.petitioner} vs {result.respondent}
             </p>
           </div>
           <SourcePanel sources={result.sources} />

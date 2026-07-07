@@ -226,7 +226,6 @@ export interface CitationMapResponse {
   constitutional_provisions: CitedAuthority[];
   total_citations: number;
   key_precedent: string;
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -249,7 +248,6 @@ export interface ArgumentExtractionResponse {
   key_doctrines_statutes: string[];
   winning_party: string;
   rationale: string;
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -263,7 +261,6 @@ export interface LegalSummaryResponse {
   impact: string;
   key_points: string[];
   sources_consulted: string[];
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -282,7 +279,6 @@ export interface CaseBriefResponse {
   concurrence: string | null;
   dissent: string | null;
   significance: string;
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -329,7 +325,6 @@ export interface MemorandumResponse {
   facts: string;
   issues: LegalIssue[];
   overall_conclusion: string;
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -386,7 +381,6 @@ export interface DebateResponse {
   predicted_winner: string;
   rationale: string;
   practice_tips: string[];
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
@@ -402,7 +396,6 @@ export interface GlossaryResponse {
   practice_tips: string | null;
   citations: string[];
   from_seed: boolean;
-  source: string;
   sources: SourceDocument[];
   disclaimer: string;
 }
