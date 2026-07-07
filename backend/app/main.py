@@ -1,11 +1,14 @@
 import threading
 import os
+import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pathlib import Path
 from app.api import auth, documents, chat, rag, legal, templates, tutor, debate
 from app.services.document import file_storage
+
+APP_VERSION = "1.2.0"
 
 app = FastAPI(title="YourHonor AI", description="Legal AI Education Platform")
 
@@ -60,6 +63,31 @@ if static_path.exists():
 @app.get("/api/health")
 def health_check():
     return {"status": "healthy", "service": "YourHonor AI Backend"}
+
+@app.get("/api/check-update")
+def check_update():
+    try:
+        resp = httpx.get(
+            "https://api.github.com/repos/sikijs/YourHonor-AI/releases/latest",
+            headers={"Accept": "application/vnd.github.v3+json"},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            latest = data.get("tag_name", "").lstrip("v")
+            current = APP_VERSION
+            return {
+                "up_to_date": latest == current,
+                "latest_version": latest,
+                "download_url": data.get("html_url", "https://github.com/sikijs/YourHonor-AI/releases/latest"),
+            }
+    except Exception:
+        pass
+    return {
+        "up_to_date": False,
+        "latest_version": "unknown",
+        "download_url": "https://github.com/sikijs/YourHonor-AI/releases/latest",
+    }
 
 @app.get("/")
 def serve_index():

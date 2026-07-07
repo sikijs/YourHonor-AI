@@ -1,5 +1,7 @@
 # Notes
 
+> **Version 1.2.0**
+
 Quick reference for managing YourHonor AI.
 
 ## How It Works

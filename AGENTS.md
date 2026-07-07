@@ -1,6 +1,8 @@
 
 # YOURHONOR AI  ----   Platform & AI Agent Guidelines
 
+> **Current Version: 1.2.0**
+
 ## Project Overview
 
 This project is a standalone Docker-based legal AI application designed primarily for law students and legal education.
@@ -218,6 +220,7 @@ Backend available at http://localhost:8000
 
 ### Other
 - GET /api/health - Health check
+- GET /api/check-update - Check if a newer version is available on GitHub
 
 ---
 
@@ -263,6 +266,13 @@ Backend available at http://localhost:8000
 ### Phase 6 (Error Handling) - COMPLETE
 - `app/services/llm_errors.py` — Detects OpenRouter payment/credit errors and returns a user-friendly message: *"Your OpenRouter credits are exhausted. Add funds at openrouter.ai/settings/credits to continue."* instead of raw API errors
 - All 9 LLM service files route errors through `friendly_llm_error()`
+
+### Phase 7 (Version Awareness) - COMPLETE
+- App version (`v1.2.0`) displayed in the footer on every page
+- "Check for Updates" button calls `GET /api/check-update` which fetches the latest release from the GitHub API
+- Yellow banner with download link + upgrade instructions shown when a newer version exists
+- Green "up to date" banner when the current version matches the latest release
+- Version constants in `backend/app/main.py` (`APP_VERSION`), `frontend/next.config.js` (`NEXT_PUBLIC_APP_VERSION`), and `frontend/package.json` / `backend/pyproject.toml`
 
 ---
 

@@ -18,6 +18,7 @@ import GenerateDocumentView from '@/components/GenerateDocumentView';
 import ChatView from '@/components/ChatView';
 import ResourcesView from '@/components/ResourcesView';
 import AboutView from '@/components/AboutView';
+import AppFooter from '@/components/AppFooter';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -165,6 +166,7 @@ export default function Home() {
           <AboutView />
         )}
       </main>
+      <AppFooter />
     </>
   );
 }

@@ -323,9 +323,86 @@ h1, h2, h3 {
   cursor: pointer;
 }
 
+.app-footer {
+  margin-top: 2rem;
+  background-color: var(--dark-navy);
+  color: var(--gray-text);
+  padding: 1rem 2rem;
+  font-size: 0.85rem;
+}
+
+.app-footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.app-footer-version {
+  color: var(--white);
+  font-weight: 500;
+}
+
+.app-footer-update-link {
+  background: none;
+  border: none;
+  color: var(--accent-yellow);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.app-footer-update-link:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.update-banner {
+  max-width: 1200px;
+  margin: 0.75rem auto 0;
+  padding: 0.75rem 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  color: #856404;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.update-banner a {
+  color: var(--blue-primary);
+  font-weight: 600;
+}
+
+.update-banner small {
+  display: block;
+  margin-top: 0.25rem;
+  opacity: 0.85;
+}
+
+.update-banner.up-to-date {
+  background: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+}
+
+.update-dismiss {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 0.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
 @media print {
   header, nav, .btn, button, form, select, .documents-list, .features,
-  .chat-container, .hero, .disclaimer-card, footer {
+  .chat-container, .hero, .disclaimer-card, footer, .app-footer, .update-banner {
     display: none !important;
   }
   body {
