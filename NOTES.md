@@ -40,6 +40,7 @@ cd ~/YourHonor\ AI/docker
 
 | What | Command |
 |------|---------|
+| Pull latest image & start | `docker compose pull && docker compose up -d` |
 | Start the app | `docker compose up -d` |
 | Stop the app | `docker compose down` |
 | Restart (no code change) | `docker compose restart` |
