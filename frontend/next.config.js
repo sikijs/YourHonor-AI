@@ -3,7 +3,7 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
   env: {
-    NEXT_PUBLIC_APP_VERSION: '1.2.0',
+    NEXT_PUBLIC_APP_VERSION: '1.2.1',
   },
 }
 

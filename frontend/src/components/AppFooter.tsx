@@ -10,7 +10,7 @@ export default function AppFooter() {
     download_url: string;
   } | null>(null);
 
-  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.2.0';
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.2.1';
 
   async function handleCheckUpdate() {
     setChecking(true);
