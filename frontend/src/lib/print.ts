@@ -88,11 +88,36 @@ export function caseBriefHtml(result: {
   `;
 }
 
+const BADGE_STYLE: Record<string, { bg: string; color: string }> = {
+  courtlistener: { bg: '#e8f4fd', color: '#1a7db5' },
+  courtlistener_ingested: { bg: '#e8f4fd', color: '#1a7db5' },
+  rag: { bg: '#e8f8e8', color: '#2e7d32' },
+  user_upload: { bg: '#fff3e0', color: '#e65100' },
+  web: { bg: '#f3e5f5', color: '#7b1fa2' },
+  seed: { bg: '#e0f7fa', color: '#00838f' },
+  none: { bg: '#f5f5f5', color: '#757575' },
+};
+
 export function summaryHtml(result: {
   title: string; summary_type: string; overview: string;
   key_findings: string[]; legal_principles: string[]; impact: string;
   key_points: string[]; sources_consulted: string[];
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   return `
     <div class="header">${esc(result.summary_type)} summary</div>
     ${fmtField('Overview', result.overview)}
@@ -110,6 +135,8 @@ export function summaryHtml(result: {
 
     <div class="field-label">Sources Consulted</div>
     <div class="field-value">${fmtList(result.sources_consulted)}</div>
+
+    ${sourcesHtml ? `<div class="field-label">Retrieved Sources</div><div class="field-value">${sourcesHtml}</div>` : ''}
   `;
 }
 

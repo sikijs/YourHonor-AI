@@ -2,6 +2,7 @@ import threading
 import os
 import httpx
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pathlib import Path
@@ -11,6 +12,14 @@ from app.services.document import file_storage
 APP_VERSION = "1.2.1"
 
 app = FastAPI(title="YourHonor AI", description="Legal AI Education Platform")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 app.include_router(documents.router)

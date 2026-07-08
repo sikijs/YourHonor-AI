@@ -1,4 +1,4 @@
-const API_BASE = '';
+const API_BASE = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export interface User {
   id: number;

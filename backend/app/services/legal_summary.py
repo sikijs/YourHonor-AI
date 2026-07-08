@@ -81,7 +81,7 @@ class LegalSummaryService:
         }, from_rag_results(results)
 
     @staticmethod
-    def _summary_to_markdown(summary: GeneratedSummary) -> str:
+    def _summary_to_markdown(summary: GeneratedSummary, sources: Optional[list[SourceDocument]] = None) -> str:
         parts = [f"# Legal Summary: {summary.title}"]
         parts.append(f"## Overview\n\n{summary.overview}")
         if summary.key_findings:
@@ -93,6 +93,17 @@ class LegalSummaryService:
             parts.append("## Key Points\n\n" + "\n".join(f"- {p}" for p in summary.key_points))
         if summary.sources_consulted:
             parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in summary.sources_consulted))
+        if sources:
+            lines = []
+            for s in sources:
+                line = f"- **{s.title}** ({s.source_type})"
+                extras = [x for x in [s.citation, s.court, s.date_filed] if x]
+                if extras:
+                    line += " — " + " | ".join(extras)
+                if s.url:
+                    line += f" | {s.url}"
+                lines.append(line)
+            parts.append("## Retrieved Sources\n\n" + "\n".join(lines))
         return "\n\n".join(parts)
 
     def generate(self, query: str, summary_type: str = "general", document_id: Optional[int] = None, user_id: Optional[int] = None) -> LegalSummaryResponse:
@@ -145,7 +156,7 @@ class LegalSummaryService:
 
             try:
                 if user_id:
-                    md = self._summary_to_markdown(summary)
+                    md = self._summary_to_markdown(summary, doc_sources)
                     save_document(user_id, f"Legal Summary: {summary.title}", md, "legal_summary")
             except Exception as e:
                 logger.warning(f"Failed to save summary document: {e}")
