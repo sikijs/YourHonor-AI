@@ -55,3 +55,5 @@ jobs:
             ghcr.io/sikijs/yourhonor-ai/backend:${{ steps.tag.outputs.tag }}
             ghcr.io/sikijs/yourhonor-ai/backend:v${{ steps.ver.outputs.version }}
           push: true
+          provenance: false
+          sbom: false
