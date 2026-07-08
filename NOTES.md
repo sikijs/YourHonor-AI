@@ -31,6 +31,38 @@ Everything runs on your own computer — only the OpenRouter API call leaves you
 
 ---
 
+## Live Editing (No Docker Rebuild)
+
+Edit without rebuilding the Docker image. Frontend hot reloads on save, backend auto-restarts.
+
+**1. Stop the Docker backend** (frees up port 8000):
+```bash
+docker stop docker-backend-1
+```
+
+**2. Start the local backend** (from `backend/`):
+```bash
+cd ~/YourHonor\ AI/backend
+.venv/bin/uvicorn app.main:app --reload --port 8000
+```
+
+**3. Start the frontend dev server** (from `frontend/` — separate terminal):
+```bash
+cd ~/YourHonor\ AI/frontend
+npm run dev
+```
+
+**4. Open** http://localhost:3000 in your browser.
+
+**When done — put Docker backend back:**
+```bash
+kill $(lsof -ti :3000)   # stop frontend dev server
+kill $(lsof -ti :8000)   # stop local backend
+docker start docker-backend-1  # restart Docker backend
+```
+
+---
+
 ## App Lifecycle (Docker)
 
 Run all docker commands from the `docker/` folder:
