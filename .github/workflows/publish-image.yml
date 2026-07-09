@@ -19,6 +19,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: npm-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: npm-
+
       - name: Build frontend
         run: |
           cd frontend
@@ -27,16 +34,16 @@ jobs:
           rm -rf ../backend/app/static/
           cp -r out/. ../backend/app/static/
 
-      - name: Extract image tag
-        id: tag
-        run: |
-          TAG=$(grep -oP 'yourhonor-ai/backend:\K[^"]+' docker/docker-compose.yml)
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
       - name: Extract app version
         id: ver
         run: |
-          VER=$(grep -oP 'APP_VERSION = "\K[^"]+' backend/app/main.py)
+          VER=$(python3 -c "
+with open('backend/app/main.py') as f:
+    for line in f:
+        if 'APP_VERSION' in line and '=' in line:
+            print(line.split('\"')[1])
+            break
+")
           echo "version=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Log in to ghcr
@@ -46,14 +53,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.backend
-          tags: |
-            ghcr.io/sikijs/yourhonor-ai/backend:${{ steps.tag.outputs.tag }}
-            ghcr.io/sikijs/yourhonor-ai/backend:v${{ steps.ver.outputs.version }}
-          push: true
-          provenance: false
-          sbom: false
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push (with retry)
+        run: |
+          for i in 1 2 3; do
+            echo "Build attempt $i..."
+            docker buildx build \
+              -f docker/Dockerfile.backend \
+              -t ghcr.io/sikijs/yourhonor-ai/backend:latest \
+              -t ghcr.io/sikijs/yourhonor-ai/backend:v${{ steps.ver.outputs.version }} \
+              --cache-from type=gha \
+              --cache-to type=gha,mode=max \
+              --push \
+              --provenance=false \
+              --sbom=false \
+              . && break
+            if [ $i -lt 3 ]; then
+              echo "Attempt $i failed. Retrying in 30s..."
+              sleep 30
+            else
+              echo "All 3 attempts failed."
+              exit 1
+            fi
+          done
