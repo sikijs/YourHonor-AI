@@ -7,7 +7,6 @@ export default function AppFooter() {
   const [updateInfo, setUpdateInfo] = useState<{
     up_to_date: boolean;
     latest_version: string;
-    download_url: string;
   } | null>(null);
 
   const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.2.1';
@@ -25,7 +24,6 @@ export default function AppFooter() {
         setUpdateInfo({
           up_to_date: false,
           latest_version: 'unknown',
-          download_url: 'https://github.com/sikijs/YourHonor-AI/releases/latest',
         });
       }
     } finally {

@@ -77,25 +77,34 @@ def health_check():
 def check_update():
     try:
         resp = httpx.get(
-            "https://api.github.com/repos/sikijs/YourHonor-AI/releases/latest",
+            "https://api.github.com/repos/sikijs/YourHonor-AI/git/refs/tags",
             headers={"Accept": "application/vnd.github.v3+json"},
             timeout=10,
         )
         if resp.status_code == 200:
-            data = resp.json()
-            latest = data.get("tag_name", "").lstrip("v")
-            current = APP_VERSION
-            return {
-                "up_to_date": latest == current,
-                "latest_version": latest,
-                "download_url": data.get("html_url", "https://github.com/sikijs/YourHonor-AI/releases/latest"),
-            }
+            tags = resp.json()
+            latest = None
+            latest_parts = (0, 0, 0)
+            for tag in tags:
+                ref = tag.get("ref", "")
+                if ref.startswith("refs/tags/v"):
+                    ver = ref[len("refs/tags/v"):]
+                    parts = ver.split(".")
+                    if len(parts) == 3 and all(p.isdigit() for p in parts):
+                        ver_tuple = tuple(map(int, parts))
+                        if ver_tuple > latest_parts:
+                            latest_parts = ver_tuple
+                            latest = ver
+            if latest is not None:
+                return {
+                    "up_to_date": latest == APP_VERSION,
+                    "latest_version": latest,
+                }
     except Exception:
         pass
     return {
         "up_to_date": False,
         "latest_version": "unknown",
-        "download_url": "https://github.com/sikijs/YourHonor-AI/releases/latest",
     }
 
 @app.get("/")
