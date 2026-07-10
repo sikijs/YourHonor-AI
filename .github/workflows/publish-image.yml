@@ -26,3 +26,7 @@ jobs:
           npm run build
           rm -rf ../backend/app/static/
           cp -r out/. ../backend/app/static/
+
+      - name: Extract app version
+        id: ver
+        run: echo "version=$(python3 -c "with open('backend/app/main.py') as f: print([l.split('\"')[1] for l in f if 'APP_VERSION' in l and '=' in l][0])")" >> "$GITHUB_OUTPUT"
