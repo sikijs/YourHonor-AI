@@ -7,5 +7,53 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - run: echo "hello"
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          rm -rf ../backend/app/static/
+          cp -r out/. ../backend/app/static/
+
+      - name: Extract app version
+        id: ver
+        run: |
+          VER=$(python3 -c "
+with open('backend/app/main.py') as f:
+    for line in f:
+        if 'APP_VERSION' in line and '=' in line:
+            print(line.split('\"')[1])
+            break
+")
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to ghcr
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile.backend
+          tags: |
+            ghcr.io/sikijs/yourhonor-ai/backend:latest
+            ghcr.io/sikijs/yourhonor-ai/backend:v${{ steps.ver.outputs.version }}
+          push: true
+          provenance: false
+          sbom: false
