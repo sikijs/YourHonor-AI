@@ -27,12 +27,6 @@ jobs:
           rm -rf ../backend/app/static/
           cp -r out/. ../backend/app/static/
 
-      - name: Extract app version
-        id: ver
-        run: |
-          VER=$(grep -oP 'APP_VERSION = "\K[^"]+' backend/app/main.py)
-          echo "version=$VER" >> "$GITHUB_OUTPUT"
-
       - name: Log in to ghcr
         uses: docker/login-action@v4
         with:
@@ -45,9 +39,7 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile.backend
-          tags: |
-            ghcr.io/sikijs/yourhonor-ai/backend:latest
-            ghcr.io/sikijs/yourhonor-ai/backend:v${{ steps.ver.outputs.version }}
+          tags: ghcr.io/sikijs/yourhonor-ai/backend:latest
           push: true
           provenance: false
           sbom: false

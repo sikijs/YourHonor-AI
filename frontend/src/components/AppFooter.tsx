@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AppFooter() {
   const [checking, setChecking] = useState(false);
@@ -12,22 +12,34 @@ export default function AppFooter() {
 
   const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.2.1';
 
-  async function handleCheckUpdate() {
+  async function handleCheckUpdate(auto = false) {
     setChecking(true);
     try {
       const res = await fetch('/api/check-update');
       const data = await res.json();
-      setUpdateInfo(data);
+      if (!auto || !data.up_to_date) {
+        setUpdateInfo(data);
+      }
     } catch {
-      setUpdateInfo({
-        up_to_date: false,
-        latest_version: 'unknown',
-        download_url: 'https://github.com/sikijs/YourHonor-AI/releases/latest',
-      });
+      if (!auto) {
+        setUpdateInfo({
+          up_to_date: false,
+          latest_version: 'unknown',
+          download_url: 'https://github.com/sikijs/YourHonor-AI/releases/latest',
+        });
+      }
     } finally {
       setChecking(false);
     }
   }
+
+  useEffect(() => {
+    const checked = sessionStorage.getItem('opencode-update-checked');
+    if (!checked) {
+      handleCheckUpdate(true);
+      sessionStorage.setItem('opencode-update-checked', 'true');
+    }
+  }, []);
 
   return (
     <footer className="app-footer">
@@ -35,7 +47,7 @@ export default function AppFooter() {
         <span className="app-footer-version">YourHonor AI v{version}</span>
         <button
           className="app-footer-update-link"
-          onClick={handleCheckUpdate}
+          onClick={() => handleCheckUpdate()}
           disabled={checking}
         >
           {checking ? 'Checking...' : 'Check for Updates'}
@@ -45,15 +57,10 @@ export default function AppFooter() {
       {updateInfo && !updateInfo.up_to_date && (
         <div className="update-banner">
           <div className="update-banner-content">
-            <strong>Version {updateInfo.latest_version} is available</strong> &mdash;{' '}
-            <a href={updateInfo.download_url} target="_blank" rel="noopener noreferrer">
-              Download it from GitHub
-            </a>.
+            <strong>Version {updateInfo.latest_version} is available</strong>
             <br />
-            <small>
-              To upgrade: download the new version, unzip, and re-run setup.command to keep
-              your settings.
-            </small>
+            Close the app, then open <strong>Start YourHonor AI.command</strong> again. It
+            will download the update automatically.
           </div>
           <button className="update-dismiss" onClick={() => setUpdateInfo(null)}>
             &times;
