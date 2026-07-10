@@ -1,5 +1,54 @@
 const API_BASE = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
+const REQUEST_TIMEOUT = 30_000;
+
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}, signal?: AbortSignal): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const timeoutController = new AbortController();
+  const timerId = setTimeout(() => timeoutController.abort(), REQUEST_TIMEOUT);
+
+  const combinedSignal = signal
+    ? combineAbortSignals(signal, timeoutController.signal)
+    : timeoutController.signal;
+
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      credentials: 'include',
+      signal: combinedSignal,
+      headers: {
+        ...headers,
+        ...(options.headers as Record<string, string> || {}),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
+      throw new Error(error.detail || 'An error occurred');
+    }
+
+    return response.json();
+  } finally {
+    clearTimeout(timerId);
+  }
+}
+
+function combineAbortSignals(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController();
+  for (const sig of signals) {
+    if (sig.aborted) {
+      controller.abort(sig.reason);
+      return controller.signal;
+    }
+    sig.addEventListener('abort', () => controller.abort(sig.reason), { once: true });
+  }
+  return controller.signal;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -19,29 +68,6 @@ export interface Document {
   mime_type: string | null;
   created_at: string;
   updated_at: string;
-}
-
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}, signal?: AbortSignal): Promise<T> {
-  const headers: Record<string, string> = {};
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-  }
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    credentials: 'include',
-    signal,
-    headers: {
-      ...headers,
-      ...(options.headers as Record<string, string> || {}),
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-    throw new Error(error.detail || 'An error occurred');
-  }
-
-  return response.json();
 }
 
 export const api = {
@@ -227,6 +253,7 @@ export interface CitationMapResponse {
   total_citations: number;
   key_precedent: string;
   sources: SourceDocument[];
+  sources_consulted: string[];
   disclaimer: string;
 }
 
@@ -249,6 +276,7 @@ export interface ArgumentExtractionResponse {
   winning_party: string;
   rationale: string;
   sources: SourceDocument[];
+  sources_consulted: string[];
   disclaimer: string;
 }
 
@@ -280,6 +308,7 @@ export interface CaseBriefResponse {
   dissent: string | null;
   significance: string;
   sources: SourceDocument[];
+  sources_consulted: string[];
   disclaimer: string;
 }
 
@@ -326,6 +355,7 @@ export interface MemorandumResponse {
   issues: LegalIssue[];
   overall_conclusion: string;
   sources: SourceDocument[];
+  sources_consulted: string[];
   disclaimer: string;
 }
 
@@ -382,6 +412,7 @@ export interface DebateResponse {
   rationale: string;
   practice_tips: string[];
   sources: SourceDocument[];
+  sources_consulted: string[];
   disclaimer: string;
 }
 
