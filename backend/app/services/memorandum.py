@@ -36,6 +36,7 @@ Structure the memorandum as follows:
    - Application: Apply the rule to the facts.
    - Conclusion: The conclusion for this issue.
 9. OVERALL CONCLUSION: A brief summary of the overall outcome.
+10. SOURCES CONSULTED: List the specific source titles or references used to draft this memorandum.
 
 Guidelines:
 - Base your analysis on the provided reference materials when available
@@ -147,6 +148,8 @@ class MemorandumService:
             parts.append(f"**Application:** {iss.application}")
             parts.append(f"**Conclusion:** {iss.conclusion}")
         parts.append(f"## Overall Conclusion\n\n{memo.overall_conclusion}")
+        if memo.sources_consulted:
+            parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in memo.sources_consulted))
         return "\n\n".join(parts)
 
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> MemorandumResponse:
@@ -212,6 +215,7 @@ class MemorandumService:
                 issues=memo.issues,
                 overall_conclusion=memo.overall_conclusion,
                 sources=doc_sources,
+                sources_consulted=memo.sources_consulted,
             )
 
         except Exception as e:

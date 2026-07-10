@@ -31,6 +31,7 @@ Extract and organize the following sections from the opinion:
 7. CONCURRENCE (if present): Key points from any concurring opinion.
 8. DISSENT (if present): Key points from any dissenting opinion.
 9. SIGNIFICANCE: Why this case matters — its impact on legal doctrine, society, or future cases.
+10. SOURCES CONSULTED: List the specific source titles or references used to generate this brief.
 
 Guidelines:
 - Use ONLY information from the provided opinion text
@@ -113,6 +114,8 @@ class CaseBriefService:
         if brief.dissent:
             parts.append(f"## Dissent\n\n{brief.dissent}")
         parts.append(f"## Significance\n\n{brief.significance}")
+        if brief.sources_consulted:
+            parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in brief.sources_consulted))
         return "\n\n".join(parts)
 
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> CaseBriefResponse:
@@ -223,6 +226,7 @@ class CaseBriefService:
                 dissent=brief.dissent,
                 significance=brief.significance,
                 sources=sources,
+                sources_consulted=brief.sources_consulted,
             )
 
         except Exception as e:

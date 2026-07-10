@@ -35,6 +35,7 @@ Given a user's legal position and relevant source material, generate a structure
 6. PREDICTED WINNER: "supporting", "opposing", or "balanced".
 7. RATIONALE: Which side has the stronger position and why.
 8. PRACTICE TIPS: Strategic advice for arguing each side.
+9. SOURCES CONSULTED: List the specific source titles or references used to generate this analysis.
 
 Guidelines:
 - Base arguments on the provided source material where possible
@@ -120,6 +121,8 @@ class DebateService:
         ])
         if debate.practice_tips:
             parts.append("## Practice Tips\n\n" + "\n".join(f"- {t}" for t in debate.practice_tips))
+        if debate.sources_consulted:
+            parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in debate.sources_consulted))
         return "\n\n".join(parts)
 
     def analyze(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> DebateResponse:
@@ -181,6 +184,7 @@ class DebateService:
                 rationale=debate.rationale,
                 practice_tips=debate.practice_tips,
                 sources=doc_sources,
+                sources_consulted=debate.sources_consulted,
             )
 
         except Exception as e:

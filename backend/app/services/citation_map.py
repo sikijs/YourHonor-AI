@@ -40,6 +40,7 @@ Extract and organize the following:
    - The treatment: how the court treated it (applied, interpreted, discussed)
 5. TOTAL CITATIONS: The total number of distinct authorities cited.
 6. KEY PRECEDENT: Which single authority was most central to the court's reasoning and why.
+7. SOURCES CONSULTED: List the specific source titles or references used to generate this analysis.
 
 Guidelines:
 - Use ONLY information from the provided opinion text
@@ -119,6 +120,8 @@ class CitationMapService:
                 line += f" — {p.context} ({p.treatment})"
                 parts.append(line)
         parts.append(f"## Key Precedent\n\n{cit.key_precedent}")
+        if cit.sources_consulted:
+            parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in cit.sources_consulted))
         return "\n\n".join(parts)
 
     def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> CitationMapResponse:
@@ -184,6 +187,7 @@ class CitationMapService:
                 total_citations=cit.total_citations,
                 key_precedent=cit.key_precedent,
                 sources=doc_sources,
+                sources_consulted=cit.sources_consulted,
             )
 
         except Exception as e:

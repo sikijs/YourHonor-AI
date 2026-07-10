@@ -68,7 +68,23 @@ export function caseBriefHtml(result: {
   facts: string; procedural_history: string; issues: string[];
   holding: string; reasoning: string; rule_of_law: string;
   concurrence?: string | null; dissent?: string | null; significance: string;
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   return `
     <div class="header">${esc(result.court)} &mdash; ${esc(result.date_filed)}</div>
     <div class="header">${result.citation.map(c => esc(c)).join('; ')}</div>
@@ -85,6 +101,9 @@ export function caseBriefHtml(result: {
     ${fmtField('Concurrence', result.concurrence || null)}
     ${fmtField('Dissent', result.dissent || null)}
     ${fmtField('Significance', result.significance)}
+
+    ${sourcesHtml ? `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>` : ''}
+    ${result.sources_consulted && result.sources_consulted.length > 0 ? `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>` : ''}
   `;
 }
 
@@ -146,7 +165,23 @@ export function argumentsHtml(result: {
   respondent_arguments: Array<{ party: string; argument: string; reasoning: string; authorities: string[]; court_resolution: string }>;
   counterarguments_considered: string[]; key_doctrines_statutes: string[];
   winning_party: string; rationale: string;
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   let html = `<div class="header">${esc(result.case_name)}</div>`;
   html += `<p><strong>Petitioner:</strong> ${esc(result.petitioner)} &mdash; <strong>Respondent:</strong> ${esc(result.respondent)}</p>`;
 
@@ -174,6 +209,9 @@ export function argumentsHtml(result: {
   html += `<h2>Key Doctrines &amp; Statutes</h2>${fmtTags(result.key_doctrines_statutes || [])}`;
   html += `<p><strong>Winning Party:</strong> ${esc(result.winning_party)}</p>`;
   html += fmtField('Rationale', result.rationale);
+
+  if (sourcesHtml) html += `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>`;
+  if (result.sources_consulted?.length) html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
   return html;
 }
 
@@ -182,7 +220,23 @@ export function citationMapHtml(result: {
   statutes_cited: Array<{ name: string; citation: string | null; type: string; context: string; treatment: string }>;
   constitutional_provisions: Array<{ name: string; citation: string | null; type: string; context: string; treatment: string }>;
   total_citations: number; key_precedent: string;
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   let html = `<div class="header">${esc(result.case_name)}</div>`;
   html += `<p><strong>Total Citations:</strong> ${result.total_citations}</p>`;
 
@@ -203,6 +257,9 @@ export function citationMapHtml(result: {
   html += renderAuth(result.statutes_cited, 'Statutes Cited');
   html += renderAuth(result.constitutional_provisions, 'Constitutional Provisions');
   html += fmtField('Key Precedent', result.key_precedent);
+
+  if (sourcesHtml) html += `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>`;
+  if (result.sources_consulted?.length) html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
   return html;
 }
 
@@ -211,7 +268,23 @@ export function memorandumHtml(result: {
   question_presented: string; brief_answer: string; facts: string;
   issues: Array<{ issue: string; rule: string; application: string; conclusion: string }>;
   overall_conclusion: string;
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   let html = `<table>
     <tr><td style="width:100px;font-weight:bold">TO:</td><td>${esc(result.to)}</td></tr>
     <tr><td style="font-weight:bold">FROM:</td><td>${esc(result.author)}</td></tr>
@@ -234,6 +307,9 @@ export function memorandumHtml(result: {
   }
 
   html += fmtField('Overall Conclusion', result.overall_conclusion);
+
+  if (sourcesHtml) html += `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>`;
+  if (result.sources_consulted?.length) html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
   return html;
 }
 
@@ -242,7 +318,23 @@ export function debateHtml(result: {
   supporting_arguments: Array<{ side: string; title: string; argument: string; reasoning: string; authorities: string[]; strength: string; counter_rebuttal: string | null }>;
   opposing_arguments: Array<{ side: string; title: string; argument: string; reasoning: string; authorities: string[]; strength: string; counter_rebuttal: string | null }>;
   key_doctrines_statutes: string[]; predicted_winner: string; rationale: string; practice_tips: string[];
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
 }): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
   let html = `<div class="header">${esc(result.topic)}</div>`;
   html += fmtField('Your Position', result.user_position);
 
@@ -276,6 +368,9 @@ export function debateHtml(result: {
   if (result.practice_tips?.length) {
     html += `<h2>Practice Tips</h2>${fmtList(result.practice_tips)}`;
   }
+
+  if (sourcesHtml) html += `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>`;
+  if (result.sources_consulted?.length) html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
   return html;
 }
 

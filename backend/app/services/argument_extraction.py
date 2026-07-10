@@ -38,6 +38,7 @@ Extract and organize the following:
 7. KEY DOCTRINES/STATUTES: The most important legal rules invoked in the arguments.
 8. WINNING PARTY: Which party prevailed.
 9. RATIONALE: The court's overall rationale for its decision.
+10. SOURCES CONSULTED: List the specific source titles or references used to generate this analysis.
 
 Guidelines:
 - Use ONLY information from the provided opinion text
@@ -120,6 +121,8 @@ class ArgumentExtractionService:
             f"**Winning Party:** {args.winning_party}",
             f"## Rationale\n\n{args.rationale}",
         ])
+        if args.sources_consulted:
+            parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in args.sources_consulted))
         return "\n\n".join(parts)
 
     def extract(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> ArgumentExtractionResponse:
@@ -188,6 +191,7 @@ class ArgumentExtractionService:
                 winning_party=args.winning_party,
                 rationale=args.rationale,
                 sources=doc_sources,
+                sources_consulted=args.sources_consulted,
             )
 
         except Exception as e:
