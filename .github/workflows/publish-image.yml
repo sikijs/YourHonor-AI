@@ -34,12 +34,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep '^APP_VERSION' backend/app/main.py | sed 's/.*= "//;s/"//')
+          echo "version=v$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile.backend
-          tags: ghcr.io/sikijs/yourhonor-ai/backend:latest
+          tags: |
+            ghcr.io/sikijs/yourhonor-ai/backend:latest
+            ghcr.io/sikijs/yourhonor-ai/backend:${{ steps.version.outputs.version }}
           push: true
           provenance: false
           sbom: false
