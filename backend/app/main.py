@@ -114,3 +114,12 @@ def serve_index():
     if static_index.exists():
         return FileResponse(str(static_index))
     return {"message": "YourHonor AI Backend - API running"}
+
+@app.get("/{path:path}")
+def serve_spa_fallback(path: str):
+    if path.startswith("api/") or path.startswith("_next/") or path.startswith("static/"):
+        return Response(status_code=404)
+    static_index = static_path / "index.html"
+    if static_index.exists():
+        return FileResponse(str(static_index))
+    return Response(status_code=404)
