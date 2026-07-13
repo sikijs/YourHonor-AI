@@ -13,6 +13,7 @@ RUN uv sync
 COPY backend/ .
 COPY catalog.json ./
 COPY templates ./templates
+COPY docs/ ./docs
 
 EXPOSE 8000
 
