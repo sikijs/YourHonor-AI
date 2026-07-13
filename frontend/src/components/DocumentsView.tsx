@@ -25,6 +25,10 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
     loadDocuments();
   }, []);
 
+  useEffect(() => {
+    if (subMode === 'list') loadDocuments();
+  }, [subMode]);
+
   async function loadDocuments() {
     try {
       const docs = await api.documents.list();
@@ -100,7 +104,7 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
           <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
             Generate legal documents from templates — NDAs, service agreements, complaints, and more. The AI will guide you through filling in the required fields based on your needs.
           </p>
-          <GenerateDocumentView user={user} onError={onError} />
+          <GenerateDocumentView user={user} onError={onError} onDocumentCreated={() => loadDocuments()} />
         </div>
       )}
 

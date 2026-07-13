@@ -6,13 +6,14 @@ import { marked } from 'marked';
 import { User, CatalogResponse, CatalogTemplate, GenerateDocumentResponse, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
 
-export default function GenerateDocumentView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function GenerateDocumentView({ user, onError, onDocumentCreated }: { user: User; onError: (err: string) => void; onDocumentCreated?: () => void }) {
   const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<CatalogTemplate | null>(null);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateDocumentResponse | null>(null);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     api.templates.list().then(setCatalog).catch(() => onError('Failed to load templates'));
@@ -42,10 +43,13 @@ export default function GenerateDocumentView({ user, onError }: { user: User; on
     if (!selectedTemplate || loading) return;
     setLoading(true);
     setResult(null);
+    setSaved(false);
     onError('');
     try {
       const doc = await api.legal.generateDocument(selectedTemplate.name, fieldValues, title || undefined);
       setResult(doc);
+      setSaved(true);
+      onDocumentCreated?.();
     } catch (err: any) {
       onError(err.message);
     } finally {
@@ -157,7 +161,8 @@ export default function GenerateDocumentView({ user, onError }: { user: User; on
             <div className="card" style={{ marginTop: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3>Document Generated</h3>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
                   <button className="btn btn-outline" onClick={() => {
                     const blob = new Blob([result.content], { type: 'text/markdown' });
                     const url = URL.createObjectURL(blob);

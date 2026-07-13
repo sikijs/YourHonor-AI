@@ -23,7 +23,9 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
   const [copied, setCopied] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<number | undefined>(undefined);
+  const [elapsed, setElapsed] = useState(0);
   const cancelRef = useRef<AbortController | null>(null);
+  const cancellingRef = useRef(false);
 
   useEffect(() => {
     api.documents.list().then(setDocuments).catch(() => {});
@@ -33,10 +35,17 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
     return () => cancelRef.current?.abort();
   }, []);
 
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const interval = setInterval(() => setElapsed(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
+
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim() || loading) return;
     cancelRef.current = new AbortController();
+    cancellingRef.current = false;
     setLoading(true);
     setSummary(null);
     setSaved(false);
@@ -46,7 +55,10 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
       setSummary(result);
       setSaved(true);
     } catch (err: any) {
-      if (err.name === 'AbortError') return;
+      if (err.name === 'AbortError') {
+        if (!cancellingRef.current) onError('Request timed out. Legal analysis can take up to 2 minutes. Please try again.');
+        return;
+      }
       onError(err.message);
     } finally {
       setLoading(false);
@@ -129,9 +141,9 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div className="spinner-container"><span className="spinner" /><p>Retrieving content and generating summary...</p></div>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving content and generating summary... ({elapsed}s)</p></div>
           <div style={{ marginTop: '0.75rem' }}>
-            <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
+            <button className="btn btn-outline" onClick={() => { cancellingRef.current = true; cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
             </button>
           </div>

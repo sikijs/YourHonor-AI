@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { User, Document, CaseBriefResponse, api, SourceDocument } from '@/lib/api';
+import { User, Document, CaseBriefResponse, api } from '@/lib/api';
 import { printContent, caseBriefHtml, resultToPlainText } from '@/lib/print';
 
 const BADGE_COLORS: Record<string, { bg: string; color: string; label: string }> = {
@@ -22,7 +22,9 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
   const [copied, setCopied] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<number | undefined>(undefined);
+  const [elapsed, setElapsed] = useState(0);
   const cancelRef = useRef<AbortController | null>(null);
+  const cancellingRef = useRef(false);
 
   useEffect(() => {
     api.documents.list().then(setDocuments).catch(() => {});
@@ -32,10 +34,17 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
     return () => cancelRef.current?.abort();
   }, []);
 
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const interval = setInterval(() => setElapsed(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
+
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim() || loading) return;
     cancelRef.current = new AbortController();
+    cancellingRef.current = false;
     setLoading(true);
     setBrief(null);
     setSaved(false);
@@ -45,7 +54,10 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
       setBrief(result);
       setSaved(true);
     } catch (err: any) {
-      if (err.name === 'AbortError') return;
+      if (err.name === 'AbortError') {
+        if (!cancellingRef.current) onError('Request timed out. Legal analysis can take up to 2 minutes. Please try again.');
+        return;
+      }
       onError(err.message);
     } finally {
       setLoading(false);
@@ -116,9 +128,9 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div className="spinner-container"><span className="spinner" /><p>Retrieving case and generating brief...</p></div>
+          <div className="spinner-container"><span className="spinner" /><p>Retrieving case and generating brief... ({elapsed}s)</p></div>
           <div style={{ marginTop: '0.75rem' }}>
-            <button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }}>
+            <button className="btn btn-outline" onClick={() => { cancellingRef.current = true; cancelRef.current?.abort(); setLoading(false); }}>
               Cancel
             </button>
           </div>
