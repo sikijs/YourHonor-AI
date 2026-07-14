@@ -55,6 +55,15 @@ export interface User {
   created_at: string;
 }
 
+export interface Note {
+  id: number;
+  user_id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Document {
   id: number;
   user_id: number;
@@ -232,6 +241,25 @@ export const api = {
 
   templates: {
     list: () => fetchApi<CatalogResponse>('/api/templates'),
+  },
+
+  notes: {
+    list: () => fetchApi<Note[]>('/api/notes'),
+    get: (id: number) => fetchApi<Note>(`/api/notes/${id}`),
+    create: (title: string, content?: string) =>
+      fetchApi<Note>('/api/notes', {
+        method: 'POST',
+        body: JSON.stringify({ title, content: content || '' }),
+      }),
+    update: (id: number, data: { title?: string; content?: string }) =>
+      fetchApi<Note>(`/api/notes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number) =>
+      fetchApi<{ message: string }>(`/api/notes/${id}`, {
+        method: 'DELETE',
+      }),
   },
 
   health: () => fetchApi<{ status: string; service: string }>('/api/health'),
