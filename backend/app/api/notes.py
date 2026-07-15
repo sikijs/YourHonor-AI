@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Cookie, Depends
 from typing import List, Optional
-from fastapi.responses import PlainTextResponse
 from app.db import get_db
 from app.models.note import NoteCreate, NoteUpdate, NoteResponse
 from app.services.auth import decode_token
@@ -100,23 +99,3 @@ def delete_note(note_id: int, user_id: int = Depends(get_current_user_id)):
     conn.commit()
     conn.close()
     return {"message": "Note deleted"}
-
-@router.get("/{note_id}/download")
-def download_note(note_id: int, user_id: int = Depends(get_current_user_id)):
-    conn = get_db()
-    cursor = conn.cursor()
-    note = cursor.execute(
-        "SELECT * FROM notes WHERE id = ? AND user_id = ?",
-        (note_id, user_id)
-    ).fetchone()
-    conn.close()
-    if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
-
-    content = f"# {note['title']}\n\n{note['content']}"
-    filename = f"{note['title'].replace(' ', '_')}.md"
-    return PlainTextResponse(
-        content=content,
-        media_type="text/markdown",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
-    )

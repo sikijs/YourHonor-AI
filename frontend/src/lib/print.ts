@@ -399,6 +399,13 @@ export function documentHtml(content: string): string {
   return `<div style="line-height: 1.8; font-family: Georgia, 'Times New Roman', serif; font-size: 0.95rem;">${html}</div>`;
 }
 
+export function notesHtml(_title: string, content: string): string {
+  const body = _marked.parse(content || '', { async: false }) as string;
+  return `<div style="font-family: Georgia, 'Times New Roman', serif; line-height: 1.8; color: #222;">
+    ${body}
+  </div>`;
+}
+
 export function glossaryHtml(result: {
   term: string; definition: string; etymology?: string | null;
   jurisdiction?: string | null; usage_example: string;

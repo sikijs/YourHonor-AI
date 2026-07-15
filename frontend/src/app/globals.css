@@ -611,6 +611,16 @@ h1, h2, h3 {
   border-bottom: 2px solid #bbb;
 }
 
+.scratchpad-resize-handle-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  z-index: 1;
+}
+
 .scratchpad-empty {
   text-align: center;
   color: var(--gray-text);
