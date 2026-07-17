@@ -2,6 +2,7 @@ from app.db import get_db
 
 
 def save_document(user_id: int, title: str, content: str, doc_type: str) -> int:
+    title = title.strip().replace("\n", " ").replace("\r", " ")
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(

@@ -57,3 +57,36 @@ class TutorAnswerResponse(BaseModel):
         "This tutoring session is for educational purposes only. "
         "It should not be relied upon as legal advice."
     )
+
+
+class HypotheticalGenerateRequest(BaseModel):
+    topic_id: str
+    difficulty: int = 3
+
+
+class HypotheticalGenerateResponse(BaseModel):
+    fact_pattern: str
+    issues: list[str] = []
+    model_answer: str
+    key_concepts: list[str] = []
+
+
+class HypotheticalEvaluateRequest(BaseModel):
+    topic_id: str
+    difficulty: int
+    fact_pattern: str
+    student_answer: str
+
+
+class HypotheticalEvaluateResponse(BaseModel):
+    issues_identified: list[str]
+    issues_missed: list[str]
+    rule_accuracy: str
+    application_quality: str
+    overall_score: int
+    feedback: str
+    model_answer: str
+    disclaimer: str = (
+        "This evaluation is for educational purposes only. "
+        "It should not be relied upon as legal advice."
+    )

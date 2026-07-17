@@ -223,11 +223,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ topic_id: topicId }),
       }),
-    submitAnswer: (answer: string) =>
+    submitAnswer: (answer: string, signal?: AbortSignal) =>
       fetchApi<TutorAnswerResponse>('/api/tutor/answer', {
         method: 'POST',
         body: JSON.stringify({ answer }),
-      }),
+      }, signal, 120000),
     continueLearning: () =>
       fetchApi<{ question: TutorQuestion; disclaimer: string }>('/api/tutor/continue-learning', {
         method: 'POST',
@@ -237,6 +237,16 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ topic_id: topicId }),
       }),
+    generateHypothetical: (topicId: string, difficulty: number, signal?: AbortSignal) =>
+      fetchApi<HypotheticalGenerateResponse>('/api/tutor/hypothetical/generate', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId, difficulty }),
+      }, signal, 180000),
+    evaluateHypothetical: (topicId: string, difficulty: number, factPattern: string, studentAnswer: string, signal?: AbortSignal) =>
+      fetchApi<HypotheticalEvaluateResponse>('/api/tutor/hypothetical/evaluate', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId, difficulty, fact_pattern: factPattern, student_answer: studentAnswer }),
+      }, signal, 180000),
   },
 
   templates: {
@@ -494,5 +504,23 @@ export interface TutorAnswerResponse {
   wrong_count: number;
   attempts_exceeded: boolean;
   correct_answer_revealed: string | null;
+  disclaimer: string;
+}
+
+export interface HypotheticalGenerateResponse {
+  fact_pattern: string;
+  issues: string[];
+  model_answer: string;
+  key_concepts: string[];
+}
+
+export interface HypotheticalEvaluateResponse {
+  issues_identified: string[];
+  issues_missed: string[];
+  rule_accuracy: string;
+  application_quality: string;
+  overall_score: number;
+  feedback: string;
+  model_answer: string;
   disclaimer: string;
 }

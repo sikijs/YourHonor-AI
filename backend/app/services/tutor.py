@@ -124,6 +124,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     response_format=GeneratedEvaluation,
                     max_tokens=2000,
                     temperature=0.3,
+                    timeout=90,
                 )
 
                 raw = response.choices[0].message.content
@@ -133,7 +134,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                 eval_result = GeneratedEvaluation(**parsed)
 
             except Exception as e:
-                logger.error(f"Tutor LLM call failed: {e}")
+                msg = friendly_llm_error(e)
+                logger.error(f"Tutor LLM call failed: {msg}")
                 eval_result = GeneratedEvaluation(
                     evaluation="incorrect",
                     explanation="I couldn't evaluate your answer. Let's try a different approach.",
@@ -156,6 +158,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     ],
                     max_tokens=300,
                     temperature=0.3,
+                    timeout=90,
                 )
                 raw = answer_response.choices[0].message.content
                 if raw is None:
@@ -165,7 +168,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     concepts_line = f"\n\nKey concepts: {concepts_str}" if concepts_str else ""
                     correct_answer_revealed = raw.strip() + concepts_line
             except Exception as e:
-                logger.error(f"Correct answer generation failed: {e}")
+                msg = friendly_llm_error(e)
+                logger.error(f"Correct answer generation failed: {msg}")
 
             if not correct_answer_revealed:
                 concepts = q.expected_concepts
@@ -325,6 +329,124 @@ Return valid JSON with these exact keys:
         session.questions.append(new_q)
         session.dynamic_used = True
         return new_q
+
+    def generate_hypothetical(self, topic_id: str, difficulty: int) -> dict:
+        if topic_id not in TOPICS:
+            raise ValueError(f"Unknown topic: {topic_id}")
+        topic_data = TOPICS[topic_id]
+        prompt = f"""You are a law professor creating hypothetical fact patterns for law students studying {topic_data['name']}.
+
+Generate a realistic hypothetical fact pattern at difficulty {difficulty}/5 that requires the student to:
+1. Spot the legal issues embedded in the facts
+2. State the relevant rules of law
+3. Apply the law to the facts
+4. Reach a reasoned conclusion
+
+The fact pattern should be 2-4 paragraphs and must include both clear issues and nuanced facts for higher difficulty levels.
+
+Return valid JSON with these exact keys:
+- "fact_pattern": the hypothetical scenario (2-4 paragraphs)
+- "issues": a list of the legal issues embedded in the facts
+- "model_answer": a complete IRAC-style model answer showing proper analysis
+- "key_concepts": a list of the legal concepts being tested"""
+
+        try:
+            response = completion(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You generate law school hypothetical fact patterns in JSON format."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={
+                    "type": "json_object",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "fact_pattern": {"type": "string"},
+                            "issues": {"type": "array", "items": {"type": "string"}},
+                            "model_answer": {"type": "string"},
+                            "key_concepts": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "required": ["fact_pattern", "issues", "model_answer", "key_concepts"],
+                    },
+                },
+                max_tokens=2000,
+                temperature=0.7,
+                timeout=90,
+            )
+            raw = response.choices[0].message.content
+            if raw is None:
+                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+            parsed = parse_llm_json(raw)
+            parsed.setdefault("issues", [])
+            parsed.setdefault("key_concepts", [])
+            return parsed
+        except Exception as e:
+            logger.error(f"Hypothetical generation failed: {e}")
+            raise ValueError(friendly_llm_error(e))
+
+    def evaluate_hypothetical(self, topic_id: str, difficulty: int, fact_pattern: str, student_answer: str) -> dict:
+        topic_data = TOPICS.get(topic_id, {"name": topic_id})
+        prompt = f"""You are a law professor evaluating a student's analysis of a hypothetical fact pattern in {topic_data['name']} (difficulty {difficulty}/5).
+
+Fact pattern:
+{fact_pattern}
+
+Student's analysis:
+{student_answer}
+
+Evaluate the student's analysis for:
+1. Issue spotting — did they identify the correct legal issues?
+2. Rule statement — did they state the correct legal rules and standards?
+3. Application — did they properly apply the law to the specific facts?
+4. Conclusion — did they reach a logically supported conclusion?
+
+Be rigorous but constructive. Note what they did well and what they missed.
+
+Return valid JSON with these exact keys:
+- "issues_identified": list of issues the student correctly identified
+- "issues_missed": list of issues the student missed or misidentified
+- "rule_accuracy": "correct" | "partially_correct" | "incorrect"
+- "application_quality": "strong" | "adequate" | "weak"
+- "overall_score": a number from 1-10
+- "feedback": detailed paragraph-by-paragraph feedback on each area
+- "model_answer": a complete model IRAC answer for comparison"""
+
+        try:
+            response = completion(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You are a law professor evaluating student hypothetical answers in JSON format."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={
+                    "type": "json_object",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "issues_identified": {"type": "array", "items": {"type": "string"}},
+                            "issues_missed": {"type": "array", "items": {"type": "string"}},
+                            "rule_accuracy": {"type": "string"},
+                            "application_quality": {"type": "string"},
+                            "overall_score": {"type": "integer"},
+                            "feedback": {"type": "string"},
+                            "model_answer": {"type": "string"},
+                        },
+                        "required": ["issues_identified", "issues_missed", "rule_accuracy", "application_quality", "overall_score", "feedback", "model_answer"],
+                    },
+                },
+                max_tokens=2000,
+                temperature=0.3,
+                timeout=90,
+            )
+            raw = response.choices[0].message.content
+            if raw is None:
+                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+            parsed = parse_llm_json(raw)
+            return parsed
+        except Exception as e:
+            logger.error(f"Hypothetical evaluation failed: {e}")
+            raise ValueError(friendly_llm_error(e))
 
 
 tutor_service = TutorService()

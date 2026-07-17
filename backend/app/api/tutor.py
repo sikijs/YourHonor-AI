@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException
 from typing import Optional
 
-from app.models.tutor import TutorStartRequest, TutorStartResponse, TutorAnswerRequest, TutorAnswerResponse, TutorQuestion
+from app.models.tutor import (
+    TutorStartRequest, TutorStartResponse, TutorAnswerRequest, TutorAnswerResponse, TutorQuestion,
+    HypotheticalGenerateRequest, HypotheticalGenerateResponse,
+    HypotheticalEvaluateRequest, HypotheticalEvaluateResponse,
+)
 from app.services.auth import decode_token
 from app.services.tutor import get_tutor_service
 from pydantic import BaseModel
@@ -71,6 +75,39 @@ def submit_answer(
     try:
         service = get_tutor_service()
         return service.submit_answer(request.answer, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/hypothetical/generate", response_model=HypotheticalGenerateResponse)
+def generate_hypothetical(
+    request: HypotheticalGenerateRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        result = service.generate_hypothetical(request.topic_id, request.difficulty)
+        return HypotheticalGenerateResponse(**result)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/hypothetical/evaluate", response_model=HypotheticalEvaluateResponse)
+def evaluate_hypothetical(
+    request: HypotheticalEvaluateRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        result = service.evaluate_hypothetical(
+            request.topic_id, request.difficulty,
+            request.fact_pattern, request.student_answer,
+        )
+        return HypotheticalEvaluateResponse(**result)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

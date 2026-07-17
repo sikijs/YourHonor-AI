@@ -174,8 +174,8 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
               {documents.map((doc) => (
                 <div key={doc.id} className="card document-item">
                   <div>
-                    <h3>{doc.title}</h3>
-                    <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+                    <h3 style={{ margin: 0 }}>{doc.title}</h3>
+                    <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem', margin: 0 }}>
                       {doc.doc_type || 'Document'} - {new Date(doc.updated_at + 'Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                     </p>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
