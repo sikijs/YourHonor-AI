@@ -17,8 +17,6 @@ The uv project must include litellm and pydantic.
 
 ## Code snippets
 
-Use code like these examples in order to use Cerebras.
-
 ### Imports and constants
 
 ```python

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import logging
 import re
@@ -7,6 +8,7 @@ from litellm import completion
 from app.models.tutor import (
     TutorQuestion, TutorStartResponse, TutorAnswerResponse,
     GeneratedEvaluation, GeneratedQuestion,
+    MCQuestion, MCStartResponse, MCAnswerResponse,
 )
 from app.services.retrieval import parse_llm_json
 from app.services.llm_errors import friendly_llm_error
@@ -36,6 +38,7 @@ class TutorSession:
 class TutorService:
     def __init__(self):
         self._sessions: dict[int, TutorSession] = {}
+        self._mc_sessions: dict[int, MCQuizSession] = {}
 
     def get_topics(self) -> list[dict]:
         return [
@@ -124,6 +127,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     response_format=GeneratedEvaluation,
                     max_tokens=2000,
                     temperature=0.3,
+                    reasoning_effort="low",
+                    drop_params=True,
                     timeout=90,
                 )
 
@@ -158,6 +163,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     ],
                     max_tokens=300,
                     temperature=0.3,
+                    reasoning_effort="low",
+                    drop_params=True,
                     timeout=90,
                 )
                 raw = answer_response.choices[0].message.content
@@ -306,6 +313,8 @@ Return valid JSON with these exact keys:
                 response_format=GeneratedQuestion,
                 max_tokens=1000,
                 temperature=0.7,
+                reasoning_effort="low",
+                drop_params=True,
             )
             raw = response.choices[0].message.content
             if raw is None:
@@ -372,6 +381,8 @@ Return valid JSON with these exact keys:
                 },
                 max_tokens=2000,
                 temperature=0.7,
+                reasoning_effort="low",
+                drop_params=True,
                 timeout=90,
             )
             raw = response.choices[0].message.content
@@ -437,6 +448,8 @@ Return valid JSON with these exact keys:
                 },
                 max_tokens=2000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
                 timeout=90,
             )
             raw = response.choices[0].message.content
@@ -447,6 +460,139 @@ Return valid JSON with these exact keys:
         except Exception as e:
             logger.error(f"Hypothetical evaluation failed: {e}")
             raise ValueError(friendly_llm_error(e))
+
+
+    def start_mc_quiz(self, topic_id: str, difficulty: int, user_id: int) -> MCStartResponse:
+        if topic_id not in TOPICS:
+            raise ValueError(f"Unknown topic: {topic_id}")
+        session = MCQuizSession(topic_id, difficulty)
+        self._mc_sessions[user_id] = session
+
+        q = self._generate_mc_question(session)
+        session.questions.append(q)
+        session.current_question = q
+
+        return MCStartResponse(
+            topic_id=topic_id,
+            topic_name=session.topic_data["name"],
+            difficulty=difficulty,
+            total_questions=session.total_questions,
+            question=q,
+        )
+
+    def submit_mc_answer(self, selected_index: int, user_id: int) -> MCAnswerResponse:
+        session = self._mc_sessions.get(user_id)
+        if not session or not session.current_question:
+            raise ValueError("No active MC quiz session. Start one first.")
+
+        q = session.current_question
+        correct = selected_index == q.correct_index
+        if correct:
+            session.correct_count += 1
+        session.answered += 1
+        session.covered_concepts.add(f"mc_{session.answered}")
+
+        next_question = None
+        is_complete = session.answered >= session.total_questions
+
+        if not is_complete:
+            next_q = self._generate_mc_question(session)
+            session.questions.append(next_q)
+            session.current_question = next_q
+            next_question = next_q
+
+        return MCAnswerResponse(
+            correct=correct,
+            correct_index=q.correct_index,
+            explanation=q.explanation,
+            option_explanations=q.option_explanations,
+            next_question=next_question,
+            score=session.correct_count,
+            total=session.answered,
+            is_complete=is_complete,
+        )
+
+    def _generate_mc_question(self, session: MCQuizSession) -> MCQuestion:
+        topic_name = session.topic_data["name"]
+        difficulty = session.difficulty
+        used_count = len(session.questions)
+
+        prompt = f"""You are a law professor creating a multiple-choice quiz question for law students studying {topic_name}.
+
+Generate a single multiple-choice question at difficulty {difficulty}/5 that tests a key legal concept in {topic_name}.
+This will be question #{used_count + 1} of {session.total_questions} in a quiz.
+
+The question should:
+- Present a realistic legal scenario or fact pattern (1-3 sentences)
+- Have exactly 4 answer choices
+- Have ONE clearly correct answer
+- Have three plausible distractors (wrong answers that sound reasonable)
+- Be appropriate for the selected difficulty level
+
+Return valid JSON with these exact keys:
+- "question": the question/scenario text
+- "options": a list of exactly 4 strings, each being an answer choice
+- "correct_index": the index (0-3) of the correct option
+- "explanation": a detailed explanation of why the correct answer is right and key concepts to understand
+- "option_explanations": a list of exactly 4 strings, each explaining why that specific option is right or wrong
+- "difficulty": {difficulty}"""
+
+        try:
+            response = completion(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You generate law school multiple-choice quiz questions in JSON format."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={
+                    "type": "json_object",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "question": {"type": "string"},
+                            "options": {"type": "array", "items": {"type": "string"}, "minItems": 4, "maxItems": 4},
+                            "correct_index": {"type": "integer"},
+                            "explanation": {"type": "string"},
+                            "option_explanations": {"type": "array", "items": {"type": "string"}, "minItems": 4, "maxItems": 4},
+                            "difficulty": {"type": "integer"},
+                        },
+                        "required": ["question", "options", "correct_index", "explanation", "option_explanations", "difficulty"],
+                    },
+                },
+                max_tokens=1500,
+                temperature=0.7,
+                reasoning_effort="low",
+                drop_params=True,
+                timeout=90,
+            )
+            raw = response.choices[0].message.content
+            if raw is None:
+                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+            parsed = parse_llm_json(raw)
+            return MCQuestion(
+                question=parsed["question"],
+                options=parsed["options"],
+                correct_index=parsed["correct_index"],
+                explanation=parsed["explanation"],
+                option_explanations=parsed["option_explanations"],
+                difficulty=parsed.get("difficulty", difficulty),
+            )
+        except Exception as e:
+            logger.error(f"MC question generation failed: {e}")
+            raise ValueError(friendly_llm_error(e))
+
+
+class MCQuizSession:
+    def __init__(self, topic_id: str, difficulty: int):
+        self.topic_id = topic_id
+        self.topic_data = TOPICS.get(topic_id)
+        self.difficulty = difficulty
+        self.total_questions = 5
+        self.questions: list[MCQuestion] = []
+        self.current_question: Optional[MCQuestion] = None
+        self.answered = 0
+        self.correct_count = 0
+        self.covered_concepts: set[str] = set()
 
 
 tutor_service = TutorService()

@@ -12,6 +12,8 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
   const cancelRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -19,8 +21,16 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isNearBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
+
+  function handleScroll() {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+  }
 
   useEffect(() => {
     return () => cancelRef.current?.abort();
@@ -113,7 +123,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
         </button>
       </div>
       <div className="chat-container">
-        <div className="messages">
+        <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {messages.map((msg, i) => (
             <div key={i}>
               <div className={`message ${msg.role}`}>

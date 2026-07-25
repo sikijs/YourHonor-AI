@@ -65,7 +65,7 @@ class ArgumentExtractionService:
 
     def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.3
+            query=query, top_k=10, min_score=0.5
         )
         results = deduplicate_rag_results(results, min_content_length=200)
         if not results:
@@ -92,11 +92,10 @@ class ArgumentExtractionService:
 
     @staticmethod
     def _args_to_markdown(args: GeneratedArguments) -> str:
-        parts = [f"# Argument Analysis: {args.case_name}"]
-        parts.extend([
+        parts = [
             f"**Petitioner:** {args.petitioner}",
             f"**Respondent:** {args.respondent}",
-        ])
+        ]
         if args.petitioner_arguments:
             parts.append("## Petitioner's Arguments\n")
             for a in args.petitioner_arguments:
@@ -165,6 +164,8 @@ class ArgumentExtractionService:
                 response_format=GeneratedArguments,
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
             )
 
             raw = response.choices[0].message.content

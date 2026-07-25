@@ -55,7 +55,7 @@ class LegalSummaryService:
 
     def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.3
+            query=query, top_k=10, min_score=0.5
         )
         results = deduplicate_rag_results(results, min_content_length=200)
         if not results:
@@ -82,8 +82,7 @@ class LegalSummaryService:
 
     @staticmethod
     def _summary_to_markdown(summary: GeneratedSummary, sources: Optional[list[SourceDocument]] = None) -> str:
-        parts = [f"# Legal Summary: {summary.title}"]
-        parts.append(f"## Overview\n\n{summary.overview}")
+        parts = [f"## Overview\n\n{summary.overview}"]
         if summary.key_findings:
             parts.append("## Key Findings\n\n" + "\n".join(f"- {f}" for f in summary.key_findings))
         if summary.legal_principles:
@@ -146,6 +145,8 @@ class LegalSummaryService:
                 response_format=GeneratedSummary,
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
             )
 
             raw = response.choices[0].message.content

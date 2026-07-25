@@ -66,7 +66,7 @@ class CitationMapService:
 
     def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.3
+            query=query, top_k=10, min_score=0.5
         )
         if not results:
             return None, []
@@ -93,8 +93,7 @@ class CitationMapService:
 
     @staticmethod
     def _citation_to_markdown(cit: GeneratedCitationMap) -> str:
-        parts = [f"# Citation Map: {cit.case_name}"]
-        parts.append(f"**Total Authorities Cited:** {cit.total_citations}")
+        parts = [f"**Total Authorities Cited:** {cit.total_citations}"]
         if cit.cases_cited:
             parts.append("## Cases Cited\n")
             for c in cit.cases_cited:
@@ -164,6 +163,8 @@ class CitationMapService:
                 response_format=GeneratedCitationMap,
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
             )
 
             raw = response.choices[0].message.content

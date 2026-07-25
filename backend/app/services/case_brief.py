@@ -58,34 +58,39 @@ class CaseBriefService:
 
     def _retrieve_from_rag(self, query: str) -> Optional[tuple[dict, list[SourceDocument]]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.35
+            query=query, top_k=10, min_score=0.5
         )
         results = deduplicate_rag_results(results, min_content_length=200)
         if not results:
             return None, None
-        combined_parts = []
-        titles = set()
-        source_labels = set()
+
+        by_title: dict[str, list[dict]] = {}
+        best_score_per_title: dict[str, float] = {}
         for r in results:
-            content = r.get("content", "")
-            combined_parts.append(content)
-            title = r.get("title", "")
-            if title:
-                titles.add(title)
-            sl = r.get("source", "")
-            if sl:
-                source_labels.add(sl)
-        combined_text = "\n\n---\n\n".join(combined_parts) if combined_parts else ""
-        if not combined_text or len(combined_text) < 200:
+            title = r.get("title", "Unknown")
+            if title not in by_title:
+                by_title[title] = []
+            by_title[title].append(r)
+            score = r.get("score", 0)
+            if title not in best_score_per_title or score > best_score_per_title[title]:
+                best_score_per_title[title] = score
+
+        best_title = max(best_score_per_title, key=best_score_per_title.get)
+        selected = by_title[best_title]
+        selected.sort(key=lambda r: r.get("index", 0))
+
+        combined_text = "\n\n---\n\n".join(r["content"] for r in selected)
+        if len(combined_text) < 200:
             return None, None
+
         case_data = {
-            "case_name": (titles.pop() if titles else query),
+            "case_name": best_title if best_title != "Unknown" else query,
             "citation": [],
             "court": "",
             "date_filed": "",
             "opinion_text": combined_text,
         }
-        sources = from_rag_results(results)
+        sources = from_rag_results(selected)
         return case_data, sources
 
     @staticmethod
@@ -93,7 +98,7 @@ class CaseBriefService:
         brief: GeneratedBrief, case_name: str, citation: list,
         court: str, date_filed: str
     ) -> str:
-        parts = [f"# Case Brief: {case_name}"]
+        parts = []
         if citation:
             parts.append(f"**Citation:** {', '.join(citation)}")
         if court:
@@ -196,6 +201,8 @@ class CaseBriefService:
                 response_format=GeneratedBrief,
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
             )
 
             raw = response.choices[0].message.content

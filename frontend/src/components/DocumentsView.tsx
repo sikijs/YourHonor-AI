@@ -7,6 +7,10 @@ import { markdownComponents } from '@/components/markdownComponents';
 import { printContent, documentHtml } from '@/lib/print';
 import GenerateDocumentView from '@/components/GenerateDocumentView';
 
+function stripLeadingH1(content: string): string {
+  return content.replace(/^# .+\n?(?:\n|$)/, '');
+}
+
 export default function DocumentsView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +205,7 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
                       View
                     </button>
                     {doc.content && (
-                      <button className="btn btn-outline" onClick={() => printContent(doc.title, documentHtml(doc.content!))}>
+                      <button className="btn btn-outline" onClick={() => printContent(doc.title, documentHtml(stripLeadingH1(doc.content!)))}>
                         Download
                       </button>
                     )}
@@ -267,7 +271,7 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
                 </div>
                 <div style={{ padding: '1rem', lineHeight: 1.6, fontSize: '0.9rem' }}>
                   {viewDoc.content ? (
-                    <ReactMarkdown components={markdownComponents}>{viewDoc.content}</ReactMarkdown>
+                    <ReactMarkdown components={markdownComponents}>{stripLeadingH1(viewDoc.content)}</ReactMarkdown>
                   ) : (
                     <p style={{ color: 'var(--gray-text)' }}>No content</p>
                   )}

@@ -200,7 +200,7 @@ class ChatService:
     def generate_response_stream(self, user_message: str, user_id: Optional[int] = None, top_k: int = 8, history: Optional[list[dict]] = None):
         import json
 
-        retrieved_docs = self.retrieval_service.retrieve(query=user_message, top_k=top_k, min_score=0.35)
+        retrieved_docs = self.retrieval_service.retrieve(query=user_message, top_k=top_k, min_score=0.5)
         from .retrieval import deduplicate_rag_results
         retrieved_docs = deduplicate_rag_results(retrieved_docs, min_content_length=200)
 
@@ -231,7 +231,7 @@ class ChatService:
                 messages.append({"role": h["role"], "content": h["content"]})
             messages.append({"role": "user", "content": user_message})
 
-            response = completion(model=MODEL, messages=messages, max_tokens=1500, temperature=0.3, extra_body=EXTRA_BODY, stream=True)
+            response = completion(model=MODEL, messages=messages, max_tokens=1500, temperature=0.3, reasoning_effort="low", drop_params=True, extra_body=EXTRA_BODY, stream=True)
 
             for chunk in response:
                 delta = chunk.choices[0].delta
@@ -251,7 +251,7 @@ class ChatService:
         retrieved_docs = self.retrieval_service.retrieve(
             query=user_message,
             top_k=top_k,
-            min_score=0.35,
+            min_score=0.5,
         )
 
         from .retrieval import deduplicate_rag_results
@@ -306,6 +306,8 @@ class ChatService:
                 messages=messages,
                 max_tokens=1500,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
                 extra_body=EXTRA_BODY,
             )
 

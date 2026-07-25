@@ -18,6 +18,7 @@ docker/data/
 
 # Backend runtime data (SQLite database)
 backend/data/
+backend/app/data/
 
 # Coverage reports
 .coverage

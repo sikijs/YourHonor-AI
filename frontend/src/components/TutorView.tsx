@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, api } from '@/lib/api';
+import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, MCQuestion, MCAnswerResponse, api } from '@/lib/api';
+
+const IRAC_TEMPLATE = '<span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Issue:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Rule:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Application:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Conclusion:</span><br><br><br><br>';
+
+function htmlToPlainText(html: string): string {
+  if (typeof document === 'undefined') return html.replace(/<[^>]*>/g, '');
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.innerText;
+}
 
 export default function TutorView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [topics, setTopics] = useState<TutorTopic[]>([]);
@@ -41,7 +50,26 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [practiceShowCost, setPracticeShowCost] = useState(false);
   const [practiceHasDraft, setPracticeHasDraft] = useState(false);
   const [practiceSaving, setPracticeSaving] = useState(false);
+  const [practiceSaved, setPracticeSaved] = useState(false);
+  const [practiceEditorKey, setPracticeEditorKey] = useState(0);
+
+  const [mcMode, setMcMode] = useState(false);
+  const [mcQuestion, setMcQuestion] = useState<MCQuestion | null>(null);
+  const [mcResult, setMcResult] = useState<MCAnswerResponse | null>(null);
+  const [mcDifficulty, setMcDifficulty] = useState(3);
+  const [mcLoading, setMcLoading] = useState(false);
+  const [mcShowCost, setMcShowCost] = useState(false);
+  const [mcSaving, setMcSaving] = useState(false);
+  const [mcSaved, setMcSaved] = useState(false);
+  const [mcSelectedIndex, setMcSelectedIndex] = useState<number | null>(null);
+  const [mcIsComplete, setMcIsComplete] = useState(false);
+  const [mcTopicId, setMcTopicId] = useState('');
+  const [mcTopicName, setMcTopicName] = useState('');
+  const [mcTotalQuestions, setMcTotalQuestions] = useState(5);
+  const [mcHistory, setMcHistory] = useState<{question: string; options: string[]; selected: number; correct: number; optionExplanations: string[]; questionExplanation: string}[]>([]);
+
   const cancelRef = useRef<AbortController | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => cancelRef.current?.abort();
@@ -72,6 +100,12 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   useEffect(() => {
     savePracticeDraft();
   }, [savePracticeDraft]);
+
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = practiceStudentAnswer || IRAC_TEMPLATE;
+    }
+  }, [practiceEditorKey]);
 
   async function startTopic(topicId: string) {
     setLoading(true);
@@ -194,7 +228,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setPracticeIssues(res.issues);
       setPracticeModelAnswer(res.model_answer);
       setPracticeKeyConcepts(res.key_concepts);
-      setPracticeStudentAnswer('');
+      setPracticeStudentAnswer(IRAC_TEMPLATE);
+      setPracticeEditorKey(k => k + 1);
       setPracticeFeedback(null);
       practiceHasDraft && setPracticeHasDraft(false);
     } catch (err: any) {
@@ -220,6 +255,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setPracticeModelAnswer(parsed.model_answer);
       setPracticeKeyConcepts(parsed.key_concepts || []);
       setPracticeStudentAnswer(parsed.student_answer || '');
+      setPracticeEditorKey(k => k + 1);
       setPracticeDifficulty(parsed.difficulty || 3);
       setPracticeFeedback(null);
       setPracticeHasDraft(false);
@@ -234,18 +270,20 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setPracticeModelAnswer('');
     setPracticeKeyConcepts([]);
     setPracticeStudentAnswer('');
+    setPracticeEditorKey(k => k + 1);
     setPracticeFeedback(null);
   }
 
   async function submitPracticeAnswer() {
-    if (!practiceStudentAnswer.trim() || !session) return;
+    const plainText = htmlToPlainText(practiceStudentAnswer);
+    if (!plainText.trim() || !session) return;
     setPracticeLoading(true);
     onError('');
     cancelRef.current = new AbortController();
     try {
       const res = await api.tutor.evaluateHypothetical(
         session.topic_id, practiceDifficulty,
-        practiceFactPattern, practiceStudentAnswer,
+        practiceFactPattern, plainText,
         cancelRef.current.signal,
       );
       setPracticeFeedback(res);
@@ -263,12 +301,14 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     if (!practiceFeedback || !session) return;
     setPracticeSaving(true);
     try {
-      const content = `## Difficulty: ${practiceDifficulty}/5\n\n## Fact Pattern\n${practiceFactPattern}\n\n## Your Analysis\n${practiceStudentAnswer}\n\n## Feedback\n${practiceFeedback.feedback}\n\n## Issues Identified\n${practiceFeedback.issues_identified.map(i => `- ${i}`).join('\n')}\n\n## Issues Missed\n${practiceFeedback.issues_missed.map(i => `- ${i}`).join('\n')}\n\n## Score\n${practiceFeedback.overall_score}/10\n\n## Model Answer\n${practiceFeedback.model_answer}`;
+      const plainText = htmlToPlainText(practiceStudentAnswer);
+      const content = `## Difficulty: ${practiceDifficulty}/5\n\n## Fact Pattern\n${practiceFactPattern}\n\n## Your Analysis\n${plainText}\n\n## Feedback\n${practiceFeedback.feedback}\n\n## Issues Identified\n${practiceFeedback.issues_identified.map(i => `- ${i}`).join('\n')}\n\n## Issues Missed\n${practiceFeedback.issues_missed.map(i => `- ${i}`).join('\n')}\n\n## Score\n${practiceFeedback.overall_score}/10\n\n## Model Answer\n${practiceFeedback.model_answer}`;
       await api.documents.create(
         `Hypothetical: ${session.topic_name} (Difficulty ${practiceDifficulty})`,
         content,
         'other',
       );
+      setPracticeSaved(true);
       onError('');
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -284,8 +324,113 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setPracticeModelAnswer('');
     setPracticeKeyConcepts([]);
     setPracticeStudentAnswer('');
+    setPracticeEditorKey(k => k + 1);
     setPracticeFeedback(null);
+    setPracticeSaved(false);
     localStorage.removeItem('tutor_hypothetical_draft');
+  }
+
+  async function startMCQuiz(topicId: string) {
+    setMcShowCost(false);
+    setMcLoading(true);
+    onError('');
+    try {
+      const res = await api.tutor.startMCQuiz(topicId, mcDifficulty, cancelRef.current?.signal);
+      setMcTopicId(res.topic_id);
+      setMcTopicName(res.topic_name);
+      setMcTotalQuestions(res.total_questions);
+      setMcQuestion(res.question);
+      setMcResult(null);
+      setMcSelectedIndex(null);
+      setMcIsComplete(false);
+      setMcHistory([]);
+      setMcSaved(false);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      onError(err.message);
+    } finally {
+      setMcLoading(false);
+    }
+  }
+
+  async function submitMCAnswer(selectedIndex: number) {
+    if (mcLoading || !mcQuestion) return;
+    setMcSelectedIndex(selectedIndex);
+    setMcLoading(true);
+    onError('');
+    try {
+      const res = await api.tutor.submitMCAnswer(selectedIndex, cancelRef.current?.signal);
+      setMcResult(res);
+      setMcHistory(prev => [...prev, {
+        question: mcQuestion!.question,
+        options: mcQuestion!.options,
+        selected: selectedIndex,
+        correct: mcQuestion!.correct_index,
+        optionExplanations: res.option_explanations,
+        questionExplanation: res.explanation,
+      }]);
+      if (res.is_complete) {
+        setMcIsComplete(true);
+      }
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      onError(err.message);
+    } finally {
+      setMcLoading(false);
+    }
+  }
+
+  function nextMCQuestion() {
+    if (mcResult?.next_question) {
+      setMcQuestion(mcResult.next_question);
+      setMcResult(null);
+      setMcSelectedIndex(null);
+    }
+  }
+
+  function resetMC() {
+    setMcMode(false);
+    setMcQuestion(null);
+    setMcResult(null);
+    setMcSelectedIndex(null);
+    setMcIsComplete(false);
+    setMcLoading(false);
+    setMcShowCost(false);
+    setMcTopicId('');
+    setMcTopicName('');
+    setMcHistory([]);
+    setMcSaved(false);
+  }
+
+  async function saveMCToDocuments() {
+    if (!mcHistory.length) return;
+    setMcSaving(true);
+    try {
+      const lines: string[] = [];
+      lines.push(`## MC Quiz: ${mcTopicName} (Difficulty ${mcDifficulty}/5)`);
+      lines.push(`**Score:** ${mcResult?.score ?? 0}/${mcHistory.length}\n`);
+      mcHistory.forEach((h, i) => {
+        lines.push(`### Question ${i + 1}`);
+        lines.push(`${h.question}\n`);
+        h.options.forEach((opt, j) => {
+          const marker = j === h.correct ? '✓' : ' ';
+          const studentMark = j === h.selected ? ' ← Your answer' : '';
+          lines.push(`${marker}) ${opt}${studentMark}`);
+        });
+        lines.push(`\n${h.questionExplanation}\n`);
+      });
+      await api.documents.create(
+        `MC Quiz: ${mcTopicName} (Difficulty ${mcDifficulty})`,
+        lines.join('\n'),
+        'other',
+      );
+      setMcSaved(true);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      onError(err.message);
+    } finally {
+      setMcSaving(false);
+    }
   }
 
   function resetSession() {
@@ -309,6 +454,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setPracticeFeedback(null);
     setPracticeHasDraft(false);
     localStorage.removeItem('tutor_hypothetical_draft');
+    resetMC();
   }
 
   if (loading && !session) {
@@ -391,32 +537,39 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid #ccc', borderRadius: '6px', overflow: 'hidden' }}>
             <button
-              className={`btn ${!reviewMode && !practiceMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(false); setPracticeMode(false); }}
+              className={`btn ${!reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setReviewMode(false); setPracticeMode(false); setMcMode(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Quiz
             </button>
             <button
-              className={`btn ${reviewMode && !practiceMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); }}
+              className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review
             </button>
             <button
-              className={`btn ${practiceMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => setPracticeMode(true)}
+              className={`btn ${practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setPracticeMode(true); setMcMode(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Practice
+            </button>
+            <button
+              className={`btn ${mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); }}
+              style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
+            >
+              MC Quiz
             </button>
           </div>
           <button className="btn btn-outline" onClick={resetSession}>Change Topic</button>
         </div>
       </div>
 
-      {!practiceMode && (
+      {!practiceMode && !mcMode && (
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <div className="card" style={{ flex: 1, minWidth: '200px', padding: '0.5rem 1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span style={{ fontSize: '0.85rem' }}>
@@ -509,15 +662,18 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           </div>
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>Your IRAC Analysis</h3>
-            <textarea
-              value={practiceStudentAnswer}
-              onChange={(e) => setPracticeStudentAnswer(e.target.value)}
-              placeholder="Write your IRAC analysis here...&#10;&#10;Issue: What legal issues are presented?&#10;Rule: What rules of law apply?&#10;Application: How do the rules apply to these facts?&#10;Conclusion: What is your reasoned conclusion?"
-              rows={10}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'vertical', boxSizing: 'border-box' }}
+            <p style={{ fontSize: '0.75rem', color: 'var(--gray-text)', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
+              IRAC (Issue, Rule, Application, Conclusion) is a structured framework for legal analysis. Identify the legal issue, state the relevant rule, apply it to the facts, and reach a conclusion.
+            </p>
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={(e) => setPracticeStudentAnswer((e.target as HTMLDivElement).innerHTML)}
+              style={{ width: '100%', minHeight: '250px', padding: '0.75rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'vertical', overflow: 'auto', boxSizing: 'border-box', lineHeight: '1.6', outline: 'none' }}
             />
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
-              <button className="btn btn-primary" onClick={submitPracticeAnswer} disabled={!practiceStudentAnswer.trim() || practiceLoading}>
+              <button className="btn btn-primary" onClick={submitPracticeAnswer} disabled={practiceLoading}>
                 Submit Analysis
               </button>
               <button className="btn btn-outline" onClick={resetPractice} style={{ color: '#c62828', borderColor: '#c62828' }}>
@@ -533,6 +689,12 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
 
       {practiceMode && practiceFeedback && (
         <div>
+          {practiceFactPattern && (
+            <div className="card" style={{ marginBottom: '1rem', borderLeft: '4px solid var(--blue-primary)' }}>
+              <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>Fact Pattern</h3>
+              <p style={{ fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', margin: 0 }}>{practiceFactPattern}</p>
+            </div>
+          )}
           <div className="card" style={{ marginBottom: '1rem', background: '#f5f5f5' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>Evaluation</h3>
@@ -593,15 +755,188 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
               <button className="btn btn-primary" onClick={resetPractice}>
                 Try Another Hypothetical
               </button>
-              <button className="btn btn-secondary" onClick={savePracticeToDocuments} disabled={practiceSaving}>
-                {practiceSaving ? 'Saving...' : 'Save to Documents'}
-              </button>
+              {practiceSaved ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.75rem', borderRadius: '6px', background: '#e8f5e9', color: '#2e7d32', fontSize: '0.85rem', fontWeight: 500 }}>
+                  ✓ Saved to Documents
+                </span>
+              ) : (
+                <button className="btn btn-secondary" onClick={savePracticeToDocuments} disabled={practiceSaving}>
+                  {practiceSaving ? 'Saving...' : 'Save to Documents'}
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {!practiceMode && isComplete && !reviewMode && (
+      {mcMode && !mcQuestion && !mcLoading && (
+        <div>
+          <h2>MC Quiz: Multiple Choice</h2>
+          <p style={{ color: 'var(--blue-primary)', fontSize: '0.95rem', marginBottom: '1.75rem' }}>
+            Test your knowledge with multiple-choice questions. Each question presents a legal scenario with 4 answer choices. You&apos;ll get instant feedback explaining why each option is right or wrong.
+          </p>
+          <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
+            Pick a topic and difficulty to begin.
+          </p>
+          <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Difficulty:</label>
+            <input
+              type="range" min="1" max="5" value={mcDifficulty}
+              onChange={(e) => setMcDifficulty(Number(e.target.value))}
+              style={{ width: '120px' }}
+            />
+            <span style={{ fontSize: '0.85rem', color: 'var(--gray-text)', fontWeight: 600 }}>{mcDifficulty}/5</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+            {topics.map((topic) => (
+              <div key={topic.id} className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div>
+                  <h3 style={{ color: 'var(--blue-primary)', margin: '0 0 0.25rem 0' }}>{topic.name}</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', margin: 0 }}>{topic.description}</p>
+                </div>
+                <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(true)}>
+                  Start MC Quiz
+                </button>
+                {mcShowCost && (
+                  <div style={{ padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
+                      This will use AI API calls (~$0.03 per question) to generate questions on this topic. Continue?
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startMCQuiz(topic.id)}>Yes, start</button>
+                      <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(false)}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {mcMode && mcLoading && !mcQuestion && (
+        <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+          <div className="spinner-container"><span className="spinner" /><p>Generating your first question...</p></div>
+        </div>
+      )}
+
+      {mcMode && mcQuestion && !mcIsComplete && (
+        <div>
+          {mcResult ? (
+            <div>
+              <div className="card" style={{ marginBottom: '1rem' }}>
+                <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.75rem' }}>{mcQuestion.question}</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {mcQuestion.options.map((opt, i) => {
+                    let bg = '#fff';
+                    let border = '#ccc';
+                    if (i === mcQuestion.correct_index) {
+                      bg = '#e8f5e9';
+                      border = '#4caf50';
+                    } else if (i === mcSelectedIndex && i !== mcQuestion.correct_index) {
+                      bg = '#ffebee';
+                      border = '#f44336';
+                    }
+                    return (
+                      <div key={i} style={{ padding: '0.6rem 0.75rem', borderRadius: '6px', border: `2px solid ${border}`, background: bg, fontSize: '0.9rem', lineHeight: '1.4' }}>
+                        <strong>{String.fromCharCode(65 + i)}.</strong> {opt}
+                        {i === mcQuestion.correct_index && <span style={{ marginLeft: '0.5rem', color: '#2e7d32', fontWeight: 600 }}>✓ Correct</span>}
+                        {i === mcSelectedIndex && i !== mcQuestion.correct_index && <span style={{ marginLeft: '0.5rem', color: '#c62828', fontWeight: 600 }}>✗ Your answer</span>}
+                        {mcResult && (
+                          <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                            {mcResult.option_explanations[i]}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="card" style={{ marginBottom: '1rem', background: '#f5f5f5' }}>
+                <h4 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>{mcResult.correct ? 'Correct! 🎉' : 'Not quite.'}</h4>
+                <p style={{ fontSize: '0.9rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>{mcResult.explanation}</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+                  Score: {mcResult.score}/{mcResult.total}
+                </span>
+                {!mcResult.is_complete && (
+                  <button className="btn btn-primary" onClick={nextMCQuestion} disabled={mcLoading}>
+                    {mcLoading ? 'Generating...' : 'Next Question'}
+                  </button>
+                )}
+                {mcResult.is_complete && (
+                  <button className="btn btn-primary" onClick={() => setMcIsComplete(true)}>
+                    View Results
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="card" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>{mcQuestion.question}</h3>
+                <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  Difficulty: {mcQuestion.difficulty}/5
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {mcQuestion.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => submitMCAnswer(i)}
+                    disabled={mcLoading}
+                    style={{
+                      padding: '0.75rem', borderRadius: '6px', border: '2px solid #ccc', background: '#fff',
+                      cursor: 'pointer', fontSize: '0.9rem', textAlign: 'left', lineHeight: '1.4',
+                      transition: 'border-color 0.15s',
+                    }}
+                    onMouseEnter={(e) => { if (!mcLoading) e.currentTarget.style.borderColor = 'var(--blue-primary)'; }}
+                    onMouseLeave={(e) => { if (!mcLoading) e.currentTarget.style.borderColor = '#ccc'; }}
+                  >
+                    <strong>{String.fromCharCode(65 + i)}.</strong> {opt}
+                  </button>
+                ))}
+              </div>
+              {mcLoading && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <div className="spinner-container"><span className="spinner" /><p>Evaluating...</p></div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {mcMode && mcIsComplete && (
+        <div className="card" style={{ marginBottom: '1rem', background: '#e8f5e9', border: '1px solid #4caf50', textAlign: 'center', padding: '2rem' }}>
+          <h3 style={{ color: 'var(--accent-yellow)' }}>Quiz Complete! 🎉</h3>
+          <p style={{ fontSize: '1.1rem' }}>
+            You scored <strong>{mcResult?.score ?? 0}</strong> out of <strong>{mcHistory.length}</strong>
+          </p>
+          <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+            {mcHistory.length > 0 && (mcResult?.score ?? 0) === mcHistory.length
+              ? 'Perfect score! Excellent understanding.'
+              : (mcResult?.score ?? 0) >= Math.ceil(mcHistory.length / 2)
+              ? 'Good job! Review the questions you missed to strengthen your knowledge.'
+              : 'Keep practicing! Try a lower difficulty or review the topic.'}
+          </p>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {mcSaved ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.75rem', borderRadius: '6px', background: '#e8f5e9', color: '#2e7d32', fontSize: '0.85rem', fontWeight: 500 }}>
+                ✓ Saved to Documents
+              </span>
+            ) : (
+              <button className="btn btn-secondary" onClick={saveMCToDocuments} disabled={mcSaving}>
+                {mcSaving ? 'Saving...' : 'Save to Documents'}
+              </button>
+            )}
+            <button className="btn btn-primary" onClick={resetMC}>Try Another Topic</button>
+          </div>
+        </div>
+      )}
+
+      {!practiceMode && !mcMode && isComplete && !reviewMode && (
         <div className="card" style={{ marginBottom: '1rem', background: '#fff8dc', border: '1px solid var(--accent-yellow)', textAlign: 'center', padding: '2rem' }}>
           <h3 style={{ color: 'var(--accent-yellow)' }}>Topic Complete! 🎉</h3>
           <p>You answered {correctCount} of {totalQuestions} questions correctly.</p>
@@ -633,7 +968,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && history.length > 0 && !isComplete && !reviewMode && (
+      {!practiceMode && !mcMode && history.length > 0 && !isComplete && !reviewMode && (
         <div style={{ marginBottom: '1rem' }}>
           {history.map((h, i) => (
             <div key={i} className="card" style={{ marginBottom: '0.5rem', borderLeft: `4px solid ${h.evaluation === 'correct' ? '#4caf50' : h.evaluation === 'partially_correct' ? '#ff9800' : '#f44336'}` }}>
@@ -645,7 +980,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && correctAnswerRevealed && !reviewMode && (
+      {!practiceMode && !mcMode && correctAnswerRevealed && !reviewMode && (
         <div className="card" style={{ marginBottom: '1rem', background: '#fff3cd', border: '1px solid #ffc107' }}>
           <h4 style={{ color: '#856404', margin: '0 0 0.5rem 0' }}>Correct Answer</h4>
           <p style={{ fontSize: '0.85rem', color: '#856404', marginBottom: '0.5rem', fontStyle: 'italic' }}>
@@ -655,7 +990,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && currentQuestion && !isComplete && !reviewMode && (
+      {!practiceMode && !mcMode && currentQuestion && !isComplete && !reviewMode && (
         <div className="card" style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>{currentQuestion.question}</h3>
@@ -692,7 +1027,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && reviewMode && reviewComplete && (
+      {!practiceMode && !mcMode && reviewMode && reviewComplete && (
         <div className="card" style={{ marginBottom: '1rem', background: '#e8f5e9', border: '1px solid #4caf50', textAlign: 'center', padding: '2rem' }}>
           <h3 style={{ color: 'var(--accent-yellow)' }}>Review Complete! 🎉</h3>
           <p>You marked {reviewCorrect} of {reviewCorrect + reviewWrong} cards correct ({Math.round((reviewCorrect / Math.max(reviewCorrect + reviewWrong, 1)) * 100)}%).</p>
@@ -706,7 +1041,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && reviewMode && !reviewComplete && session.questions[reviewIndex] && (
+      {!practiceMode && !mcMode && reviewMode && !reviewComplete && session.questions[reviewIndex] && (
         <div className="card" style={{ marginBottom: '1rem' }}>
           {!reviewFlipped ? (
             <div

@@ -100,7 +100,7 @@ class GlossaryService:
 
     def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.3
+            query=query, top_k=10, min_score=0.5
         )
         if not results:
             return None, []
@@ -179,6 +179,8 @@ class GlossaryService:
                 response_format=GeneratedGlossaryEntry,
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
             )
 
             raw = response.choices[0].message.content

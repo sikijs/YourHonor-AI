@@ -5,6 +5,7 @@ from app.models.tutor import (
     TutorStartRequest, TutorStartResponse, TutorAnswerRequest, TutorAnswerResponse, TutorQuestion,
     HypotheticalGenerateRequest, HypotheticalGenerateResponse,
     HypotheticalEvaluateRequest, HypotheticalEvaluateResponse,
+    MCStartRequest, MCStartResponse, MCAnswerRequest, MCAnswerResponse,
 )
 from app.services.auth import decode_token
 from app.services.tutor import get_tutor_service
@@ -122,6 +123,34 @@ def continue_learning(
         service = get_tutor_service()
         question = service.continue_learning(user_id)
         return ContinueLearningResponse(question=question)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/mc/start", response_model=MCStartResponse)
+def start_mc_quiz(
+    request: MCStartRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        return service.start_mc_quiz(request.topic_id, request.difficulty, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/mc/answer", response_model=MCAnswerResponse)
+def submit_mc_answer(
+    request: MCAnswerRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        return service.submit_mc_answer(request.selected_index, user_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

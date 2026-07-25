@@ -29,6 +29,7 @@ export default function ScratchPad() {
   const [view, setView] = useState<'list' | 'editor'>('list');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
   const saveRef = useRef<() => void>(() => {});
@@ -156,6 +157,8 @@ export default function ScratchPad() {
         setCurrentNote(created);
       }
       await fetchNotes();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to save note');
     } finally {
@@ -318,16 +321,16 @@ export default function ScratchPad() {
                     type="text"
                     placeholder="Note title..."
                     value={editTitle}
-                    onChange={e => setEditTitle(e.target.value)}
+                    onChange={e => { setEditTitle(e.target.value); setSaved(false); }}
                   />
                   <textarea
                     placeholder="Write your notes here..."
                     value={editContent}
-                    onChange={e => setEditContent(e.target.value)}
+                    onChange={e => { setEditContent(e.target.value); setSaved(false); }}
                   />
                   <div className="scratchpad-actions">
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !editTitle.trim()}>
-                      {saving ? 'Saving...' : 'Save'}
+                      {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save'}
                     </button>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#aaa', marginTop: 4 }}>

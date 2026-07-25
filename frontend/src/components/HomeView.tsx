@@ -4,13 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { User, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
-import { AI_IN_LAW, AiSection } from '@/lib/aiInLawContent';
 
 type NavigateFn = (view: string) => void;
 
 export default function HomeView({ user, onNavigate }: { user: User | null; onNavigate: NavigateFn }) {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string; sources?: { title: string; source: string; relevance_score: number }[]; suggested_tool?: string | null; suggested_name?: string | null; suggested_description?: string | null; suggested_query?: string | null }[]>([]);
   const [input, setInput] = useState('');
   const [chatOpen, setChatOpen] = useState(false);
@@ -18,13 +15,22 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
   const cancelRef = useRef<AbortController | null>(null);
   const greetingLoaded = useRef(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const el = messagesContainerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (isNearBottomRef.current) {
+      const el = messagesContainerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }
   }, [messages]);
+
+  function handleChatScroll() {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+  }
 
   useEffect(() => {
     return () => cancelRef.current?.abort();
@@ -87,66 +93,6 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
     }
   }
 
-  function toggleSection(id: string) {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
-
-  function renderSection(section: AiSection, depth: number = 0) {
-    const isExpanded = expandedSections.has(section.id);
-    return (
-      <div key={section.id} id={section.id} style={{ marginBottom: depth === 0 ? '1rem' : depth === 1 ? '0.75rem' : '0.5rem' }}>
-        <div
-          onClick={() => toggleSection(section.id)}
-          style={{
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: depth === 0 ? '0.75rem 1rem' : depth === 1 ? '0.5rem 0.75rem' : '0.35rem 0.6rem',
-            background: depth === 0 ? 'var(--dark-navy)' : depth === 1 ? 'var(--blue-primary)' : 'var(--purple-secondary)',
-            color: '#fff',
-            borderRadius: depth >= 2 ? '6px' : '8px',
-            fontSize: depth === 0 ? '1.1rem' : depth === 1 ? '0.95rem' : '0.85rem',
-            fontWeight: depth === 0 ? 700 : 600,
-            userSelect: 'none',
-          }}
-        >
-          <span>{section.title}</span>
-          <span style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
-        </div>
-        {isExpanded && (
-          <div className="card" style={{ marginTop: '0.25rem', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
-            {section.paragraphs.map((p, i) => {
-              const isLastFinalThought = section.id === 'final-thought' && i === section.paragraphs.length - 1;
-              return (
-                <p key={i} style={{
-                  marginBottom: i < section.paragraphs.length - 1 ? '0.75rem' : 0,
-                  lineHeight: 1.7,
-                  ...(isLastFinalThought ? { fontSize: '1.2rem', fontWeight: 700 } : {}),
-                }}>
-                  {p}
-                </p>
-              );
-            })}
-            {section.subsections && section.subsections.length > 0 && (
-              <div style={{ marginTop: '1rem' }}>
-                {section.subsections.map((sub) => renderSection(sub, depth + 1))}
-              </div>
-            )}
-        </div>
-      )}
-    </div>
-  );
-}
-
   return (
     <div>
       <div className="hero">
@@ -170,7 +116,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
             <button onClick={() => setChatOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.3rem', lineHeight: 1, padding: '0 0.25rem' }} aria-label="Close chat">&times;</button>
           </div>
           <div style={{ padding: '1rem 1.5rem' }}>
-            <div ref={messagesContainerRef} style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div ref={messagesContainerRef} onScroll={handleChatScroll} style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {messages.map((msg, i) => (
                 <div key={i}>
                   <div style={{
@@ -254,6 +200,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         </p>
       </div>
 
+      <div className="features-wrapper">
       <div className="features">
         <div className="card feature-card" onClick={() => onNavigate(user ? 'briefs' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Case Briefs</h3>
@@ -291,35 +238,11 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
           <h3>Document Management</h3>
           <p>Create new legal documents from templates and manage your saved documents</p>
         </div>
-      </div>
-
-      <div style={{ marginTop: '2rem' }}>
-        <h2 style={{ color: 'var(--dark-navy)', marginBottom: '1.5rem', borderBottom: '2px solid var(--accent-yellow)', paddingBottom: '0.5rem' }}>
-          Understanding AI in Law
-        </h2>
-
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-          {AI_IN_LAW.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              onClick={(e) => { e.preventDefault(); toggleSection(section.id); setTimeout(() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              style={{
-                padding: '0.3rem 0.6rem',
-                background: expandedSections.has(section.id) ? 'var(--blue-primary)' : '#f0f0f0',
-                color: expandedSections.has(section.id) ? '#fff' : 'var(--dark-navy)',
-                borderRadius: '4px',
-                fontSize: '0.8rem',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {section.title}
-            </a>
-          ))}
+        <div className="card feature-card" onClick={() => onNavigate(user ? 'resources' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <h3>Resources</h3>
+          <p>Explore legal tech tools, AI fundamentals, and curated learning materials</p>
         </div>
-
-        {AI_IN_LAW.map((section) => renderSection(section))}
+      </div>
       </div>
 
       <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: '#f8f9fa' }}>

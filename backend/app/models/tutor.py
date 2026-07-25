@@ -90,3 +90,44 @@ class HypotheticalEvaluateResponse(BaseModel):
         "This evaluation is for educational purposes only. "
         "It should not be relied upon as legal advice."
     )
+
+
+class MCQuestion(BaseModel):
+    question: str
+    options: list[str]
+    correct_index: int
+    explanation: str
+    option_explanations: list[str]
+    difficulty: int
+
+
+class MCStartRequest(BaseModel):
+    topic_id: str
+    difficulty: int = 3
+
+
+class MCStartResponse(BaseModel):
+    topic_id: str
+    topic_name: str
+    difficulty: int
+    total_questions: int = 5
+    question: MCQuestion
+
+
+class MCAnswerRequest(BaseModel):
+    selected_index: int
+
+
+class MCAnswerResponse(BaseModel):
+    correct: bool
+    correct_index: int
+    explanation: str
+    option_explanations: list[str]
+    next_question: Optional[MCQuestion] = None
+    score: int
+    total: int
+    is_complete: bool
+    disclaimer: str = (
+        "This quiz is for educational purposes only. "
+        "It should not be relied upon as legal advice."
+    )

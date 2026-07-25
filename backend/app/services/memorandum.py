@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import date
 from typing import Optional
 
 from litellm import completion
@@ -64,7 +65,7 @@ class MemorandumService:
 
     def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
         results = self.retrieval_service.retrieve(
-            query=query, top_k=10, min_score=0.3
+            query=query, top_k=10, min_score=0.5
         )
         if not results:
             return None, []
@@ -188,6 +189,8 @@ class MemorandumService:
                 ],
                 max_tokens=4000,
                 temperature=0.3,
+                reasoning_effort="low",
+                drop_params=True,
                 extra_body=EXTRA_BODY,
             )
 
@@ -196,6 +199,7 @@ class MemorandumService:
                 raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
             parsed = parse_llm_json(raw)
             memo = GeneratedMemorandum(**parsed)
+            memo.date = date.today().strftime("%B %d, %Y")
 
             try:
                 if user_id:

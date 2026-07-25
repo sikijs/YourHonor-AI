@@ -247,6 +247,16 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ topic_id: topicId, difficulty, fact_pattern: factPattern, student_answer: studentAnswer }),
       }, signal, 180000),
+    startMCQuiz: (topicId: string, difficulty: number, signal?: AbortSignal) =>
+      fetchApi<MCStartResponse>('/api/tutor/mc/start', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId, difficulty }),
+      }, signal, 180000),
+    submitMCAnswer: (selectedIndex: number, signal?: AbortSignal) =>
+      fetchApi<MCAnswerResponse>('/api/tutor/mc/answer', {
+        method: 'POST',
+        body: JSON.stringify({ selected_index: selectedIndex }),
+      }, signal, 180000),
   },
 
   templates: {
@@ -522,5 +532,34 @@ export interface HypotheticalEvaluateResponse {
   overall_score: number;
   feedback: string;
   model_answer: string;
+  disclaimer: string;
+}
+
+export interface MCQuestion {
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation: string;
+  option_explanations: string[];
+  difficulty: number;
+}
+
+export interface MCStartResponse {
+  topic_id: string;
+  topic_name: string;
+  difficulty: number;
+  total_questions: number;
+  question: MCQuestion;
+}
+
+export interface MCAnswerResponse {
+  correct: boolean;
+  correct_index: number;
+  explanation: string;
+  option_explanations: string[];
+  next_question: MCQuestion | null;
+  score: number;
+  total: number;
+  is_complete: boolean;
   disclaimer: string;
 }
