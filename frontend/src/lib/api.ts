@@ -115,6 +115,11 @@ export const api = {
       fetchApi<{ message: string }>(`/api/documents/${id}`, {
         method: 'DELETE',
       }),
+    batchDelete: (ids: number[]) =>
+      fetchApi<{ message: string; deleted_count: number }>('/api/documents/batch', {
+        method: 'DELETE',
+        body: JSON.stringify({ ids }),
+      }),
     upload: async (file: File, title?: string, docType?: string) => {
       const formData = new FormData();
       formData.append('file', file);

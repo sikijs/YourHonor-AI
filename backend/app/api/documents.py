@@ -1,5 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException, Cookie, Depends, UploadFile, File, Form
+from pydantic import BaseModel
 from typing import List, Optional
 from pathlib import Path
 from app.db import get_db
@@ -7,6 +8,9 @@ from app.models.document import DocumentCreate, DocumentUpdate, DocumentResponse
 from app.services.auth import decode_token
 from app.services.document import file_storage, MAX_FILE_SIZE
 from app.services.ingestion import get_ingestion_service
+
+class BatchDeleteRequest(BaseModel):
+    ids: list[int]
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +138,40 @@ def update_document(doc_id: int, doc_update: DocumentUpdate, user_id: int = Depe
     updated_doc = cursor.execute("SELECT * FROM documents WHERE id = ?", (doc_id,)).fetchone()
     conn.close()
     return dict(updated_doc)
+
+@router.delete("/batch")
+def delete_documents_batch(request: BatchDeleteRequest, user_id: int = Depends(get_current_user_id)):
+    if not request.ids:
+        raise HTTPException(status_code=400, detail="No document IDs provided")
+
+    conn = get_db()
+    cursor = conn.cursor()
+    deleted_count = 0
+
+    for doc_id in request.ids:
+        existing = cursor.execute(
+            "SELECT * FROM documents WHERE id = ? AND user_id = ?",
+            (doc_id, user_id)
+        ).fetchone()
+        if not existing:
+            continue
+
+        if existing["file_path"]:
+            try:
+                file_storage.delete_file(existing["file_path"])
+            except Exception as e:
+                logger.warning(f"Failed to delete file {existing['file_path']}: {e}")
+
+        cursor.execute("DELETE FROM documents WHERE id = ? AND user_id = ?", (doc_id, user_id))
+        deleted_count += 1
+
+    conn.commit()
+    conn.close()
+
+    if deleted_count == 0:
+        raise HTTPException(status_code=404, detail="No matching documents found")
+
+    return {"message": f"{deleted_count} document(s) deleted", "deleted_count": deleted_count}
 
 @router.delete("/{doc_id}")
 def delete_document(doc_id: int, user_id: int = Depends(get_current_user_id)):

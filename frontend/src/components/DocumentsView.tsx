@@ -22,8 +22,10 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
   const [uploading, setUploading] = useState(false);
   const [viewDoc, setViewDoc] = useState<Document | null>(null);
   const [subMode, setSubMode] = useState<'list' | 'generate'>('list');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadDocuments();
@@ -32,6 +34,12 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
   useEffect(() => {
     if (subMode === 'list') loadDocuments();
   }, [subMode]);
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = selectedIds.size > 0 && selectedIds.size < documents.length;
+    }
+  }, [selectedIds, documents.length]);
 
   async function loadDocuments() {
     try {
@@ -69,6 +77,27 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
       onError(err.message);
     } finally {
       setUploading(false);
+    }
+  }
+
+  function toggleSelection(id: number) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function handleBatchDelete() {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Delete ${selectedIds.size} document(s)?`)) return;
+    try {
+      await api.documents.batchDelete(Array.from(selectedIds));
+      setSelectedIds(new Set());
+      loadDocuments();
+    } catch (err: any) {
+      onError(err.message);
     }
   }
 
@@ -127,11 +156,41 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
           <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
             Your saved documents — case briefs, summaries, memoranda, and generated forms. This is your workspace for managing everything you create.
           </p>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
               Upload PDF
             </button>
             <button className="btn btn-secondary" onClick={() => setShowModal(true)}>New Document</button>
+            <button
+              className="btn btn-outline"
+              style={{
+                borderColor: selectedIds.size > 0 ? '#d32f2f' : '#ddd',
+                color: selectedIds.size > 0 ? '#d32f2f' : '#bbb',
+                cursor: selectedIds.size > 0 ? 'pointer' : 'not-allowed',
+              }}
+              disabled={selectedIds.size === 0}
+              onClick={handleBatchDelete}
+            >
+              Delete Selected{selectedIds.size > 0 && ` (${selectedIds.size})`}
+            </button>
+            {documents.length > 0 && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', marginLeft: '0.75rem', fontSize: '0.9rem', color: 'var(--gray-text)', userSelect: 'none' }}>
+                <input
+                  ref={selectAllRef}
+                  type="checkbox"
+                  className="document-checkbox"
+                  checked={documents.length > 0 && selectedIds.size === documents.length}
+                  onChange={() => {
+                    if (selectedIds.size === documents.length) {
+                      setSelectedIds(new Set());
+                    } else {
+                      setSelectedIds(new Set(documents.map(d => d.id)));
+                    }
+                  }}
+                />
+                Select All
+              </label>
+            )}
           </div>
 
           <input
@@ -176,7 +235,7 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
               onDrop={handleFileDrop}
             >
               {documents.map((doc) => (
-                <div key={doc.id} className="card document-item">
+                <div key={doc.id} className={`card document-item${selectedIds.has(doc.id) ? ' selected' : ''}`}>
                   <div>
                     <h3 style={{ margin: 0 }}>{doc.title}</h3>
                     <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem', margin: 0 }}>
@@ -209,9 +268,12 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
                         Download
                       </button>
                     )}
-                    <button className="btn btn-outline" style={{ borderColor: '#d32f2f', color: '#d32f2f' }} onClick={() => handleDelete(doc.id)}>
-                      Delete
-                    </button>
+                    <input
+                      type="checkbox"
+                      className="document-checkbox"
+                      checked={selectedIds.has(doc.id)}
+                      onChange={() => toggleSelection(doc.id)}
+                    />
                   </div>
                 </div>
               ))}

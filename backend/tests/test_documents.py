@@ -111,3 +111,33 @@ def test_delete_document_removes_it(client, auth_headers):
 def test_delete_nonexistent_doc_returns_404(client, auth_headers):
     resp = client.delete("/api/documents/99999", headers=auth_headers)
     assert resp.status_code == 404
+
+
+def test_batch_delete_removes_multiple_docs(client, auth_headers):
+    doc1 = client.post("/api/documents", headers=auth_headers, json={"title": "Batch 1", "content": "A"}).json()
+    doc2 = client.post("/api/documents", headers=auth_headers, json={"title": "Batch 2", "content": "B"}).json()
+    doc3 = client.post("/api/documents", headers=auth_headers, json={"title": "Batch 3", "content": "C"}).json()
+
+    resp = client.request("DELETE", "/api/documents/batch", headers=auth_headers, json={
+        "ids": [doc1["id"], doc2["id"]]
+    })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["deleted_count"] == 2
+
+    get1 = client.get(f"/api/documents/{doc1['id']}", headers=auth_headers)
+    get2 = client.get(f"/api/documents/{doc2['id']}", headers=auth_headers)
+    get3 = client.get(f"/api/documents/{doc3['id']}", headers=auth_headers)
+    assert get1.status_code == 404
+    assert get2.status_code == 404
+    assert get3.status_code == 200
+
+
+def test_batch_delete_no_ids_returns_400(client, auth_headers):
+    resp = client.request("DELETE", "/api/documents/batch", headers=auth_headers, json={"ids": []})
+    assert resp.status_code == 400
+
+
+def test_batch_delete_nonexistent_returns_404(client, auth_headers):
+    resp = client.request("DELETE", "/api/documents/batch", headers=auth_headers, json={"ids": [99999]})
+    assert resp.status_code == 404

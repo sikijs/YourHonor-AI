@@ -301,6 +301,19 @@ h1, h2, h3 {
 .document-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.document-item.selected {
+  background-color: #f3e8ff;
+  border: 1px solid var(--purple-secondary);
+}
+
+.document-checkbox {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--purple-secondary);
 }
 
 .modal-overlay {
