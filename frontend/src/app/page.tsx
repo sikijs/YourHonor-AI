@@ -14,6 +14,7 @@ import MemorandumView from '@/components/MemorandumView';
 import TutorView from '@/components/TutorView';
 import DebateView from '@/components/DebateView';
 import GlossaryView from '@/components/GlossaryView';
+import IssueSpotterView from '@/components/IssueSpotterView';
 import GenerateDocumentView from '@/components/GenerateDocumentView';
 import ChatView from '@/components/ChatView';
 import ResourcesView from '@/components/ResourcesView';
@@ -23,7 +24,7 @@ import ScratchPad from '@/components/ScratchPad';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'resources' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'issuespotter' | 'resources' | 'about'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -80,6 +81,7 @@ export default function Home() {
               <a href="#" onClick={() => setView('citations')} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
               <a href="#" onClick={() => setView('memoranda')} style={view === 'memoranda' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Memoranda</a>
               <a href="#" onClick={() => setView('debate')} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
+              <a href="#" onClick={() => setView('issuespotter')} style={view === 'issuespotter' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Issue Spotter</a>
               <a href="#" onClick={() => setView('tutor')} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
               <a href="#" onClick={() => setView('documents')} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
               <a href="#" onClick={() => setView('glossary')} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
@@ -145,6 +147,10 @@ export default function Home() {
 
         {view === 'debate' && user && (
           <DebateView user={user} onError={setError} />
+        )}
+
+        {view === 'issuespotter' && user && (
+          <IssueSpotterView user={user} onError={setError} />
         )}
 
         {view === 'glossary' && user && (

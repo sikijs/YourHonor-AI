@@ -218,6 +218,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
       }, undefined, 120_000),
+    issueSpotter: (query: string, documentId?: number, signal?: AbortSignal) =>
+      fetchApi<IssueSpotterResponse>('/api/legal/issue-spotter', {
+        method: 'POST',
+        body: JSON.stringify({ query, document_id: documentId }),
+      }, signal, 120_000),
   },
 
   tutor: {
@@ -407,6 +412,25 @@ export interface MemorandumResponse {
   facts: string;
   issues: LegalIssue[];
   overall_conclusion: string;
+  sources: SourceDocument[];
+  sources_consulted: string[];
+  disclaimer: string;
+}
+
+export interface SpottedIssue {
+  issue: string;
+  rule: string;
+  application: string;
+  conclusion: string;
+  missing_information: string;
+  relevant_authorities: string[];
+}
+
+export interface IssueSpotterResponse {
+  overview: string;
+  issues: SpottedIssue[];
+  issues_by_area: Record<string, string[]>;
+  practice_tips: string;
   sources: SourceDocument[];
   sources_consulted: string[];
   disclaimer: string;

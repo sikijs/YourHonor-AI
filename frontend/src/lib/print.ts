@@ -431,3 +431,64 @@ export function glossaryHtml(result: {
   }
   return html;
 }
+
+export function issueSpotterHtml(result: {
+  overview: string;
+  issues: Array<{
+    issue: string; rule: string; application: string;
+    conclusion: string; missing_information: string;
+    relevant_authorities: string[];
+  }>;
+  issues_by_area: Record<string, string[]>;
+  practice_tips: string;
+  sources?: Array<{ title: string; source_type: string; url?: string | null; citation?: string | null; court?: string | null; date_filed?: string | null }>;
+  sources_consulted?: string[];
+}): string {
+  let sourcesHtml = '';
+  const srcList = result.sources;
+  if (srcList && srcList.length > 0) {
+    sourcesHtml = srcList.map((s, i) => {
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+        <strong>${esc(s.title)}</strong>
+        <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
+        ${s.url ? `<a href="${esc(s.url)}" style="font-size:0.78rem;color:#1a7db5;text-decoration:none;margin-left:0.3rem">View on CourtListener ↗</a>` : ''}
+        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem">${[s.citation, s.court, s.date_filed].filter(Boolean).join(' | ')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  let html = `<h2>Issue Spotter Analysis</h2>`;
+  html += fmtField('Overview', result.overview);
+
+  if (Object.keys(result.issues_by_area).length > 0) {
+    html += `<div class="field-label">Legal Areas</div><div class="field-value">`;
+    Object.entries(result.issues_by_area).forEach(([area, texts]) => {
+      html += `<span class="tag" style="background:#e8f4f8;color:var(--blue-primary)">${esc(area)} (${texts.length})</span> `;
+    });
+    html += `</div>`;
+  }
+
+  result.issues.forEach((issue, i) => {
+    html += `<div class="section" style="margin:1rem 0;border-left:3px solid #ecad0a;padding-left:0.75rem">`;
+    html += `<h3>Issue ${i+1}: ${esc(issue.issue)}</h3>`;
+    html += fmtField('Rule', issue.rule);
+    html += fmtField('Application', issue.application);
+    html += `<p><strong>Conclusion:</strong> ${esc(issue.conclusion)}</p>`;
+    if (issue.missing_information) {
+      html += `<div style="background:#fff8e1;padding:0.5rem;border-radius:3px;font-size:0.9rem;margin:0.5rem 0"><strong>Needs more info:</strong> ${esc(issue.missing_information)}</div>`;
+    }
+    if (issue.relevant_authorities.length > 0) {
+      html += `<div class="field-label">Authorities</div><div class="field-value">${fmtTags(issue.relevant_authorities)}</div>`;
+    }
+    html += `</div>`;
+  });
+
+  if (result.practice_tips) {
+    html += fmtField('Exam Tips', result.practice_tips);
+  }
+
+  if (sourcesHtml) html += `<div class="field-label">Sources</div><div class="field-value">${sourcesHtml}</div>`;
+  if (result.sources_consulted?.length) html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
+  return html;
+}
