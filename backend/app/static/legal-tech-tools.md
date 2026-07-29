@@ -25,18 +25,7 @@ Modern lawyers, judges, paralegals, and law students now use AI systems and lega
 - predict litigation trends,
 - and organize massive amounts of information.
 
-Think of today’s legal profession as a blend of:
-```text
-traditional law school
-+
-Google
-+
-ChatGPT
-+
-data science
-+
-enterprise software
-```
+----
 
 The future lawyer is not just someone who understands law.
 

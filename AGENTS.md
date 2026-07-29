@@ -553,6 +553,15 @@ Logging should help debugging without exposing sensitive data.
 6. Refactor carefully
 7. Document major decisions
 
+### Syncing frontend/public/ → backend/app/static/
+
+When editing files in `frontend/public/` (e.g. `legal-tech-tools.md`), you must sync them to `backend/app/static/` to see changes on the running app:
+
+    cp frontend/public/legal-tech-tools.md backend/app/static/legal-tech-tools.md
+    docker cp backend/app/static/legal-tech-tools.md docker-backend-1:/app/app/static/legal-tech-tools.md
+
+This keeps the local and in-container copies in sync.
+
 ---
 
 

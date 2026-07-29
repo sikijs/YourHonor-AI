@@ -61,6 +61,17 @@ kill $(lsof -ti :8000)   # stop local backend
 docker start docker-backend-1  # restart Docker backend
 ```
 
+## Syncing frontend/public/ When Using Docker
+
+Files in `frontend/public/` (e.g. `legal-tech-tools.md`) are served by FastAPI from `backend/app/static/`. After editing, sync both locally and into the running container:
+
+```bash
+cp frontend/public/legal-tech-tools.md backend/app/static/legal-tech-tools.md
+docker cp backend/app/static/legal-tech-tools.md docker-backend-1:/app/app/static/legal-tech-tools.md
+```
+
+Then hard refresh (`Cmd+Shift+R`) in the browser.
+
 ---
 
 ## App Lifecycle (Docker)
@@ -147,6 +158,11 @@ Run all commands from `~/YourHonor AI/` unless noted.
 git add <files>
 git commit -m "your message"
 git push
+```
+
+**1.5. Run tests**
+```bash
+cd backend && uv run pytest && cd ../frontend && npx jest && cd ..
 ```
 
 **2. Rebuild the frontend**
