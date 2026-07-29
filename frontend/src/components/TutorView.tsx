@@ -544,11 +544,11 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
               Quiz
             </button>
             <button
-              className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); }}
+              className={`btn ${mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
-              Review
+              MC Quiz
             </button>
             <button
               className={`btn ${practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
@@ -558,11 +558,11 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
               Practice
             </button>
             <button
-              className={`btn ${mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); }}
+              className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
-              MC Quiz
+              Review
             </button>
           </div>
           <button className="btn btn-outline" onClick={resetSession}>Change Topic</button>

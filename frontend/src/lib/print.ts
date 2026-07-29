@@ -75,7 +75,7 @@ export function caseBriefHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
@@ -107,15 +107,7 @@ export function caseBriefHtml(result: {
   `;
 }
 
-const BADGE_STYLE: Record<string, { bg: string; color: string }> = {
-  courtlistener: { bg: '#e8f4fd', color: '#1a7db5' },
-  courtlistener_ingested: { bg: '#e8f4fd', color: '#1a7db5' },
-  rag: { bg: '#e8f8e8', color: '#2e7d32' },
-  user_upload: { bg: '#fff3e0', color: '#e65100' },
-  web: { bg: '#f3e5f5', color: '#7b1fa2' },
-  seed: { bg: '#e0f7fa', color: '#00838f' },
-  none: { bg: '#f5f5f5', color: '#757575' },
-};
+import { BADGE_COLORS } from '@/lib/sources';
 
 export function summaryHtml(result: {
   title: string; summary_type: string; overview: string;
@@ -127,7 +119,7 @@ export function summaryHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
@@ -172,7 +164,7 @@ export function argumentsHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
@@ -227,7 +219,7 @@ export function citationMapHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
@@ -275,7 +267,7 @@ export function memorandumHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
@@ -325,7 +317,7 @@ export function debateHtml(result: {
   const srcList = result.sources;
   if (srcList && srcList.length > 0) {
     sourcesHtml = srcList.map((s, i) => {
-      const badge = BADGE_STYLE[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
+      const badge = BADGE_COLORS[s.source_type] || { bg: '#f5f5f5', color: '#757575' };
       return `<div style="margin-bottom:0.5rem;padding-bottom:0.3rem;${i < srcList.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
         <strong>${esc(s.title)}</strong>
         <span style="display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.75rem;background:${badge.bg};color:${badge.color};margin-left:0.3rem;font-weight:600">${esc(s.source_type)}</span>
