@@ -129,7 +129,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     temperature=0.3,
                     reasoning_effort="low",
                     drop_params=True,
-                    timeout=90,
+                    timeout=180,
                 )
 
                 raw = response.choices[0].message.content
@@ -165,7 +165,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     temperature=0.3,
                     reasoning_effort="low",
                     drop_params=True,
-                    timeout=90,
+                    timeout=180,
                 )
                 raw = answer_response.choices[0].message.content
                 if raw is None:
@@ -383,7 +383,7 @@ Return valid JSON with these exact keys:
                 temperature=0.7,
                 reasoning_effort="low",
                 drop_params=True,
-                timeout=90,
+                timeout=180,
             )
             raw = response.choices[0].message.content
             if raw is None:
@@ -450,7 +450,7 @@ Return valid JSON with these exact keys:
                 temperature=0.3,
                 reasoning_effort="low",
                 drop_params=True,
-                timeout=90,
+                timeout=180,
             )
             raw = response.choices[0].message.content
             if raw is None:
@@ -563,7 +563,7 @@ Return valid JSON with these exact keys:
                 temperature=0.7,
                 reasoning_effort="low",
                 drop_params=True,
-                timeout=90,
+                timeout=180,
             )
             raw = response.choices[0].message.content
             if raw is None:

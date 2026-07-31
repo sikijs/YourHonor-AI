@@ -67,7 +67,7 @@ export function useLegalTool<T>(
       setSaved(true);
     } catch (err: any) {
       if (err.name === 'AbortError') {
-        if (!cancellingRef.current) onError('Request timed out. Legal analysis can take up to 2 minutes. Please try again.');
+        if (!cancellingRef.current) onError('Request timed out. Legal analysis can take up to 3 minutes. Please try again.');
         return;
       }
       onError(err.message);

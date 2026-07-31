@@ -180,49 +180,49 @@ export const api = {
       fetchApi<CaseBriefResponse>('/api/legal/case-brief', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     summary: (query: string, summaryType?: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<LegalSummaryResponse>('/api/legal/summary', {
         method: 'POST',
         body: JSON.stringify({ query, summary_type: summaryType || 'general', document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     arguments: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<ArgumentExtractionResponse>('/api/legal/arguments', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     citations: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<CitationMapResponse>('/api/legal/citations', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     templateFields: (templateName: string) =>
       fetchApi<{ template_name: string; fields: TemplateField[] }>(`/api/legal/template-fields?template_name=${encodeURIComponent(templateName)}`),
     generateDocument: (templateName: string, fieldValues: Record<string, string>, title?: string) =>
       fetchApi<GenerateDocumentResponse>('/api/legal/generate-document', {
         method: 'POST',
         body: JSON.stringify({ template_name: templateName, field_values: fieldValues, title }),
-      }, undefined, 120_000),
+      }, undefined, 180_000),
     memorandum: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<MemorandumResponse>('/api/legal/memorandum', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     debate: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<DebateResponse>('/api/legal/debate', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
     glossary: (query: string, documentId?: number) =>
       fetchApi<GlossaryResponse>('/api/legal/glossary', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, undefined, 120_000),
+      }, undefined, 180_000),
     issueSpotter: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<IssueSpotterResponse>('/api/legal/issue-spotter', {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
-      }, signal, 120_000),
+      }, signal, 180_000),
   },
 
   tutor: {

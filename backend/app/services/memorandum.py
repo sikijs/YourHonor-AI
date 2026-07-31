@@ -191,6 +191,7 @@ class MemorandumService:
                 temperature=0.3,
                 reasoning_effort="low",
                 drop_params=True,
+                timeout=180,
                 extra_body=EXTRA_BODY,
             )
 

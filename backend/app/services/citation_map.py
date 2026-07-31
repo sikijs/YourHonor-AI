@@ -165,6 +165,7 @@ class CitationMapService:
                 temperature=0.3,
                 reasoning_effort="low",
                 drop_params=True,
+                timeout=180,
             )
 
             raw = response.choices[0].message.content
