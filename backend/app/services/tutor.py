@@ -20,6 +20,10 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 MODEL = "openrouter/qwen/qwen3-14b"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 
+# Max wrong/partial attempts per question before the correct answer is revealed
+# and the session moves on. A fully correct answer always advances immediately.
+MAX_ATTEMPTS_PER_QUESTION = 3
+
 
 class TutorSession:
     def __init__(self, topic_id: str):
@@ -30,6 +34,7 @@ class TutorSession:
         self.correct_count = 0
         self.wrong_count = 0
         self.attempts_on_question = 0
+        self.current_question_text = ""  # text of the question currently being answered (original or follow-up)
         self.history: list[dict] = []
         self.covered_concepts: set[str] = set()
         self.dynamic_used = False
@@ -52,6 +57,7 @@ class TutorService:
         session = TutorSession(topic_id)
         self._sessions[user_id] = session
         q = session.questions[0]
+        session.current_question_text = q.question
         return TutorStartResponse(
             topic_id=topic_id,
             topic_name=session.topic_data["name"],
@@ -69,6 +75,7 @@ class TutorService:
         session.questions = []
         new_q = self._generate_dynamic_question(session)
         session.questions.append(new_q)
+        session.current_question_text = new_q.question
         self._sessions[user_id] = session
         session.dynamic_used = True
         return TutorStartResponse(
@@ -100,6 +107,21 @@ For each answer:
 2. EXPLANATION: Explain what the student got right and what they missed. Reference the expected concepts.
 3. FOLLOW-UP: If the student needs more help, generate a simpler follow-up question on the same concept. If they answered well, generate a more advanced follow-up on the same concept.
 4. COMPLETE: Set to true only when the student has demonstrated sufficient understanding of the current concept.
+5. MISSED_CONCEPTS: List exactly which expected concepts the answer failed to demonstrate or misstated. Empty list only if every expected concept was demonstrated.
+
+What counts as a correct answer:
+- "correct" requires the student to EXPLAIN each expected concept in their own words — define it, and apply it where the question asks for application. Merely naming a concept does not demonstrate it.
+- If the answer is only a bare list of keywords or concept names with no explanation, classify as "partially_correct" at best, never "correct".
+- Structure expectation: at difficulty 1-2, clear complete sentences that name and explain each concept are enough. At difficulty 3+, the answer should also briefly apply the concepts (state the rule, then apply it), e.g. a mini IRAC-style structure.
+- The grading rubric is: coverage of expected concepts, accuracy of legal rules, and quality of explanation/application.
+
+Follow-up hint requirements:
+- FOLLOW_UP_HINT must be an ELABORATE hint: 2-4 sentences of step-by-step guidance that steers the student's thinking (what to consider first, which distinction to draw, how to structure the answer).
+- It must NEVER name any expected concept verbatim or list the expected concepts. Guide toward the reasoning, not the answer.
+- If the student needs no hint, you may still provide a brief encouraging nudge.
+
+Follow-up answer requirement:
+- FOLLOW_UP_ANSWER must be a 2-4 sentence educative answer to the follow-up question: answer it directly, define the expected concepts in plain language, and include one concrete example. This is shown to the student on a flashcard, so it must stand alone without the original question's context. Always provide it when you generate a FOLLOW_UP_QUESTION.
 
 Guidelines:
 - Be encouraging but academically rigorous
@@ -111,6 +133,7 @@ Guidelines:
 
         user_prompt = f"""Topic: {session.topic_data['name']}
 Question: {q.question}
+Question difficulty: {q.difficulty}/5
 Expected concepts: {', '.join(q.expected_concepts)}
 Student's answer: {answer}
 
@@ -147,19 +170,23 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     follow_up_question=None,
                     follow_up_hint=None,
                     is_complete=False,
+                    missed_concepts=list(q.expected_concepts),
                 )
 
-        if session.attempts_on_question >= 5 and eval_result.evaluation != "correct":
+        if session.attempts_on_question >= MAX_ATTEMPTS_PER_QUESTION and eval_result.evaluation != "correct":
             attempts_exceeded = True
             eval_result.is_complete = True
             eval_result.follow_up_question = None
 
+            # Reveal the answer for the question the student was actually answering
+            # (which may be a follow-up, not the original bank question).
+            answered_question = session.current_question_text or q.question
             try:
                 answer_response = completion(
                     model=MODEL,
                     messages=[
                         {"role": "system", "content": "You are a law professor. Give a concise, specific answer to the student's question."},
-                        {"role": "user", "content": f"Question: {q.question}\nExpected concepts: {', '.join(q.expected_concepts)}\n\nProvide the correct answer in 2-3 sentences explaining how these concepts apply to the question. Be specific and educational."},
+                        {"role": "user", "content": f"Question: {answered_question}\nExpected concepts: {', '.join(q.expected_concepts)}\n\nProvide the correct answer in 2-3 sentences explaining how these concepts apply to the question. Be specific and educational."},
                     ],
                     max_tokens=300,
                     temperature=0.3,
@@ -189,7 +216,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     correct_answer_revealed = f"The expected concepts were: {formatted_lst}."
 
             eval_result.explanation += (
-                "  You've used all " + str(session.attempts_on_question) +
+                "  You've used all " + str(MAX_ATTEMPTS_PER_QUESTION) +
                 " attempts for this question. The correct answer has been shown above. Let's move to the next question."
             )
 
@@ -199,14 +226,18 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             session.wrong_count += 1
 
         session.history.append({
-            "question": q.question,
+            "question": session.current_question_text or q.question,
             "answer": answer,
             "evaluation": eval_result.evaluation,
             "explanation": eval_result.explanation,
         })
 
+        # Advance to the next question ONLY when the student answered correctly
+        # or has exhausted all attempts. Wrong/partial answers (even if the LLM
+        # marks is_complete) keep the student on the same concept so the
+        # attempt counter can actually reach the limit.
         next_question = None
-        if eval_result.is_complete:
+        if attempts_exceeded or eval_result.evaluation == "correct":
             session.covered_concepts.update(q.expected_concepts)
             session.current_index += 1
             session.attempts_on_question = 0
@@ -215,9 +246,12 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                 next_question = TutorQuestion(
                     question=nq.question,
                     hint=nq.hint,
+                    deep_hint=nq.deep_hint,
                     expected_concepts=nq.expected_concepts,
                     difficulty=nq.difficulty,
+                    answer=nq.answer,
                 )
+                session.current_question_text = next_question.question
         elif eval_result.follow_up_question:
             follow_up_difficulty = (
                 q.difficulty + 1 if eval_result.evaluation == "correct"
@@ -226,21 +260,24 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             next_question = TutorQuestion(
                 question=eval_result.follow_up_question,
                 hint=eval_result.follow_up_hint or q.hint,
+                deep_hint=eval_result.follow_up_hint or q.deep_hint,
                 expected_concepts=q.expected_concepts,
                 difficulty=follow_up_difficulty,
+                answer=eval_result.follow_up_answer,
             )
+            session.current_question_text = next_question.question
         else:
-            session.covered_concepts.update(q.expected_concepts)
-            session.current_index += 1
-            session.attempts_on_question = 0
-            if session.current_index < len(session.questions):
-                nq = session.questions[session.current_index]
-                next_question = TutorQuestion(
-                    question=nq.question,
-                    hint=nq.hint,
-                    expected_concepts=nq.expected_concepts,
-                    difficulty=nq.difficulty,
-                )
+            # Fallback: LLM gave neither a follow-up nor completion. Keep the
+            # student on the SAME question (no advance, no attempt reset) so
+            # the attempt limit still triggers.
+            next_question = TutorQuestion(
+                question=session.current_question_text or q.question,
+                hint=q.hint,
+                deep_hint=q.deep_hint,
+                expected_concepts=q.expected_concepts,
+                difficulty=q.difficulty,
+                answer=q.answer,
+            )
 
         is_session_complete = session.current_index >= len(session.questions)
 
@@ -260,6 +297,9 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             wrong_count=session.wrong_count,
             attempts_exceeded=attempts_exceeded,
             correct_answer_revealed=correct_answer_revealed,
+            attempts_used=session.attempts_on_question,
+            max_attempts=MAX_ATTEMPTS_PER_QUESTION,
+            missed_concepts=eval_result.missed_concepts,
         )
 
     def get_session_state(self, user_id: int) -> Optional[dict]:
@@ -299,7 +339,9 @@ Generate a NEW question on {topic_name} at difficulty {difficulty}. Do NOT repea
 
 Return valid JSON with these exact keys:
 - "question": the question text
-- "hint": a helpful hint for the student
+- "hint": a SHORT one-sentence nudge for a student's first attempt
+- "deep_hint": an ELABORATE hint for a student retrying after a wrong answer: 2-4 sentences of step-by-step guidance (what to consider first, which distinction to draw, how to structure the answer). It must NEVER name any expected concept verbatim or list the expected concepts — guide toward the reasoning, not the answer.
+- "answer": a 2-4 sentence educative answer to the question: answer it directly, define the expected concepts in plain language, and include one concrete example. This is shown on a flashcard, so it must stand alone.
 - "expected_concepts": a list of 3-5 key concepts the answer should include
 - "difficulty": {difficulty}"""
 
@@ -323,8 +365,10 @@ Return valid JSON with these exact keys:
             return TutorQuestion(
                 question=parsed.question,
                 hint=parsed.hint,
+                deep_hint=parsed.deep_hint,
                 expected_concepts=parsed.expected_concepts,
                 difficulty=parsed.difficulty,
+                answer=parsed.answer,
             )
         except Exception as e:
             logger.error(f"Dynamic question generation failed: {e}")
@@ -336,6 +380,7 @@ Return valid JSON with these exact keys:
             raise ValueError("No active tutoring session. Start one first.")
         new_q = self._generate_dynamic_question(session)
         session.questions.append(new_q)
+        session.current_question_text = new_q.question
         session.dynamic_used = True
         return new_q
 
@@ -399,6 +444,8 @@ Return valid JSON with these exact keys:
     def evaluate_hypothetical(self, topic_id: str, difficulty: int, fact_pattern: str, student_answer: str) -> dict:
         topic_data = TOPICS.get(topic_id, {"name": topic_id})
         prompt = f"""You are a law professor evaluating a student's analysis of a hypothetical fact pattern in {topic_data['name']} (difficulty {difficulty}/5).
+
+The student was explicitly told to structure their analysis using IRAC (Issue, Rule, Application, Conclusion) — this rubric was shown to them before they wrote. Grade accordingly: an answer that states rules but never applies them to the facts, or reaches a conclusion without supporting reasoning, must not receive strong marks in that dimension.
 
 Fact pattern:
 {fact_pattern}

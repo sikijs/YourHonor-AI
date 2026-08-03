@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import { marked } from 'marked';
 import { User, CatalogResponse, CatalogTemplate, GenerateDocumentResponse, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
+import LoadingStatus from '@/components/LoadingStatus';
 
 export default function GenerateDocumentView({ user, onError, onDocumentCreated }: { user: User; onError: (err: string) => void; onDocumentCreated?: () => void }) {
   const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
@@ -14,6 +15,13 @@ export default function GenerateDocumentView({ user, onError, onDocumentCreated 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateDocumentResponse | null>(null);
   const [saved, setSaved] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const interval = setInterval(() => setElapsed(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     api.templates.list().then(setCatalog).catch(() => onError('Failed to load templates'));
@@ -156,6 +164,12 @@ export default function GenerateDocumentView({ user, onError, onDocumentCreated 
               {loading ? 'Generating...' : 'Generate Document'}
             </button>
           </form>
+
+          {loading && (
+            <div className="card" style={{ textAlign: 'center', padding: '1.25rem', marginTop: '1rem' }}>
+              <LoadingStatus message="Generating document" elapsed={elapsed} />
+            </div>
+          )}
 
           {result && (
             <div className="card" style={{ marginTop: '1rem' }}>

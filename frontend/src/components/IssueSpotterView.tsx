@@ -5,6 +5,7 @@ import { printContent, issueSpotterHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
+import LoadingStatus from '@/components/LoadingStatus';
 
 export default function IssueSpotterView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const {
@@ -75,7 +76,7 @@ export default function IssueSpotterView({ user, onError }: { user: User; onErro
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div className="spinner-container"><span className="spinner" /><p>Analyzing fact pattern and identifying issues... ({elapsed}s)</p></div>
+          <LoadingStatus message="Analyzing fact pattern and identifying issues" elapsed={elapsed} />
           <p style={{ color: 'var(--gray-text)', fontSize: '0.85rem', marginTop: '0.5rem' }}>Results are saved to My Documents automatically.</p>
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={cancel}>Cancel</button>

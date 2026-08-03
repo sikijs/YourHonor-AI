@@ -145,24 +145,40 @@ class IssueSpotterService:
         user_prompt = _build_user_prompt(query, context_text)
 
         try:
-            response = completion(
-                model=MODEL,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                response_format=GeneratedIssueSpotter,
-                max_tokens=4000,
-                temperature=0.3,
-                reasoning_effort="low",
-                drop_params=True,
-                timeout=180,
-            )
+            parsed = None
+            for attempt in range(2):
+                try:
+                    response = completion(
+                        model=MODEL,
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format=GeneratedIssueSpotter,
+                        max_tokens=8000,
+                        temperature=0.3,
+                        reasoning_effort="low",
+                        drop_params=True,
+                        timeout=180,
+                    )
 
-            raw = response.choices[0].message.content
-            if raw is None:
-                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
-            parsed = parse_llm_json(raw)
+                    raw = response.choices[0].message.content
+                    if raw is None:
+                        raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+                    parsed = parse_llm_json(raw)
+                    break
+                except ValueError:
+                    if attempt == 1:
+                        logger.error("Issue spotter response unparseable after retry")
+                        raise ValueError("The AI response was incomplete. Please try again.")
+                    logger.warning("Issue spotter response unparseable; retrying once with stricter instruction")
+                    user_prompt = (
+                        user_prompt
+                        + "\n\nIMPORTANT: Your previous response was cut off and could not be read. "
+                        "Respond with ONLY a single valid JSON object matching the required format — "
+                        "complete every field, no truncation, no commentary."
+                    )
+
             result = GeneratedIssueSpotter(**parsed)
 
             try:

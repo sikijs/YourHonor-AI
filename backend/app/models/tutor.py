@@ -7,6 +7,8 @@ class TutorQuestion(BaseModel):
     hint: str
     expected_concepts: list[str]
     difficulty: int
+    deep_hint: Optional[str] = None
+    answer: Optional[str] = None
 
 
 class TutorStartRequest(BaseModel):
@@ -32,14 +34,18 @@ class GeneratedEvaluation(BaseModel):
     explanation: str
     follow_up_question: Optional[str] = None
     follow_up_hint: Optional[str] = None
+    follow_up_answer: Optional[str] = None
     is_complete: bool
+    missed_concepts: list[str] = []
 
 
 class GeneratedQuestion(BaseModel):
     question: str
     hint: str
+    deep_hint: Optional[str] = None
     expected_concepts: list[str]
     difficulty: int
+    answer: Optional[str] = None
 
 
 class TutorAnswerResponse(BaseModel):
@@ -53,6 +59,9 @@ class TutorAnswerResponse(BaseModel):
     wrong_count: int
     attempts_exceeded: bool = False
     correct_answer_revealed: Optional[str] = None
+    attempts_used: int = 0
+    max_attempts: int = 3
+    missed_concepts: list[str] = []
     disclaimer: str = (
         "This tutoring session is for educational purposes only. "
         "It should not be relied upon as legal advice."

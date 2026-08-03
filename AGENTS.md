@@ -562,6 +562,17 @@ When editing files in `frontend/public/` (e.g. `legal-tech-tools.md`), you must 
 
 This keeps the local and in-container copies in sync.
 
+### Syncing the built frontend → backend/app/static/
+
+The Docker image ships the frontend as a pre-built static bundle inside `backend/app/static/` (the image is built from `backend/`, and `Dockerfile.backend` does NOT build the frontend). After ANY change to `frontend/src/`, run the sync script BEFORE rebuilding the Docker image, or the app will keep serving the stale bundle:
+
+    bash scripts/sync-frontend.sh
+
+This rebuilds the frontend (`npm run build`) and copies `frontend/out/` into `backend/app/static/`, mirroring what `.github/workflows/publish-image.yml` does. Then rebuild and restart the container:
+
+    docker compose -f docker/docker-compose.yml build backend
+    docker compose -f docker/docker-compose.yml up -d backend
+
 ---
 
 

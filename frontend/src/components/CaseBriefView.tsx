@@ -5,6 +5,7 @@ import { printContent, caseBriefHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
+import LoadingStatus from '@/components/LoadingStatus';
 
 export default function CaseBriefView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const {
@@ -83,7 +84,7 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div className="spinner-container"><span className="spinner" /><p>Retrieving case and generating brief... ({elapsed}s)</p></div>
+          <LoadingStatus message="Retrieving case and generating brief" elapsed={elapsed} />
           <div style={{ marginTop: '0.75rem' }}>
             <button className="btn btn-outline" onClick={cancel}>
               Cancel

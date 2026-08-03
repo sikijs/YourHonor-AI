@@ -17,7 +17,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [session, setSession] = useState<TutorStartResponse | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<TutorQuestion | null>(null);
   const [answer, setAnswer] = useState('');
-  const [history, setHistory] = useState<{ question: string; answer: string; evaluation: string; explanation: string }[]>([]);
+  const [history, setHistory] = useState<{ question: string; answer: string; evaluation: string; explanation: string; missed_concepts: string[]; expected_concepts: string[] }[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,8 +25,12 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [loading, setLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [showRubric, setShowRubric] = useState(false);
   const [attemptsExceeded, setAttemptsExceeded] = useState(false);
   const [correctAnswerRevealed, setCorrectAnswerRevealed] = useState<string | null>(null);
+  const [revealQuestion, setRevealQuestion] = useState<string | null>(null);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [maxAttempts, setMaxAttempts] = useState(3);
 
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
@@ -123,6 +127,9 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setIsComplete(false);
       setAttemptsExceeded(false);
       setCorrectAnswerRevealed(null);
+      setRevealQuestion(null);
+      setAttemptsUsed(0);
+      setMaxAttempts(3);
       setAnswer('');
       setReviewMode(false);
       setPracticeMode(false);
@@ -142,19 +149,29 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     onError('');
     cancelRef.current = new AbortController();
     try {
+      const questionAtSubmit = currentQuestion?.question || '';
+      const expectedAtSubmit = currentQuestion?.expected_concepts || [];
       const res = await api.tutor.submitAnswer(answer, cancelRef.current.signal);
       setHistory(prev => [...prev, {
-        question: currentQuestion?.question || '',
+        question: questionAtSubmit,
         answer: answer,
         evaluation: res.evaluation,
         explanation: res.explanation,
+        missed_concepts: res.missed_concepts || [],
+        expected_concepts: expectedAtSubmit,
       }]);
       setCorrectCount(res.correct_count);
       setWrongCount(res.wrong_count);
       setCurrentIndex(res.current_index);
       setAttemptsExceeded(res.attempts_exceeded || false);
+      setAttemptsUsed(res.attempts_used ?? 0);
+      setMaxAttempts(res.max_attempts ?? 3);
       setCorrectAnswerRevealed(res.correct_answer_revealed || null);
+      setRevealQuestion(res.correct_answer_revealed ? questionAtSubmit : null);
       setAnswer('');
+      // After a wrong/partial answer, auto-open the hint so the student gets
+      // guidance for the retry (first attempts stay manual via the button)
+      setShowHint(res.evaluation !== 'correct');
 
       if (res.is_complete) {
         setIsComplete(true);
@@ -187,6 +204,9 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setIsComplete(false);
       setAttemptsExceeded(false);
       setCorrectAnswerRevealed(null);
+      setRevealQuestion(null);
+      setAttemptsUsed(0);
+      setMaxAttempts(3);
       setAnswer('');
       setReviewMode(false);
     } catch (err: any) {
@@ -207,6 +227,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setIsComplete(false);
       setAttemptsExceeded(false);
       setCorrectAnswerRevealed(null);
+      setRevealQuestion(null);
+      setAttemptsUsed(0);
       setAnswer('');
       setTotalQuestions(prev => prev + 1);
     } catch (err: any) {
@@ -440,6 +462,9 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setIsComplete(false);
     setAttemptsExceeded(false);
     setCorrectAnswerRevealed(null);
+    setRevealQuestion(null);
+    setAttemptsUsed(0);
+    setMaxAttempts(3);
     setCorrectCount(0);
     setWrongCount(0);
     setCurrentIndex(0);
@@ -663,7 +688,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           <div className="card" style={{ marginBottom: '1rem' }}>
             <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>Your IRAC Analysis</h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--gray-text)', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
-              IRAC (Issue, Rule, Application, Conclusion) is a structured framework for legal analysis. Identify the legal issue, state the relevant rule, apply it to the facts, and reach a conclusion.
+              IRAC (Issue, Rule, Application, Conclusion) is a structured framework for legal analysis. Identify the legal issue, state the relevant rule, apply it to the facts, and reach a conclusion. Your analysis is graded on exactly these four dimensions: <strong>issue spotting</strong>, <strong>rule accuracy</strong>, <strong>application to the facts</strong>, and <strong>quality of the conclusion</strong>.
             </p>
             <div
               ref={editorRef}
@@ -947,6 +972,22 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
               ? 'Good job! Review the areas you missed to strengthen your understanding.'
               : 'Keep practicing! Review the concepts you found challenging and try again.'}
           </p>
+          {(() => {
+            const toReview = Array.from(new Set(history.flatMap(h => h.missed_concepts || [])));
+            if (toReview.length === 0) return null;
+            return (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffd54f', borderRadius: '6px', textAlign: 'left' }}>
+                <p style={{ margin: '0 0 0.4rem 0', fontSize: '0.85rem', color: '#856404' }}>
+                  <strong>Concepts to review:</strong> you missed these during this session — study them before retrying.
+                </p>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {toReview.map(c => (
+                    <span key={c} style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#ffebee', color: '#c62828', border: '1px solid #ef9a9a' }}>{c}</span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={() => startTopic(session.topic_id)}>Retry</button>
             <button className="btn btn-outline" onClick={resetSession}>Pick Another Topic</button>
@@ -982,9 +1023,11 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
 
       {!practiceMode && !mcMode && correctAnswerRevealed && !reviewMode && (
         <div className="card" style={{ marginBottom: '1rem', background: '#fff3cd', border: '1px solid #ffc107' }}>
-          <h4 style={{ color: '#856404', margin: '0 0 0.5rem 0' }}>Correct Answer</h4>
+          <h4 style={{ color: '#856404', margin: '0 0 0.5rem 0' }}>
+            {attemptsExceeded ? 'Attempts Exhausted - Correct Answer' : 'Correct Answer'}
+          </h4>
           <p style={{ fontSize: '0.85rem', color: '#856404', marginBottom: '0.5rem', fontStyle: 'italic' }}>
-            <strong>Q:</strong> {history[0]?.question}
+            <strong>Q:</strong> {revealQuestion || history[0]?.question}
           </p>
           <p style={{ margin: 0, fontSize: '0.9rem', color: '#856404' }}>{correctAnswerRevealed}</p>
         </div>
@@ -994,9 +1037,21 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div className="card" style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>{currentQuestion.question}</h3>
-            <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              Difficulty: {currentQuestion.difficulty}/5
-            </span>
+            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexShrink: 0 }}>
+              <span
+                style={{
+                  fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px',
+                  background: attemptsUsed >= maxAttempts - 1 ? '#fff3cd' : '#e3f2fd',
+                  color: attemptsUsed >= maxAttempts - 1 ? '#856404' : '#1565c0',
+                  fontWeight: 600, whiteSpace: 'nowrap', border: attemptsUsed >= maxAttempts - 1 ? '1px solid #ffc107' : 'none',
+                }}
+              >
+                Attempt {attemptsUsed + 1} of {maxAttempts}
+              </span>
+              <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                Difficulty: {currentQuestion.difficulty}/5
+              </span>
+            </div>
           </div>
 
           <form onSubmit={submitAnswer} style={{ marginTop: '0.75rem' }}>
@@ -1017,10 +1072,27 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                   {showHint ? 'Hide Hint' : 'Show Hint'}
                 </button>
               )}
+              <button type="button" className="btn btn-outline" onClick={() => setShowRubric(!showRubric)}>
+                {showRubric ? 'Hide Rubric' : 'What makes an answer correct?'}
+              </button>
             </div>
+            {showRubric && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f3e5f5', borderRadius: '6px', border: '1px solid #ce93d8', fontSize: '0.85rem', lineHeight: '1.6' }}>
+                <strong style={{ color: 'var(--purple-secondary)' }}>Grading rubric:</strong>
+                <ul style={{ margin: '0.4rem 0 0 1.2rem', padding: 0 }}>
+                  <li>Explain each expected concept in your own words — define it, and apply it where the question asks. Merely naming a concept is not enough.</li>
+                  {currentQuestion.difficulty <= 2 ? (
+                    <li>At difficulty {currentQuestion.difficulty}, clear sentences that name and explain each concept are sufficient.</li>
+                  ) : (
+                    <li>At difficulty {currentQuestion.difficulty}, also apply the concepts briefly: state the rule, then apply it to a scenario (mini-IRAC structure).</li>
+                  )}
+                  <li>A bare list of keywords is never marked fully correct.</li>
+                </ul>
+              </div>
+            )}
             {showHint && currentQuestion.hint && (
               <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: '#fff8e1', borderRadius: '6px', border: '1px solid #ffe082', fontSize: '0.85rem' }}>
-                <strong>Hint:</strong> {currentQuestion.hint}
+                <strong>Hint:</strong> {attemptsUsed >= 1 && currentQuestion.deep_hint ? currentQuestion.deep_hint : currentQuestion.hint}
               </div>
             )}
           </form>
@@ -1055,18 +1127,24 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             </div>
           ) : (
             <div style={{ padding: '2rem' }}>
-              <h4 style={{ color: 'var(--purple-secondary)', margin: '0 0 0.75rem 0' }}>Expected Concepts:</h4>
-              <ul style={{ textAlign: 'left', margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>
+              <h4 style={{ color: 'var(--purple-secondary)', margin: '0 0 0.5rem 0' }}>Answer</h4>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                {session.questions[reviewIndex].answer || 'No written answer available for this card.'}
+              </p>
+              <h5 style={{ color: 'var(--dark-navy)', margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 600 }}>
+                Key concepts
+              </h5>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
                 {session.questions[reviewIndex].expected_concepts.map((c: string, i: number) => (
-                  <li key={i}>{c}</li>
+                  <span key={i} style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0' }}>{c}</span>
                 ))}
-              </ul>
+              </div>
               {session.questions[reviewIndex].hint && (
-                <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+                <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
                   <strong>Hint:</strong> {session.questions[reviewIndex].hint}
                 </p>
               )}
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
                 <button type="button" className="btn btn-primary" onClick={() => { setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
                   Got it ✓
                 </button>

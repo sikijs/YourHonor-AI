@@ -520,6 +520,8 @@ export interface TutorQuestion {
   hint: string;
   expected_concepts: string[];
   difficulty: number;
+  deep_hint?: string | null;
+  answer?: string | null;
 }
 
 export interface TutorStartResponse {
@@ -543,6 +545,9 @@ export interface TutorAnswerResponse {
   wrong_count: number;
   attempts_exceeded: boolean;
   correct_answer_revealed: string | null;
+  attempts_used: number;
+  max_attempts: number;
+  missed_concepts: string[];
   disclaimer: string;
 }
 

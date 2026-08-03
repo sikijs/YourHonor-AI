@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { User, Document, GlossaryResponse, api } from '@/lib/api';
 import { printContent, glossaryHtml } from '@/lib/print';
 import SourcePanel from '@/components/SourcePanel';
+import LoadingStatus from '@/components/LoadingStatus';
 
 export default function GlossaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [query, setQuery] = useState('');
@@ -11,6 +12,13 @@ export default function GlossaryView({ user, onError }: { user: User; onError: (
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<number | undefined>(undefined);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const interval = setInterval(() => setElapsed(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     api.documents.list().then(setDocuments).catch(() => {});
@@ -70,7 +78,7 @@ export default function GlossaryView({ user, onError }: { user: User; onError: (
 
       {loading && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <div className="spinner-container"><span className="spinner" /><p>Searching legal sources and generating definition...</p></div>
+          <LoadingStatus message="Searching legal sources and generating definition" elapsed={elapsed} />
         </div>
       )}
 

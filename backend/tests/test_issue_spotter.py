@@ -178,3 +178,61 @@ def test_issue_spotter_retrieval_integration(client, auth_headers):
     assert resp.status_code == 200
     data = resp.json()
     assert data["overview"] == "Analysis with RAG context."
+
+
+def test_issue_spotter_retries_on_parse_failure(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "overview": "Recovered after retry.",
+        "issues": [
+            {
+                "issue": "Test issue?",
+                "rule": "Test rule.",
+                "application": "Test application.",
+                "conclusion": "Test conclusion.",
+                "missing_information": "None.",
+                "relevant_authorities": [],
+            },
+        ],
+        "issues_by_area": {"Test": ["Test issue?"]},
+        "practice_tips": "Test.",
+        "sources_consulted": ["Test source"],
+    }
+
+    def make_mock(content: str):
+        mock_llm = MagicMock()
+        mock_llm.choices = [MagicMock(message=MagicMock(content=content))]
+        return mock_llm
+
+    first_response = make_mock('{"overview": "This response is truncated mid-sentence')
+    second_response = make_mock(json.dumps(valid))
+
+    with patch("app.services.issue_spotter.completion", side_effect=[first_response, second_response]) as mock_completion:
+        resp = client.post("/api/legal/issue-spotter", headers=auth_headers, json={
+            "query": "A fact pattern that triggers a truncated response.",
+        })
+    assert resp.status_code == 200
+    assert mock_completion.call_count == 2
+    data = resp.json()
+    assert data["overview"] == "Recovered after retry."
+
+
+def test_issue_spotter_parse_failure_after_retry_returns_friendly_message(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+
+    truncated = '{"overview": "Truncated response'
+
+    def make_mock(content: str):
+        mock_llm = MagicMock()
+        mock_llm.choices = [MagicMock(message=MagicMock(content=content))]
+        return mock_llm
+
+    with patch("app.services.issue_spotter.completion", side_effect=[make_mock(truncated), make_mock(truncated)]) as mock_completion:
+        resp = client.post("/api/legal/issue-spotter", headers=auth_headers, json={
+            "query": "A fact pattern that keeps failing.",
+        })
+    assert resp.status_code == 400
+    assert mock_completion.call_count == 2
+    assert "incomplete" in resp.json()["detail"].lower()

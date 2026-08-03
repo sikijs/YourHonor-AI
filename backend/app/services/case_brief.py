@@ -199,7 +199,7 @@ class CaseBriefService:
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format=GeneratedBrief,
-                max_tokens=4000,
+                max_tokens=8000,
                 temperature=0.3,
                 reasoning_effort="low",
                 drop_params=True,
