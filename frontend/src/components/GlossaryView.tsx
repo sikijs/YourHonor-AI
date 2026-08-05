@@ -6,7 +6,7 @@ import { printContent, glossaryHtml } from '@/lib/print';
 import SourcePanel from '@/components/SourcePanel';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function GlossaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function GlossaryView({ user, onError, onNavigate }: { user: User; onError: (err: string) => void; onNavigate?: (view: string) => void }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<GlossaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -132,6 +132,32 @@ export default function GlossaryView({ user, onError }: { user: User; onError: (
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {result.related_curriculum && (
+            <div className="card" style={{ background: '#f4f0ff', border: '1px solid #d3c4e8' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--purple-secondary)' }}>
+                  Related Flashcard — {result.related_curriculum.topic_name}
+                </h4>
+                <span style={{ fontSize: '0.8rem', color: 'var(--gray-text)', background: '#e9e0f5', padding: '0.15rem 0.55rem', borderRadius: '10px' }}>
+                  Difficulty {result.related_curriculum.difficulty}
+                </span>
+              </div>
+              <p style={{ margin: '0 0 0.5rem', fontWeight: 600, fontSize: '0.95rem' }}>
+                {result.related_curriculum.question}
+              </p>
+              <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#444', lineHeight: 1.5 }}>
+                {result.related_curriculum.answer}
+              </p>
+              <button
+                className="btn btn-outline"
+                style={{ fontSize: '0.85rem', padding: '0.35rem 0.9rem' }}
+                onClick={() => onNavigate?.('tutor')}
+              >
+                Practice in the AI Tutor &rarr;
+              </button>
             </div>
           )}
 

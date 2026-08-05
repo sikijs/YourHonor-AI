@@ -114,6 +114,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   async function startTopic(topicId: string) {
     setLoading(true);
     setShowHint(false);
+    setShowRubric(false);
     onError('');
     try {
       const res = await api.tutor.startSession(topicId);
@@ -169,15 +170,14 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setCorrectAnswerRevealed(res.correct_answer_revealed || null);
       setRevealQuestion(res.correct_answer_revealed ? questionAtSubmit : null);
       setAnswer('');
-      // After a wrong/partial answer, auto-open the hint so the student gets
-      // guidance for the retry (first attempts stay manual via the button)
-      setShowHint(res.evaluation !== 'correct');
 
       if (res.is_complete) {
         setIsComplete(true);
         setCurrentQuestion(null);
       } else if (res.follow_up_question) {
         setCurrentQuestion(res.follow_up_question);
+        setShowHint(false);
+        setShowRubric(false);
       }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -191,6 +191,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   async function handleStartDynamic(topicId: string) {
     setDynamicConfirmTopic(null);
     setLoading(true);
+    setShowHint(false);
+    setShowRubric(false);
     onError('');
     try {
       const res = await api.tutor.startDynamicSession(topicId);
@@ -220,6 +222,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   async function handleContinueLearning() {
     setShowCostConfirm(false);
     setContinueLearningLoading(true);
+    setShowHint(false);
+    setShowRubric(false);
     onError('');
     try {
       const res = await api.tutor.continueLearning();
@@ -470,6 +474,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setCurrentIndex(0);
     setAnswer('');
     setShowHint(false);
+    setShowRubric(false);
     setPracticeMode(false);
     setPracticeFactPattern('');
     setPracticeIssues([]);
@@ -563,28 +568,28 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid #ccc', borderRadius: '6px', overflow: 'hidden' }}>
             <button
               className={`btn ${!reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(false); setPracticeMode(false); setMcMode(false); }}
+              onClick={() => { setReviewMode(false); setPracticeMode(false); setMcMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Quiz
             </button>
             <button
               className={`btn ${mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); }}
+              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               MC Quiz
             </button>
             <button
               className={`btn ${practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setPracticeMode(true); setMcMode(false); }}
+              onClick={() => { setPracticeMode(true); setMcMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Practice
             </button>
             <button
               className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); }}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review

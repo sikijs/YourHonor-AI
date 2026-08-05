@@ -120,14 +120,27 @@ SIGNIFICANCE: Established constitutional abortion rights that stood for nearly 5
 ]
 
 
+def _already_in_qdrant(title: str) -> bool:
+    from app.services.qdrant_store import point_exists, COLLECTION_NAME
+    try:
+        return point_exists(COLLECTION_NAME, {"title": title, "source": "public_domain"})
+    except Exception:
+        return False
+
+
 def seed_local_cases():
     ingestion_service = get_ingestion_service()
     total = len(LOCAL_CASES)
     ingested = 0
+    skipped = 0
 
     logger.info(f"Seeding {total} local landmark cases into Qdrant...")
 
     for i, case in enumerate(LOCAL_CASES, 1):
+        if _already_in_qdrant(case["name"]):
+            skipped += 1
+            logger.info(f"  [{i}/{total}] {case['name']} — already seeded, skipping")
+            continue
         try:
             ingestion_service.ingest_document(
                 content=case["content"],
@@ -140,7 +153,7 @@ def seed_local_cases():
         except Exception as e:
             logger.warning(f"  [{i}/{total}] {case['name']} — error: {e}")
 
-    logger.info(f"Seeding complete: {ingested}/{total} cases ingested")
+    logger.info(f"Seeding complete: {ingested}/{total} cases ingested ({skipped} already present)")
     return ingested
 
 

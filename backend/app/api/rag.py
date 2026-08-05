@@ -59,11 +59,16 @@ def ingest_document(request: IngestRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+ALLOWED_STAT_COLLECTIONS = {"legal_documents", "tutor_curriculum"}
+
+
 @router.get("/collection/stats")
-def get_collection_stats():
+def get_collection_stats(collection: str = "legal_documents"):
+    if collection not in ALLOWED_STAT_COLLECTIONS:
+        raise HTTPException(status_code=400, detail=f"Unknown collection: {collection}")
     try:
         retrieval_service = get_retrieval_service()
-        stats = retrieval_service.get_stats()
+        stats = retrieval_service.get_stats(collection_name=collection)
         return stats
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

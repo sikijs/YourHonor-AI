@@ -154,7 +154,7 @@ export default function Home() {
         )}
 
         {view === 'glossary' && user && (
-          <GlossaryView user={user} onError={setError} />
+          <GlossaryView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
         )}
 
         {view === 'generator' && user && (

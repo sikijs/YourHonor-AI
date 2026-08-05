@@ -37,34 +37,12 @@ LANDMARK_CASES = [
 ]
 
 
-def _is_already_ingested(case_name: str, citation: str) -> bool:
+def _already_in_qdrant(title: str) -> bool:
+    from app.services.qdrant_store import point_exists, COLLECTION_NAME
     try:
-        from app.db import get_db
-        conn = get_db()
-        row = conn.execute(
-            "SELECT qdrant_ingested FROM opinions_cache WHERE query_key = ? OR query_key = ?",
-            (case_name.lower(), citation.lower())
-        ).fetchone()
-        conn.close()
-        if row and row["qdrant_ingested"] == 1:
-            return True
+        return point_exists(COLLECTION_NAME, {"title": title, "source": "courtlistener_ingested"})
     except Exception:
-        pass
-    return False
-
-
-def _mark_ingested(query_key: str):
-    try:
-        from app.db import get_db
-        conn = get_db()
-        conn.execute(
-            "UPDATE opinions_cache SET qdrant_ingested = 1 WHERE query_key = ?",
-            (query_key,)
-        )
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        logger.warning(f"Failed to mark ingested: {e}")
+        return False
 
 
 def _load_seed_data() -> dict:
@@ -151,9 +129,9 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
         name = case["name"]
         citation = case["citation"]
 
-        if _is_already_ingested(name, citation):
+        if _already_in_qdrant(name):
             skipped += 1
-            logger.info(f"  [{i}/{total}] {name} — already ingested, skipping")
+            logger.info(f"  [{i}/{total}] {name} — already in Qdrant, skipping")
             continue
 
         logger.info(f"  [{i}/{total}] {name} — processing...")
@@ -182,7 +160,6 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
                     "cluster_id": result.get("cluster_id"),
                 },
             )
-            _mark_ingested(name.lower())
             ingested += 1
             logger.info(f"  [{i}/{total}] {name} — ✓ ingested ({len(result['opinion_text'])} chars)")
         except Exception as e:

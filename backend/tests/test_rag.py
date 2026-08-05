@@ -25,3 +25,15 @@ def test_rag_collection_stats_returns_200_without_auth(client):
     assert "vectors_count" in data
     assert "points_count" in data
     assert "status" in data
+
+
+def test_rag_collection_stats_accepts_collection_param(client):
+    resp = client.get("/api/rag/collection/stats?collection=tutor_curriculum")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["name"] == "tutor_curriculum"
+
+
+def test_rag_collection_stats_rejects_unknown_collection(client):
+    resp = client.get("/api/rag/collection/stats?collection=unknown")
+    assert resp.status_code == 400

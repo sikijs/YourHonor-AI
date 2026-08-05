@@ -493,6 +493,14 @@ export interface DebateResponse {
   disclaimer: string;
 }
 
+export interface CurriculumCard {
+  question: string;
+  answer: string;
+  topic_id: string;
+  topic_name: string;
+  difficulty: number;
+}
+
 export interface GlossaryResponse {
   term: string;
   definition: string;
@@ -504,6 +512,7 @@ export interface GlossaryResponse {
   practice_tips: string | null;
   citations: string[];
   from_seed: boolean;
+  related_curriculum: CurriculumCard | null;
   sources: SourceDocument[];
   disclaimer: string;
 }

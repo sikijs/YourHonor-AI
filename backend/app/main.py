@@ -52,6 +52,11 @@ def _run_startup_tasks():
         ingest_landmark_cases()
     except Exception as e:
         logger.warning(f"Landmark case pre-ingestion skipped: {e}")
+    try:
+        from app.ingest_tutor_curriculum import seed_tutor_curriculum
+        seed_tutor_curriculum()
+    except Exception as e:
+        logger.warning(f"Tutor curriculum seeding skipped: {e}")
 
 static_path = Path(__file__).parent / "static"
 if static_path.exists():

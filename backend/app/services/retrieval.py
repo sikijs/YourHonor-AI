@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Any
 from typing import Optional
-from .qdrant_store import search_similar, get_collection_stats
+from .qdrant_store import search_similar, get_collection_stats, COLLECTION_NAME
 from connectors.courtlistener import case_brief_from_query
 
 logger = logging.getLogger(__name__)
@@ -36,8 +36,8 @@ class RetrievalService:
     def retrieve_case(self, case_name: str) -> Optional[dict]:
         return case_brief_from_query(case_name)
 
-    def get_stats(self) -> dict:
-        return get_collection_stats()
+    def get_stats(self, collection_name: str = COLLECTION_NAME) -> dict:
+        return get_collection_stats(collection_name)
 
 
 retrieval_service = RetrievalService()

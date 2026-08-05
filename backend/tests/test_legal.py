@@ -11,6 +11,11 @@ def test_glossary_seed_term_returns_without_llm(client, auth_headers):
     assert "sources" in data
     assert len(data["sources"]) == 1
     assert data["sources"][0]["source_type"] == "seed"
+    curriculum = data.get("related_curriculum")
+    assert curriculum is not None
+    assert curriculum["topic_name"]
+    assert curriculum["question"]
+    assert curriculum["answer"]
 
 
 def test_glossary_case_insensitive_match(client, auth_headers):

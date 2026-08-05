@@ -216,7 +216,7 @@ Backend available at http://localhost:8000
 ### RAG
 - POST /api/rag/retrieve          - Retrieve relevant context
 - POST /api/rag/ingest            - Ingest a document
-- GET  /api/rag/collection/stats  - Get collection statistics
+- GET  /api/rag/collection/stats?collection=legal_documents - Get collection statistics (optional whitelisted collection name; default `legal_documents`, also `tutor_curriculum`)
 
 ### Other
 - GET /api/health - Health check
@@ -278,13 +278,24 @@ Backend available at http://localhost:8000
 
 ## RAG Content Inventory
 
-| Source | Documents | Chunks |
-|--------|-----------|--------|
-| Legal Templates | 11 | 34 |
-| US Constitution | 1 | 13 |
-| Supreme Court Cases | 8 | 8 |
-| Landmark Cases (pre-ingested, pending) | 24 | ~120 |
-| **Total** | **~44** | **~175** |
+The **`legal_documents`** Qdrant collection holds uploaded cases + the
+pre-ingested landmark cases. The **`tutor_curriculum`** collection holds the
+AI Tutor's 160 curated Q&A cards (one point per card; use the `topic` payload
+index for filtered retrievals).
+
+| Collection | Content | Points |
+|------------|---------|--------|
+| legal_documents | 24 courtlistener/seed landmark cases (chunked) + user uploads | ~1,200 |
+| tutor_curriculum | 160 AI Tutor flashcards (8 topics × 20) | 160 |
+
+Notes:
+- The legal templates and US Constitution are NOT embedded in Qdrant — they
+  are served directly from `catalog.json` / `templates/` and static files.
+  The old "~44 documents / ~175 chunks" inventory was inaccurate.
+- `legal_documents` self-heals via Qdrant `point_exists` checks at startup
+  (no cache-flag dependence), so restarts never re-bloat the collection.
+- `tutor_curriculum` is rebuilt from source on every boot (delete → recreate →
+  upsert), so it is always in sync with `tutor_data.py`.
 
 **Sample landmark cases ingested:**
 - Criminal Procedure: Gideon v. Wainwright, Miranda v. Arizona

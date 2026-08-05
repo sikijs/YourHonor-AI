@@ -1,10 +1,12 @@
 import os
+import re
 import logging
+from difflib import SequenceMatcher
 from typing import Optional
 import json
 from pathlib import Path
 from litellm import completion
-from app.models.legal_glossary import GeneratedGlossaryEntry, GlossaryResponse
+from app.models.legal_glossary import GeneratedGlossaryEntry, GlossaryResponse, CurriculumCard
 from app.models.source import SourceDocument, from_rag_results, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
@@ -35,7 +37,8 @@ Guidelines:
 - Do not fabricate citations — use only what is provided or well-established legal authorities
 - Write in clear, professional language appropriate for law students
 - Definitions should be accurate and reflect consensus legal understanding
-- Do not include AI disclaimers or self-referential statements"""
+- Do not include AI disclaimers or self-referential statements
+- Respond with ONLY a valid JSON object matching the schema. No markdown, no code fences, no preamble."""
 
 
 def _build_user_prompt(query: str, context_text: str) -> str:
@@ -46,7 +49,9 @@ Legal Term: {query}
 Source Material:
 {context_text}
 
-Generate a comprehensive glossary entry for this legal term."""
+Generate a comprehensive glossary entry for this legal term.
+
+Respond with ONLY a valid JSON object. No markdown, no code fences, no explanation."""
 
 
 _SEED_DATA: list[dict] | None = None
@@ -96,6 +101,96 @@ class GlossaryService:
         for term, entry in self._seed_index.items():
             if key in term or term in key:
                 return entry
+        return self._fuzzy_lookup_seed(key)
+
+    def _fuzzy_lookup_seed(self, key: str, cutoff: float = 0.82) -> Optional[dict]:
+        """Best-effort typo tolerance for curated glossary terms.
+
+        A one- or two-character typo (e.g. "habeus corpus") would otherwise
+        bypass the curated seed and fall into the slow LLM path. Sequence
+        matching is stdlib-only and the curated index is small, so this stays
+        cheap. Short queries are skipped to avoid spurious matches.
+        """
+        if len(key) < 4:
+            return None
+        best_term = None
+        best_ratio = 0.0
+        for term in self._seed_index:
+            ratio = SequenceMatcher(None, key, term).ratio()
+            if ratio > best_ratio:
+                best_ratio = ratio
+                best_term = term
+        if best_term and best_ratio >= cutoff:
+            logger.info(f"Fuzzy glossary match: '{key}' -> '{best_term}' (ratio {best_ratio:.2f})")
+            return self._seed_index[best_term]
+        return None
+
+    _keyword_stopwords = {
+        "what", "is", "the", "and", "an", "a", "of", "for", "to", "in",
+        "that", "which", "when", "how", "does", "do", "are", "as", "it",
+        "on", "with", "under", "legal", "law", "this",
+    }
+
+    def _find_curriculum_card(self, query: str, entry: Optional[dict] = None) -> Optional[CurriculumCard]:
+        """Return the single best matching AI Tutor curriculum card, or None.
+
+        Deterministic in-memory keyword scan over TOPICS — no LLM call, no
+        Qdrant read. Scoring favors the user's own query term first (question
+        and expected-concept hits outrank answer-only mentions); related-term
+        and definition keywords are used only as a fallback so verbose seed
+        text cannot drown out an exact question match.
+        """
+        from app.services.tutor_data import TOPICS
+
+        def _words(text: str) -> set:
+            return set(re.findall(r"[a-z][a-z\-]{2,}", text.lower()))
+
+        query_keywords = _words(query) - self._keyword_stopwords
+        if not query_keywords:
+            return None
+
+        def _score(card, keywords) -> int:
+            question = card.question.lower()
+            concepts = " ".join(card.expected_concepts).lower()
+            answer = (card.answer or "").lower()
+            q_hits = sum(1 for kw in keywords if kw in question)
+            c_hits = sum(1 for kw in keywords if kw in concepts)
+            a_hits = sum(1 for kw in keywords if kw in answer)
+            return q_hits * 3 + c_hits * 3 + a_hits
+
+        def _best_match(keywords):
+            best = None
+            best_score = 0
+            for topic_id, topic in TOPICS.items():
+                for card in topic["questions"]:
+                    current = _score(card, keywords)
+                    if current > best_score:
+                        best_score = current
+                        best = (topic_id, topic["name"], card)
+            return best, best_score
+
+        best, best_score = _best_match(query_keywords)
+        if not (best and best_score >= 3):
+            fallback_keywords = set(query_keywords)
+            if entry:
+                if entry.get("term"):
+                    fallback_keywords |= _words(str(entry["term"]))
+                fallback_keywords |= _words(" ".join(str(t) for t in entry.get("related_terms", [])[:4]))
+                definition = entry.get("definition")
+                if definition:
+                    fallback_keywords |= _words(str(definition)[:400])
+            fallback_keywords -= self._keyword_stopwords
+            best, best_score = _best_match(fallback_keywords)
+
+        if best and best_score >= 3:
+            topic_id, topic_name, card = best
+            return CurriculumCard(
+                question=card.question,
+                answer=card.answer,
+                topic_id=topic_id,
+                topic_name=topic_name,
+                difficulty=card.difficulty,
+            )
         return None
 
     def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
@@ -144,6 +239,7 @@ class GlossaryService:
                 citations=seed_entry.get("citations", []),
                 from_seed=True,
                 sources=seed_sources,
+                related_curriculum=self._find_curriculum_card(query, seed_entry),
             )
 
         user_content = None
@@ -169,44 +265,55 @@ class GlossaryService:
 
         user_prompt = _build_user_prompt(query, context_text)
 
-        try:
-            response = completion(
-                model=MODEL,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                response_format=GeneratedGlossaryEntry,
-                max_tokens=8000,
-                temperature=0.3,
-                reasoning_effort="low",
-                drop_params=True,
-                timeout=180,
-            )
+        entry = None
+        last_error: Optional[Exception] = None
+        for attempt in range(2):
+            try:
+                response = completion(
+                    model=MODEL,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format=GeneratedGlossaryEntry,
+                    max_tokens=3000,
+                    temperature=0.3,
+                    reasoning_effort="low",
+                    drop_params=True,
+                    timeout=90,
+                )
 
-            raw = response.choices[0].message.content
-            if raw is None:
-                raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
-            parsed = parse_llm_json(raw)
-            entry = GeneratedGlossaryEntry(**parsed)
+                raw = response.choices[0].message.content
+                if raw is None:
+                    raw = getattr(response.choices[0].message, "reasoning_content", None) or ""
+                parsed = parse_llm_json(raw)
+                entry = GeneratedGlossaryEntry(**parsed)
+                break
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Glossary lookup attempt {attempt + 1} failed: {e}")
 
-            return GlossaryResponse(
-                term=entry.term,
-                definition=entry.definition,
-                etymology=entry.etymology,
-                jurisdiction=entry.jurisdiction,
-                usage_example=entry.usage_example,
-                related_terms=entry.related_terms,
-                also_known_as=entry.also_known_as,
-                practice_tips=entry.practice_tips,
-                citations=entry.citations,
-                from_seed=False,
-                sources=doc_sources,
-            )
+        if entry is None:
+            raise ValueError(f"Failed to look up term: {friendly_llm_error(last_error)}")
 
-        except Exception as e:
-            logger.error(f"Glossary lookup failed: {e}")
-            raise ValueError(f"Failed to look up term: {friendly_llm_error(e)}")
+        return GlossaryResponse(
+            term=entry.term,
+            definition=entry.definition,
+            etymology=entry.etymology,
+            jurisdiction=entry.jurisdiction,
+            usage_example=entry.usage_example,
+            related_terms=entry.related_terms,
+            also_known_as=entry.also_known_as,
+            practice_tips=entry.practice_tips,
+            citations=entry.citations,
+            from_seed=False,
+            sources=doc_sources,
+            related_curriculum=self._find_curriculum_card(query, {
+                "term": entry.term,
+                "definition": entry.definition,
+                "related_terms": entry.related_terms,
+            }),
+        )
 
 
 glossary_service = GlossaryService()
