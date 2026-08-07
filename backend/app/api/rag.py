@@ -8,11 +8,15 @@ from app.services.ingestion import get_ingestion_service
 router = APIRouter(prefix="/api/rag", tags=["rag"])
 
 
+ALLOWED_RETRIEVE_COLLECTIONS = {"legal_documents", "tutor_curriculum"}
+
+
 class RetrievalRequest(BaseModel):
     query: str
     top_k: Optional[int] = 5
     min_score: Optional[float] = 0.5
     filters: Optional[dict] = None
+    collection: Optional[str] = None
 
 
 class IngestRequest(BaseModel):
@@ -24,6 +28,9 @@ class IngestRequest(BaseModel):
 
 @router.post("/retrieve")
 def retrieve_documents(request: RetrievalRequest):
+    collection = request.collection or "legal_documents"
+    if collection not in ALLOWED_RETRIEVE_COLLECTIONS:
+        raise HTTPException(status_code=400, detail=f"Unknown collection: {collection}")
     try:
         retrieval_service = get_retrieval_service()
         results = retrieval_service.retrieve(
@@ -31,9 +38,11 @@ def retrieve_documents(request: RetrievalRequest):
             top_k=request.top_k,
             min_score=request.min_score,
             filters=request.filters,
+            collection_name=collection,
         )
         return {
             "query": request.query,
+            "collection": collection,
             "results": results,
             "count": len(results),
         }

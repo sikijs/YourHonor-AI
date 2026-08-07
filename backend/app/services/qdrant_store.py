@@ -193,9 +193,13 @@ def search_similar(
             query_filter=query_filter,
         )
 
+    # Curriculum points (tutor_curriculum) store their text only as the
+    # embedding surface, never in the payload — so "content" falls back to
+    # the payload question. The full payload is passed through for callers
+    # that need structured fields (topic, difficulty, answer, ...).
     return [
         {
-            "content": result.payload["content"],
+            "content": result.payload.get("content") or result.payload.get("question", "") or "",
             "score": result.score,
             "title": result.payload.get("title", "Unknown"),
             "source": result.payload.get("source", "unknown"),
@@ -205,6 +209,7 @@ def search_similar(
             "citation": result.payload.get("citation"),
             "court": result.payload.get("court"),
             "date_filed": result.payload.get("date_filed"),
+            "payload": result.payload,
         }
         for result in results.points
     ]

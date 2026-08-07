@@ -1,9 +1,13 @@
 import logging
+import time
 
 from app.services.tutor_data import TOPICS
 from app.services.qdrant_store import TUTOR_COLLECTION_NAME, add_points, delete_collection
 
 logger = logging.getLogger(__name__)
+
+SEED_RETRY_ATTEMPTS = 2
+SEED_RETRY_BACKOFF_SECONDS = 5
 
 # Cards carry static payload values (not a list of sub-dicts), so they can be
 # placed straight into a Qdrant payload. This tag distinguishes curriculum
@@ -57,14 +61,21 @@ def seed_tutor_curriculum() -> int:
     existence checks.
     """
     points = build_curriculum_points()
-    try:
-        delete_collection(TUTOR_COLLECTION_NAME)
-        add_points(points, collection_name=TUTOR_COLLECTION_NAME)
-        logger.info(f"Tutor curriculum seeded: {len(points)} cards into {TUTOR_COLLECTION_NAME}")
-        return len(points)
-    except Exception as e:
-        logger.warning(f"Tutor curriculum seeding failed: {e}")
-        return 0
+    for attempt in range(1, SEED_RETRY_ATTEMPTS + 1):
+        try:
+            delete_collection(TUTOR_COLLECTION_NAME)
+            add_points(points, collection_name=TUTOR_COLLECTION_NAME)
+            logger.info(f"Tutor curriculum seeded: {len(points)} cards into {TUTOR_COLLECTION_NAME}")
+            return len(points)
+        except Exception as e:
+            logger.warning(
+                f"Tutor curriculum seeding failed (attempt {attempt}/{SEED_RETRY_ATTEMPTS}): {e}",
+                exc_info=True,
+            )
+            if attempt < SEED_RETRY_ATTEMPTS:
+                time.sleep(SEED_RETRY_BACKOFF_SECONDS)
+    logger.error("Tutor curriculum seeding failed after all retries")
+    return 0
 
 
 if __name__ == "__main__":

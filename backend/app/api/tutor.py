@@ -7,6 +7,7 @@ from app.models.tutor import (
     HypotheticalEvaluateRequest, HypotheticalEvaluateResponse,
     MCStartRequest, MCStartResponse, MCAnswerRequest, MCAnswerResponse,
 )
+from app.models.legal_glossary import CurriculumCard
 from app.services.auth import decode_token
 from app.services.tutor import get_tutor_service
 from pydantic import BaseModel
@@ -18,6 +19,31 @@ class ContinueLearningResponse(BaseModel):
         "This will use an AI API call (approx. $0.02-0.04). "
         "The question is generated dynamically and is for educational purposes only."
     )
+
+
+class RelatedConceptsRequest(BaseModel):
+    question: str
+    exclude_topic: Optional[str] = None
+    top_k: int = 4
+
+
+class RelatedConceptsResponse(BaseModel):
+    cards: list[CurriculumCard]
+    disclaimer: str = (
+        "Related cards are surfaced from the AI Tutor curriculum for "
+        "educational purposes only. They should not be relied upon as legal advice."
+    )
+
+
+class ReviewMarkRequest(BaseModel):
+    question: str
+    topic_id: str
+    got_it: bool
+
+
+class ReviewQueueResponse(BaseModel):
+    cards: list[CurriculumCard]
+    total: int
 
 router = APIRouter(prefix="/api/tutor", tags=["tutor"])
 
@@ -153,5 +179,44 @@ def submit_mc_answer(
         return service.submit_mc_answer(request.selected_index, user_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/related", response_model=RelatedConceptsResponse)
+def related_concepts(
+    request: RelatedConceptsRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        cards = service.get_related_concepts(
+            request.question, request.exclude_topic, request.top_k
+        )
+        return RelatedConceptsResponse(cards=cards)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/review/mark")
+def mark_review(
+    request: ReviewMarkRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        return service.mark_review(user_id, request.question, request.topic_id, request.got_it)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/review/queue", response_model=ReviewQueueResponse)
+def review_queue(
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_tutor_service()
+        cards = service.get_review_queue(user_id)
+        return ReviewQueueResponse(cards=cards, total=len(cards))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")

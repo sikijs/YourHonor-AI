@@ -42,6 +42,15 @@ def pre_ingest_landmark_cases():
 def _run_startup_tasks():
     import logging
     logger = logging.getLogger(__name__)
+    # Tutor curriculum first: it is small (160 cards) and makes the AI
+    # Tutor usable as soon as the embedding model finishes loading, instead
+    # of waiting behind landmark-case ingestion (24 cases with a 12s delay
+    # between them on a cold boot).
+    try:
+        from app.ingest_tutor_curriculum import seed_tutor_curriculum
+        seed_tutor_curriculum()
+    except Exception as e:
+        logger.warning(f"Tutor curriculum seeding skipped: {e}")
     try:
         from app.seed_local_cases import seed_local_cases
         seed_local_cases()
@@ -52,11 +61,6 @@ def _run_startup_tasks():
         ingest_landmark_cases()
     except Exception as e:
         logger.warning(f"Landmark case pre-ingestion skipped: {e}")
-    try:
-        from app.ingest_tutor_curriculum import seed_tutor_curriculum
-        seed_tutor_curriculum()
-    except Exception as e:
-        logger.warning(f"Tutor curriculum seeding skipped: {e}")
 
 static_path = Path(__file__).parent / "static"
 if static_path.exists():

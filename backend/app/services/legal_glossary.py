@@ -8,7 +8,13 @@ from pathlib import Path
 from litellm import completion
 from app.models.legal_glossary import GeneratedGlossaryEntry, GlossaryResponse, CurriculumCard
 from app.models.source import SourceDocument, from_rag_results, from_user_upload
-from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
+from app.services.retrieval import (
+    get_retrieval_service,
+    deduplicate_rag_results,
+    parse_llm_json,
+    retrieve_curriculum,
+    curriculum_card_from_payload,
+)
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
 
@@ -193,6 +199,45 @@ class GlossaryService:
             )
         return None
 
+    def _retrieve_curriculum_cards(
+        self,
+        query: str,
+        top_k: int = 3,
+        min_score: float = 0.25,
+        entry: Optional[dict] = None,
+    ) -> list[CurriculumCard]:
+        """Semantic search for related AI Tutor cards via Qdrant.
+
+        Returns up to ``top_k`` cards. The threshold is intentionally low
+        (0.25): curriculum-card scores cluster in the 0.3-0.6 range, and a
+        stricter cutoff leaves a single card (or none, forcing the
+        single-card keyword fallback). When Qdrant is empty or unavailable,
+        falls back to the deterministic in-memory keyword scan (single best
+        card), so the related-flashcard badge never blocks a glossary lookup.
+        """
+        cards: list[CurriculumCard] = []
+        try:
+            results = retrieve_curriculum(query=query, top_k=top_k, min_score=min_score)
+            seen = set()
+            for r in results:
+                card = curriculum_card_from_payload(r.get("payload"))
+                if card is None or card["question"] in seen:
+                    continue
+                seen.add(card["question"])
+                cards.append(CurriculumCard(**card))
+                if len(cards) >= top_k:
+                    break
+        except Exception as e:
+            logger.warning(f"Curriculum card retrieval failed: {e}")
+
+        if cards:
+            return cards
+
+        fallback = self._find_curriculum_card(query, entry)
+        if fallback:
+            return [fallback]
+        return []
+
     def _retrieve_from_rag(self, query: str) -> tuple[Optional[dict], list[SourceDocument]]:
         results = self.retrieval_service.retrieve(
             query=query, top_k=10, min_score=0.5
@@ -239,7 +284,7 @@ class GlossaryService:
                 citations=seed_entry.get("citations", []),
                 from_seed=True,
                 sources=seed_sources,
-                related_curriculum=self._find_curriculum_card(query, seed_entry),
+                related_curriculum=self._retrieve_curriculum_cards(query, entry=seed_entry),
             )
 
         user_content = None
@@ -308,7 +353,7 @@ class GlossaryService:
             citations=entry.citations,
             from_seed=False,
             sources=doc_sources,
-            related_curriculum=self._find_curriculum_card(query, {
+            related_curriculum=self._retrieve_curriculum_cards(query, entry={
                 "term": entry.term,
                 "definition": entry.definition,
                 "related_terms": entry.related_terms,

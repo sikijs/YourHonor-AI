@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Any
 from typing import Optional
-from .qdrant_store import search_similar, get_collection_stats, COLLECTION_NAME
+from .qdrant_store import search_similar, get_collection_stats, COLLECTION_NAME, TUTOR_COLLECTION_NAME
 from connectors.courtlistener import case_brief_from_query
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,7 @@ class RetrievalService:
         top_k: Optional[int] = None,
         min_score: Optional[float] = None,
         filters: Optional[dict] = None,
+        collection_name: str = COLLECTION_NAME,
     ) -> list[dict]:
         k = top_k if top_k is not None else self.top_k
         threshold = min_score if min_score is not None else self.min_score
@@ -29,6 +30,7 @@ class RetrievalService:
             top_k=k,
             min_score=threshold,
             filters=filters,
+            collection_name=collection_name,
         )
         
         return results
@@ -45,6 +47,54 @@ retrieval_service = RetrievalService()
 
 def get_retrieval_service() -> RetrievalService:
     return retrieval_service
+
+
+def retrieve_curriculum(
+    query: str,
+    top_k: int = 3,
+    min_score: float = 0.45,
+    topic: Optional[str] = None,
+) -> list[dict]:
+    """Semantic search over the AI Tutor curriculum collection.
+
+    Returns search_similar-style dicts where ``content`` is the card's
+    question (curriculum points have no payload ``content`` key) and the
+    full ``payload`` carries the structured card fields (topic, difficulty,
+    answer, expected_concepts, ...). A ``topic`` filter narrows results to
+    one subject (e.g. ``"contracts"``). Empty results are returned as ``[]``
+    so callers can fall back gracefully when Qdrant is unavailable.
+    """
+    filters = {"topic": topic} if topic else None
+    results = search_similar(
+        query=query,
+        top_k=top_k,
+        min_score=min_score,
+        filters=filters,
+        collection_name=TUTOR_COLLECTION_NAME,
+    )
+    return [r for r in results if r.get("content")]
+
+
+def curriculum_card_from_payload(payload: Optional[dict]) -> Optional[dict]:
+    """Convert a tutor_curriculum payload into a CurriculumCard-shaped dict.
+
+    Returns None when the payload has no question (defensive: malformed or
+    non-curriculum points). Kept model-free so both the glossary and tutor
+    services can build their own Pydantic cards from one shared converter.
+    """
+    if not payload:
+        return None
+    question = payload.get("question")
+    if not question:
+        return None
+    return {
+        "question": question,
+        "answer": payload.get("answer") or "",
+        "topic_id": payload.get("topic") or "",
+        "topic_name": payload.get("topic_name") or "",
+        "difficulty": payload.get("difficulty") or 1,
+        "expected_concepts": payload.get("expected_concepts") or [],
+    }
 
 
 def deduplicate_rag_results(results: list[dict], min_content_length: int = 200) -> list[dict]:

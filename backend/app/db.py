@@ -62,6 +62,19 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS review_progress (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            topic_id TEXT NOT NULL,
+            question TEXT NOT NULL,
+            got_it INTEGER NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (user_id, topic_id, question),
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    """)
+
     try:
         cursor.execute("ALTER TABLE opinions_cache ADD COLUMN qdrant_ingested INTEGER DEFAULT 0")
     except Exception:

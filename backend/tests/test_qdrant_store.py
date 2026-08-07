@@ -4,17 +4,36 @@ conftest.py patches `app.services.qdrant_store.search_similar` and
 `get_qdrant_client` at import time so the rest of the suite never touches a
 real Qdrant. To test the REAL store functions here, we reload the module
 (the patch object is replaced by the fresh function objects) and then patch
-`get_qdrant_client` with a fake client per test. No other test module
-imports qdrant_store names directly, so reloading is safe for the session.
+`get_qdrant_client` with a fake client per test. The reload also clobbers
+conftest's suite-level mocks, so a module-scoped teardown re-applies them
+after this module finishes to keep the remaining test modules isolated
+from a real Qdrant. No other test module imports qdrant_store names
+directly, so reloading is safe for the session.
 """
 import importlib
 from unittest.mock import MagicMock, patch
 
+import pytest
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 from app.services import qdrant_store as store
 
 importlib.reload(store)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_conftest_mocks():
+    """Re-apply the suite-level Qdrant mocks after this module's tests.
+
+    The reload above replaced the module's attributes, silently discarding
+    the mocks conftest installed at import time. Tests collected later
+    would otherwise fall through to real Qdrant connections, so the mocks
+    are restored in this module's teardown (after the real-function tests
+    here have already run).
+    """
+    yield
+    store.search_similar = MagicMock(return_value=[])
+    store.get_qdrant_client = MagicMock(return_value=MagicMock())
 
 
 def _mock_client():
@@ -89,6 +108,50 @@ def test_search_similar_fallback_when_query_points_raises():
     assert client.query_points.call_count == 2
     for call in client.query_points.call_args_list:
         assert call.kwargs["query_filter"] is not None
+
+
+def test_search_similar_tolerates_curriculum_payloads():
+    """Curriculum points store text only as the embedding surface, never in
+    the payload — content must fall back to the payload question, and the
+    full payload must pass through for structured card fields."""
+    client = _mock_client()
+    point = MagicMock()
+    point.score = 0.82
+    point.payload = {
+        "kind": "curriculum",
+        "topic": "contracts",
+        "topic_name": "Contracts",
+        "question": "What is consideration?",
+        "answer": "A bargained-for exchange.",
+        "expected_concepts": ["consideration", "legal detriment"],
+        "difficulty": 2,
+    }
+    client.query_points.return_value = MagicMock(points=[point])
+    with patch.object(store, "get_qdrant_client", return_value=client):
+        results = store.search_similar("consideration", collection_name=store.TUTOR_COLLECTION_NAME)
+
+    assert len(results) == 1
+    result = results[0]
+    assert result["content"] == "What is consideration?"
+    assert result["score"] == 0.82
+    assert result["payload"]["topic"] == "contracts"
+    assert result["payload"]["difficulty"] == 2
+    assert result["payload"]["expected_concepts"] == ["consideration", "legal detriment"]
+
+
+def test_search_similar_keeps_legal_document_content_key():
+    """Legal document points DO carry a payload content key; it must win
+    over the question fallback so existing consumers are unaffected."""
+    client = _mock_client()
+    point = MagicMock()
+    point.score = 0.75
+    point.payload = {"content": "Chunk of an opinion.", "title": "Some Case"}
+    client.query_points.return_value = MagicMock(points=[point])
+    with patch.object(store, "get_qdrant_client", return_value=client):
+        results = store.search_similar("test")
+
+    assert results[0]["content"] == "Chunk of an opinion."
+    assert results[0]["title"] == "Some Case"
 
 
 # ---------------------------------------------------------------- add_points

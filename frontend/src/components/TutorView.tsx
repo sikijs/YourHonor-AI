@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, MCQuestion, MCAnswerResponse, api } from '@/lib/api';
+import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, MCQuestion, MCAnswerResponse, CurriculumCard, api } from '@/lib/api';
 
 const IRAC_TEMPLATE = '<span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Issue:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Rule:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Application:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Conclusion:</span><br><br><br><br>';
 
@@ -72,6 +72,11 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [mcTotalQuestions, setMcTotalQuestions] = useState(5);
   const [mcHistory, setMcHistory] = useState<{question: string; options: string[]; selected: number; correct: number; optionExplanations: string[]; questionExplanation: string}[]>([]);
 
+  const [reviewRelatedCards, setReviewRelatedCards] = useState<Record<number, CurriculumCard[]>>({});
+  const [quizRelated, setQuizRelated] = useState<CurriculumCard[] | null>(null);
+  const [quizRelatedLoading, setQuizRelatedLoading] = useState(false);
+  const [reviewQueueCards, setReviewQueueCards] = useState<CurriculumCard[] | null>(null);
+
   const cancelRef = useRef<AbortController | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -111,6 +116,39 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     }
   }, [practiceEditorKey]);
 
+  useEffect(() => {
+    if (!reviewMode || !reviewFlipped || !session) return;
+    const card = session.questions[reviewIndex];
+    if (!card || reviewRelatedCards[reviewIndex]) return;
+    let cancelled = false;
+    api.tutor.relatedConcepts(card.question, session.topic_id, 3)
+      .then(res => { if (!cancelled) setReviewRelatedCards(prev => ({ ...prev, [reviewIndex]: res.cards })); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [reviewMode, reviewFlipped, reviewIndex, session, reviewRelatedCards]);
+
+  useEffect(() => {
+    if (reviewMode && reviewComplete) {
+      api.tutor.reviewQueue().then(res => setReviewQueueCards(res.cards)).catch(() => {});
+    }
+  }, [reviewMode, reviewComplete]);
+
+  function markCard(gotIt: boolean) {
+    if (!session) return;
+    const card = session.questions[reviewIndex];
+    if (!card) return;
+    api.tutor.markReview(card.question, session.topic_id, gotIt).catch(() => {});
+  }
+
+  function loadQuizRelated() {
+    if (!currentQuestion || quizRelatedLoading) return;
+    setQuizRelatedLoading(true);
+    api.tutor.relatedConcepts(currentQuestion.question, session?.topic_id, 3)
+      .then(res => setQuizRelated(res.cards))
+      .catch(() => setQuizRelated([]))
+      .finally(() => setQuizRelatedLoading(false));
+  }
+
   async function startTopic(topicId: string) {
     setLoading(true);
     setShowHint(false);
@@ -133,6 +171,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setMaxAttempts(3);
       setAnswer('');
       setReviewMode(false);
+      setQuizRelated(null);
       setPracticeMode(false);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -176,6 +215,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         setCurrentQuestion(null);
       } else if (res.follow_up_question) {
         setCurrentQuestion(res.follow_up_question);
+        setQuizRelated(null);
         setShowHint(false);
         setShowRubric(false);
       }
@@ -211,6 +251,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setMaxAttempts(3);
       setAnswer('');
       setReviewMode(false);
+      setQuizRelated(null);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       onError(err.message);
@@ -235,6 +276,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       setAttemptsUsed(0);
       setAnswer('');
       setTotalQuestions(prev => prev + 1);
+      setQuizRelated(null);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       onError(err.message);
@@ -589,7 +631,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             </button>
             <button
               className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review
@@ -1101,6 +1143,40 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
               </div>
             )}
           </form>
+          {(quizRelated === null || quizRelated.length === 0) && !quizRelatedLoading && (
+            <button type="button" className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem', marginTop: '0.5rem' }} onClick={loadQuizRelated}>
+              Show related concepts
+            </button>
+          )}
+          {quizRelatedLoading && (
+            <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--gray-text)' }}>Loading related concepts...</p>
+          )}
+          {quizRelated !== null && quizRelated.length > 0 && (
+            <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#f4f0ff', border: '1px solid #d3c4e8', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, color: 'var(--purple-secondary)' }}>
+                  Related concepts from other subjects
+                </p>
+                <button type="button" className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem' }} onClick={() => setQuizRelated(null)}>
+                  Hide
+                </button>
+              </div>
+              {quizRelated.map((c, i) => (
+                <div
+                  key={i}
+                  style={{
+                    marginBottom: i < quizRelated.length - 1 ? '0.6rem' : 0,
+                    paddingBottom: i < quizRelated.length - 1 ? '0.6rem' : 0,
+                    borderBottom: i < quizRelated.length - 1 ? '1px solid #e6def2' : 'none',
+                  }}
+                >
+                  <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{c.question}</p>
+                  <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.8rem', color: '#444', lineHeight: 1.5 }}>{c.answer}</p>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1111,6 +1187,20 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
             Ready to test yourself? Switch to Quiz mode to answer questions and get evaluated.
           </p>
+          {reviewQueueCards !== null && reviewQueueCards.length > 0 && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', textAlign: 'left' }}>
+              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#856404', fontWeight: 600 }}>
+                Cards to restudy ({reviewQueueCards.length}) — from this and past review sessions
+              </p>
+              {reviewQueueCards.map((c, i) => (
+                <details key={i} style={{ marginBottom: '0.4rem' }}>
+                  <summary style={{ cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>{c.question}</summary>
+                  <p style={{ fontSize: '0.8rem', color: '#444', marginTop: '0.3rem', marginBottom: '0.2rem' }}>{c.answer}</p>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                </details>
+              ))}
+            </div>
+          )}
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
             <button className="btn btn-primary" onClick={() => { setReviewMode(false); }}>Switch to Quiz Mode</button>
             <button className="btn btn-outline" onClick={resetSession}>Pick Another Topic</button>
@@ -1149,11 +1239,32 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                   <strong>Hint:</strong> {session.questions[reviewIndex].hint}
                 </p>
               )}
+              {(reviewRelatedCards[reviewIndex]?.length ?? 0) > 0 && (
+                <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f4f0ff', border: '1px solid #d3c4e8', borderRadius: '6px', textAlign: 'left' }}>
+                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', fontWeight: 600, color: 'var(--purple-secondary)' }}>
+                    Related concepts from other subjects
+                  </p>
+                  {reviewRelatedCards[reviewIndex].map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        marginBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '0.6rem' : 0,
+                        paddingBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '0.6rem' : 0,
+                        borderBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '1px solid #e6def2' : 'none',
+                      }}
+                    >
+                      <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{c.question}</p>
+                      <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.8rem', color: '#444', lineHeight: 1.5 }}>{c.answer}</p>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
-                <button type="button" className="btn btn-primary" onClick={() => { setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
+                <button type="button" className="btn btn-primary" onClick={() => { markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
                   Got it ✓
                 </button>
-                <button type="button" className="btn btn-outline" onClick={() => { setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
+                <button type="button" className="btn btn-outline" onClick={() => { markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
                   Need to Study ✗
                 </button>
               </div>

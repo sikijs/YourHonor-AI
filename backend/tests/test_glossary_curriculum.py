@@ -47,6 +47,66 @@ def test_entry_keywords_are_used_as_fallback_when_query_has_no_match():
     assert card.topic_id == "torts"
 
 
+# ---------------------------------------------------- related curriculum cards
+
+def _curriculum_result(question, topic, topic_name, difficulty=2, answer="An educative answer."):
+    return {
+        "content": f"Question: {question}",
+        "payload": {
+            "kind": "curriculum",
+            "topic": topic,
+            "topic_name": topic_name,
+            "question": question,
+            "answer": answer,
+            "expected_concepts": ["concept"],
+            "difficulty": difficulty,
+        },
+    }
+
+
+def test_related_curriculum_returns_multiple_cards_from_qdrant():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_curriculum", return_value=[
+        _curriculum_result("What is consideration?", "contracts", "Contracts"),
+        _curriculum_result("What is a bailment?", "property", "Property"),
+    ]):
+        cards = svc._retrieve_curriculum_cards("consideration")
+
+    assert len(cards) == 2
+    assert cards[0].topic_id == "contracts"
+    assert cards[0].difficulty == 2
+    assert cards[1].topic_name == "Property"
+    assert cards[0].expected_concepts == ["concept"]
+
+
+def test_related_curriculum_deduplicates_repeated_questions():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_curriculum", return_value=[
+        _curriculum_result("Same question?", "contracts", "Contracts"),
+        _curriculum_result("Same question?", "torts", "Torts"),
+    ]):
+        cards = svc._retrieve_curriculum_cards("anything")
+
+    assert len(cards) == 1
+
+
+def test_related_curriculum_falls_back_to_keyword_scan_when_qdrant_empty():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_curriculum", return_value=[]):
+        cards = svc._retrieve_curriculum_cards("consideration")
+
+    assert len(cards) == 1
+    assert cards[0].topic_id == "contracts"
+
+
+def test_related_curriculum_empty_when_both_paths_fail():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_curriculum", return_value=[]):
+        cards = svc._retrieve_curriculum_cards("xylophone")
+
+    assert cards == []
+
+
 # --------------------------------------------------------- fuzzy seed matching
 
 def test_fuzzy_seed_match_tolerates_typo():
@@ -95,3 +155,34 @@ def test_glossary_raises_friendly_error_after_both_attempts_fail():
     with patch("app.services.legal_glossary.completion", return_value=bad_response):
         with pytest.raises(ValueError, match="Failed to look up term"):
             svc.lookup("random term")
+
+
+def test_seed_lookup_returns_list_of_related_curriculum_cards():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_curriculum", return_value=[
+        _curriculum_result("What is consideration?", "contracts", "Contracts"),
+    ]):
+        result = svc.lookup("consideration")
+
+    assert result.from_seed is True
+    assert isinstance(result.related_curriculum, list)
+    assert len(result.related_curriculum) == 1
+    assert result.related_curriculum[0].topic_id == "contracts"
+
+
+def test_llm_path_tolerates_empty_qdrant_cards():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    with patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)), \
+         patch("app.services.legal_glossary.retrieve_curriculum", return_value=[]):
+        result = svc.lookup("novel term")
+
+    assert result.from_seed is False
+    assert isinstance(result.related_curriculum, list)
+    assert all(c.question for c in result.related_curriculum)

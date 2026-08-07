@@ -267,6 +267,18 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ selected_index: selectedIndex }),
       }, signal, 180000),
+    relatedConcepts: (question: string, excludeTopic?: string, topK?: number) =>
+      fetchApi<{ cards: CurriculumCard[]; disclaimer: string }>('/api/tutor/related', {
+        method: 'POST',
+        body: JSON.stringify({ question, exclude_topic: excludeTopic, top_k: topK ?? 4 }),
+      }),
+    markReview: (question: string, topicId: string, gotIt: boolean) =>
+      fetchApi<{ status: string; question: string; got_it: boolean }>('/api/tutor/review/mark', {
+        method: 'POST',
+        body: JSON.stringify({ question, topic_id: topicId, got_it: gotIt }),
+      }),
+    reviewQueue: () =>
+      fetchApi<{ cards: CurriculumCard[]; total: number }>('/api/tutor/review/queue'),
   },
 
   templates: {
@@ -499,6 +511,7 @@ export interface CurriculumCard {
   topic_id: string;
   topic_name: string;
   difficulty: number;
+  expected_concepts?: string[];
 }
 
 export interface GlossaryResponse {
@@ -512,7 +525,7 @@ export interface GlossaryResponse {
   practice_tips: string | null;
   citations: string[];
   from_seed: boolean;
-  related_curriculum: CurriculumCard | null;
+  related_curriculum: CurriculumCard[];
   sources: SourceDocument[];
   disclaimer: string;
 }

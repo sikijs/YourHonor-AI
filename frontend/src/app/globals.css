@@ -280,6 +280,29 @@ h1, h2, h3 {
   background: var(--white);
   border-radius: 8px 8px 0 0;
   border: 1px solid #ddd;
+  position: relative;
+}
+
+.chat-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f2fafe;
+  border: 1px solid var(--blue-primary);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.chat-status-text {
+  color: var(--dark-navy);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.chat-status .spinner {
+  margin-right: 0;
 }
 
 .message {

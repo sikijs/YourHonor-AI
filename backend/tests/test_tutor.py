@@ -352,3 +352,260 @@ def test_follow_up_without_answer_defaults_to_none(client, auth_headers):
     assert resp.status_code == 200
     data = resp.json()
     assert data["follow_up_question"]["answer"] is None
+
+
+# ------------------------------------------------- curriculum-grounded generation
+
+def _curriculum_result(question="What is consideration?", topic="contracts", topic_name=None):
+    return {
+        "content": f"Question: {question}\nHint: hint\nConcepts: consideration\nAnswer: answer",
+        "payload": {
+            "kind": "curriculum",
+            "topic": topic,
+            "topic_name": topic_name or ("Contracts" if topic == "contracts" else topic.capitalize()),
+            "question": question,
+            "answer": "answer",
+            "expected_concepts": ["consideration"],
+            "difficulty": 2,
+        },
+    }
+
+
+def _question_mock_json():
+    import json
+    return json.dumps({
+        "question": "A brand new dynamic question?",
+        "hint": "A short hint.",
+        "deep_hint": "An elaborate hint that guides the student step by step: first consider the elements, then draw the distinction, then structure the answer. This is long enough.",
+        "expected_concepts": ["offer", "acceptance"],
+        "difficulty": 2,
+        "answer": "A short educative answer.",
+    })
+
+
+def test_dynamic_generation_includes_curriculum_exemplars(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=_question_mock_json()))]
+
+    captured = {}
+    def recording_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return mock_llm
+
+    with patch("app.services.tutor.completion", side_effect=recording_completion), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[_curriculum_result()]):
+        resp = client.post("/api/tutor/start-dynamic", headers=auth_headers, json={"topic_id": "contracts"})
+
+    assert resp.status_code == 200
+    prompt = captured["prompt"]
+    assert "Example card 1" in prompt
+    assert "What is consideration?" in prompt
+    assert "does not duplicate them" in prompt
+
+
+def test_dynamic_generation_degrades_without_curriculum(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=_question_mock_json()))]
+
+    captured = {}
+    def recording_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return mock_llm
+
+    with patch("app.services.tutor.completion", side_effect=recording_completion), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        resp = client.post("/api/tutor/start-dynamic", headers=auth_headers, json={"topic_id": "contracts"})
+
+    assert resp.status_code == 200
+    assert "Example card" not in captured["prompt"]
+    assert "already-covered concepts" in captured["prompt"]
+
+
+def test_mc_generation_includes_curriculum_exemplars(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    mc_json = json.dumps({
+        "question": "Which of the following is consideration?",
+        "options": ["A gift", "A bargained-for exchange", "A promise with no return", "A moral obligation"],
+        "correct_index": 1,
+        "explanation": "Consideration is a bargained-for exchange.",
+        "option_explanations": ["Gifts lack exchange.", "Correct.", "No return = no exchange.", "Moral duties are not consideration."],
+        "difficulty": 3,
+    })
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=mc_json))]
+
+    captured = {}
+    def recording_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return mock_llm
+
+    with patch("app.services.tutor.completion", side_effect=recording_completion), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[_curriculum_result()]):
+        resp = client.post("/api/tutor/mc/start", headers=auth_headers, json={"topic_id": "contracts", "difficulty": 3})
+
+    assert resp.status_code == 200
+    assert "Example card 1" in captured["prompt"]
+    assert "What is consideration?" in captured["prompt"]
+
+
+def test_curriculum_exemplars_tries_topic_filter_then_cross_topic(client):
+    from unittest.mock import patch
+
+    from app.services.tutor import tutor_service
+
+    calls = []
+
+    def fake_retrieve(query, top_k=3, min_score=0.45, topic=None):
+        calls.append(topic)
+        return [] if topic else [_curriculum_result()]
+
+    with patch("app.services.tutor.retrieve_curriculum", side_effect=fake_retrieve):
+        exemplars = tutor_service._curriculum_exemplars("contracts")
+
+    assert len(exemplars) == 1
+    assert calls == ["contracts", None]
+
+
+# ------------------------------------------------------ related concepts (Step 2)
+
+def test_related_concepts_requires_auth(client):
+    resp = client.post("/api/tutor/related", json={"question": "consideration"})
+    assert resp.status_code == 401
+
+
+def test_related_concepts_excludes_current_topic(client, auth_headers):
+    from unittest.mock import patch
+
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[
+        _curriculum_result("What is consideration?", "contracts"),
+        _curriculum_result("What is a bailment?", "property", topic_name="Property"),
+        _curriculum_result("What is negligence?", "torts", topic_name="Torts"),
+    ]):
+        resp = client.post("/api/tutor/related", headers=auth_headers, json={
+            "question": "consideration", "exclude_topic": "contracts", "top_k": 4,
+        })
+
+    assert resp.status_code == 200
+    data = resp.json()
+    topics = [c["topic_id"] for c in data["cards"]]
+    assert "contracts" not in topics
+    assert "property" in topics
+    assert "torts" in topics
+    assert all(c["question"] for c in data["cards"])
+
+
+def test_related_concepts_empty_when_only_same_topic_cards(client, auth_headers):
+    from unittest.mock import patch
+
+    # Only same-topic cards are close enough: cross-topic mode must return
+    # nothing rather than repeat the card the student is already looking at.
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[
+        _curriculum_result("What is consideration?", "contracts"),
+    ]):
+        resp = client.post("/api/tutor/related", headers=auth_headers, json={
+            "question": "consideration", "exclude_topic": "contracts",
+        })
+
+    assert resp.status_code == 200
+    assert resp.json()["cards"] == []
+
+
+# ------------------------------------------------------- review queue (Step 2)
+
+def test_review_mark_and_queue_round_trip(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    weak = TOPICS["contracts"]["questions"][0]
+    strong = TOPICS["contracts"]["questions"][1]
+
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        resp = client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": weak.question, "topic_id": "contracts", "got_it": False,
+        })
+        assert resp.status_code == 200
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": strong.question, "topic_id": "contracts", "got_it": True,
+        })
+
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 1
+    card = data["cards"][0]
+    assert card["question"] == weak.question
+    assert card["topic_id"] == "contracts"
+    assert len(card["expected_concepts"]) > 0
+
+
+def test_review_mark_overwrites_previous_self_assessment(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    q = TOPICS["contracts"]["questions"][0]
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": q.question, "topic_id": "contracts", "got_it": True,
+        })
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": q.question, "topic_id": "contracts", "got_it": False,
+        })
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+    assert resp.json()["total"] == 1
+
+
+def test_review_queue_enriches_with_similar_cards_and_deduplicates(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    weak = TOPICS["contracts"]["questions"][0]
+    similar = _curriculum_result("What is a counteroffer?", "contracts")
+    similar["payload"]["expected_concepts"] = ["revocation", "counteroffer"]
+
+    with patch("app.services.tutor.retrieve_curriculum", side_effect=[
+        [],  # enrichment phase only (marked card resolves from TOPICS)
+    ]):
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": weak.question, "topic_id": "contracts", "got_it": False,
+        })
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+        assert resp.json()["total"] == 1  # no enrichment cards available
+
+    # With enrichment available, the similar card is appended (not duplicated)
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[similar, similar]):
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+    data = resp.json()
+    assert data["total"] == 2
+    questions = [c["question"] for c in data["cards"]]
+    assert len(set(questions)) == 2
+    assert data["cards"][0]["question"] == weak.question  # own weak card first
+
+
+def test_review_queue_excludes_mastered_cards_from_enrichment(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    weak = TOPICS["contracts"]["questions"][0]
+    mastered_card = _curriculum_result(TOPICS["contracts"]["questions"][2].question, "contracts")
+
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": weak.question, "topic_id": "contracts", "got_it": False,
+        })
+        client.post("/api/tutor/review/mark", headers=auth_headers, json={
+            "question": TOPICS["contracts"]["questions"][2].question,
+            "topic_id": "contracts", "got_it": True,
+        })
+
+    # Enrichment would surface the mastered card, but the queue must skip it
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[mastered_card]):
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+    data = resp.json()
+    assert data["total"] == 1
+    assert data["cards"][0]["question"] == weak.question

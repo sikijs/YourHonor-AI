@@ -11,9 +11,10 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const responseAnchorRef = useRef<HTMLDivElement | null>(null);
   const isNearBottomRef = useRef(true);
+  const pinnedToResponseRef = useRef(false);
   const cancelRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -21,15 +22,27 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
   }, []);
 
   useEffect(() => {
-    if (isNearBottomRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+    const el = messagesContainerRef.current;
+    const anchor = responseAnchorRef.current;
+    if (!el) return;
+    const frame = requestAnimationFrame(() => {
+      if (pinnedToResponseRef.current && anchor) {
+        el.scrollTop = anchor.offsetTop - 8;
+      } else if (isNearBottomRef.current) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages, isStreaming]);
 
   function handleScroll() {
     const el = messagesContainerRef.current;
+    const anchor = responseAnchorRef.current;
     if (!el) return;
     isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    if (anchor && pinnedToResponseRef.current && Math.abs(el.scrollTop - (anchor.offsetTop - 8)) > 40) {
+      pinnedToResponseRef.current = false;
+    }
   }
 
   useEffect(() => {
@@ -54,6 +67,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
+    pinnedToResponseRef.current = false;
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content })).slice(-10);
@@ -62,6 +76,7 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
         if (event.type === 'meta') {
           setLoading(false);
           setIsStreaming(true);
+          pinnedToResponseRef.current = true;
           setMessages((prev) => [...prev, {
             role: 'assistant',
             content: '',
@@ -109,6 +124,12 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
     }
   }
 
+  function stopGeneration() {
+    cancelRef.current?.abort();
+    setLoading(false);
+    setIsStreaming(false);
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
@@ -118,14 +139,14 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
             Ask anything — legal research, case analysis, document drafting, or general questions. I draw from our knowledge base of cases, legal documents, and web search results.
           </p>
         </div>
-        <button className="btn btn-outline" onClick={() => { setMessages([]); loadGreeting(); }} style={{ whiteSpace: 'nowrap', fontSize: '0.85rem' }}>
+        <button className="btn btn-outline" onClick={() => { pinnedToResponseRef.current = false; setMessages([]); loadGreeting(); }} style={{ whiteSpace: 'nowrap', fontSize: '0.85rem' }}>
           New Chat
         </button>
       </div>
       <div className="chat-container">
         <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {messages.map((msg, i) => (
-            <div key={i}>
+            <div key={i} ref={msg.role === 'assistant' ? (el) => { responseAnchorRef.current = el; } : undefined}>
               <div className={`message ${msg.role}`}>
                 {msg.role === 'assistant' ? (
                   <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
@@ -157,10 +178,16 @@ export default function ChatView({ user, onError, onNavigate }: { user: User; on
               )}
             </div>
           ))}
-          {loading && <div className="message assistant"><div className="spinner-container"><span className="spinner" /><em>Thinking...</em></div><div style={{ marginTop: '0.5rem', textAlign: 'center' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setLoading(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Cancel</button></div></div>}
-          {isStreaming && <div style={{ textAlign: 'center', marginTop: '0.25rem' }}><button className="btn btn-outline" onClick={() => { cancelRef.current?.abort(); setIsStreaming(false); }} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>Stop</button></div>}
-          <div ref={messagesEndRef} />
         </div>
+        {(loading || isStreaming) && (
+          <div className="chat-status">
+            <span className="spinner" />
+            <span className="chat-status-text">Generating response&hellip;</span>
+            <button className="btn btn-outline" onClick={stopGeneration} style={{ fontSize: '0.85rem', padding: '0.3rem 0.75rem' }}>
+              {loading ? 'Cancel' : 'Stop'}
+            </button>
+          </div>
+        )}
         <form className="chat-input" onSubmit={handleSend}>
           <textarea
             value={input}

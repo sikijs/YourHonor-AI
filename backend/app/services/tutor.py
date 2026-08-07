@@ -10,7 +10,12 @@ from app.models.tutor import (
     GeneratedEvaluation, GeneratedQuestion,
     MCQuestion, MCStartResponse, MCAnswerResponse,
 )
-from app.services.retrieval import parse_llm_json
+from app.models.legal_glossary import CurriculumCard
+from app.services.retrieval import (
+    parse_llm_json,
+    retrieve_curriculum,
+    curriculum_card_from_payload,
+)
 from app.services.llm_errors import friendly_llm_error
 from app.services.tutor_data import TOPICS
 
@@ -315,6 +320,155 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             "wrong_count": session.wrong_count,
         }
 
+    # ------------------------------------------------- cross-topic discovery
+
+    def _card_from_payload(self, payload: Optional[dict]) -> Optional[CurriculumCard]:
+        card = curriculum_card_from_payload(payload)
+        if card is None:
+            return None
+        return CurriculumCard(**card)
+
+    def get_related_concepts(
+        self,
+        question: str,
+        exclude_topic: Optional[str] = None,
+        top_k: int = 4,
+    ) -> list[CurriculumCard]:
+        """Find related curriculum cards from OTHER topics.
+
+        Cross-topic links (e.g. a Contracts card surfacing Evidence cards)
+        reward interdisciplinary study. Only other-topic cards are returned:
+        the student is already looking at the current topic's cards, so
+        same-topic results would just repeat what is on screen.
+        """
+        cards: list[CurriculumCard] = []
+        seen: set[str] = set()
+        try:
+            # Fetch a wider pool than the final count: for a topic-specific
+            # question the top matches are almost all same-topic cards, so
+            # a small pool gets filtered empty by the exclude rule below.
+            pool_size = max(top_k * 4, 16)
+            results = retrieve_curriculum(query=question, top_k=pool_size, min_score=0.0)
+            for r in results:
+                card = self._card_from_payload(r.get("payload"))
+                if card is None or card.question in seen:
+                    continue
+                if exclude_topic and card.topic_id == exclude_topic:
+                    continue
+                seen.add(card.question)
+                cards.append(card)
+                if len(cards) >= top_k:
+                    break
+        except Exception as e:
+            logger.warning(f"Related concept retrieval failed: {e}")
+        return cards
+
+    # -------------------------------------------------- spaced repetition queue
+
+    def _curriculum_card_for(self, topic_id: str, question: str) -> Optional[CurriculumCard]:
+        """Resolve a stored (topic, question) pair back to its full card."""
+        topic = TOPICS.get(topic_id)
+        if not topic:
+            return None
+        for q in topic["questions"]:
+            if q.question == question:
+                return CurriculumCard(
+                    question=q.question,
+                    answer=q.answer or "",
+                    topic_id=topic_id,
+                    topic_name=topic["name"],
+                    difficulty=q.difficulty,
+                    expected_concepts=q.expected_concepts,
+                )
+        return None
+
+    def mark_review(self, user_id: int, question: str, topic_id: str, got_it: bool) -> dict:
+        """Record the student's self-assessment of one card.
+
+        Stored in SQLite (review_progress) so marks survive page refreshes
+        within the container's lifetime; upsert keeps one row per card.
+        """
+        from app import db
+        conn = db.get_db()
+        try:
+            conn.execute(
+                """
+                INSERT INTO review_progress (user_id, topic_id, question, got_it, updated_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(user_id, topic_id, question)
+                DO UPDATE SET got_it = excluded.got_it, updated_at = CURRENT_TIMESTAMP
+                """,
+                (user_id, topic_id, question, 1 if got_it else 0),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        return {"status": "ok", "question": question, "got_it": got_it}
+
+    def get_review_queue(self, user_id: int, limit: int = 10) -> list[CurriculumCard]:
+        """Cards marked "need to study", enriched with similar curriculum cards.
+
+        Returns the student's own weak cards (most recently marked first),
+        then extends the queue with semantically similar cards retrieved
+        over the weak cards' expected concepts so re-study covers related
+        material. Deduplicated by question text.
+        """
+        from app import db
+        conn = db.get_db()
+        try:
+            rows = conn.execute(
+                """
+                SELECT topic_id, question FROM review_progress
+                WHERE user_id = ? AND got_it = 0
+                ORDER BY updated_at DESC
+                """,
+                (user_id,),
+            ).fetchall()
+            mastered_rows = conn.execute(
+                """
+                SELECT question FROM review_progress
+                WHERE user_id = ? AND got_it = 1
+                """,
+                (user_id,),
+            ).fetchall()
+        finally:
+            conn.close()
+
+        mastered: set[str] = {r["question"] for r in mastered_rows}
+        seen: set[str] = set()
+        cards: list[CurriculumCard] = []
+        weak_concepts: list[str] = []
+        for row in rows:
+            question = row["question"]
+            if not question or question in seen:
+                continue
+            seen.add(question)
+            card = self._curriculum_card_for(row["topic_id"], question)
+            if card is None:
+                continue
+            cards.append(card)
+            weak_concepts.extend(card.expected_concepts)
+
+        if weak_concepts and len(cards) < limit:
+            try:
+                results = retrieve_curriculum(
+                    query=" ".join(weak_concepts), top_k=limit, min_score=0.0
+                )
+                for r in results:
+                    card = self._card_from_payload(r.get("payload"))
+                    if card is None or card.question in seen:
+                        continue
+                    if card.question in mastered:
+                        continue
+                    seen.add(card.question)
+                    cards.append(card)
+                    if len(cards) >= limit:
+                        break
+            except Exception as e:
+                logger.warning(f"Review queue enrichment failed: {e}")
+
+        return cards[:limit]
+
     def _next_difficulty(self, session: TutorSession) -> int:
         if len(session.questions) == 0:
             return 2
@@ -328,15 +482,52 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
         else:
             return 2
 
+    def _curriculum_exemplars(self, topic_id: str, limit: int = 3) -> list[dict]:
+        """Retrieve curated curriculum cards to ground dynamic generation.
+
+        Prefers same-topic cards so generated questions stay stylistically
+        consistent with the vetted material; falls back to cross-topic cards.
+        Returns [] when Qdrant is unavailable or empty, so generation
+        proceeds exactly as before (graceful degradation).
+        """
+        try:
+            topic_name = TOPICS.get(topic_id, {}).get("name", "")
+            results = retrieve_curriculum(
+                query=topic_name, top_k=limit, min_score=0.0, topic=topic_id
+            )
+            if not results:
+                results = retrieve_curriculum(query=topic_name, top_k=limit, min_score=0.0)
+            return results
+        except Exception as e:
+            logger.warning(f"Curriculum exemplar retrieval failed: {e}")
+            return []
+
+    def _exemplar_block(self, topic_id: str, topic_name: str) -> str:
+        """Format retrieved curriculum cards as prompt context for generation."""
+        exemplars = self._curriculum_exemplars(topic_id)
+        if not exemplars:
+            return ""
+        cards_text = [
+            f"Example card {i} ({c.get('topic_name', topic_name)}):\n{c['content']}"
+            for i, c in enumerate(exemplars, 1)
+        ]
+        return (
+            "\n\nExisting curated study cards (use as a style/difficulty reference only — "
+            "generate a NEW question that does not duplicate them):\n"
+            + "\n\n".join(cards_text)
+        )
+
     def _generate_dynamic_question(self, session: TutorSession) -> TutorQuestion:
         topic_name = session.topic_data["name"]
         difficulty = self._next_difficulty(session)
         covered = ', '.join(sorted(session.covered_concepts)) if session.covered_concepts else 'none yet'
 
+        exemplar_block = self._exemplar_block(session.topic_id, topic_name)
+
         prompt = f"""You are a law professor teaching {topic_name}. A student has completed {len(session.questions)} questions with {session.correct_count} correct.
 
 Generate a NEW question on {topic_name} at difficulty {difficulty}. Do NOT repeat any of these already-covered concepts: {covered}.
-
+{exemplar_block}
 Return valid JSON with these exact keys:
 - "question": the question text
 - "hint": a SHORT one-sentence nudge for a student's first attempt
@@ -564,11 +755,13 @@ Return valid JSON with these exact keys:
         difficulty = session.difficulty
         used_count = len(session.questions)
 
+        exemplar_block = self._exemplar_block(session.topic_id, topic_name)
+
         prompt = f"""You are a law professor creating a multiple-choice quiz question for law students studying {topic_name}.
 
 Generate a single multiple-choice question at difficulty {difficulty}/5 that tests a key legal concept in {topic_name}.
 This will be question #{used_count + 1} of {session.total_questions} in a quiz.
-
+{exemplar_block}
 The question should:
 - Present a realistic legal scenario or fact pattern (1-3 sentences)
 - Have exactly 4 answer choices
