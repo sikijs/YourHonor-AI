@@ -59,12 +59,7 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
               </span>
             </span>
           </span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--gray-text)', whiteSpace: 'nowrap' }}>
-            {summaryType === 'general' ? 'general summary' :
-             summaryType === 'case' ? 'case-focused' :
-             summaryType === 'statute' ? 'statute-focused' : 'doctrine-focused'}
-          </span>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginLeft: '2rem' }}>
             {loading ? 'Generating...' : 'Generate Summary'}
           </button>
         </div>
