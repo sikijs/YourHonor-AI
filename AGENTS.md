@@ -216,7 +216,7 @@ Backend available at http://localhost:8000
 ### RAG
 - POST /api/rag/retrieve          - Retrieve relevant context
 - POST /api/rag/ingest            - Ingest a document
-- GET  /api/rag/collection/stats?collection=legal_documents - Get collection statistics (optional whitelisted collection name; default `legal_documents`, also `tutor_curriculum`)
+- GET  /api/rag/collection/stats?collection=legal_documents - Get collection statistics (optional whitelisted collection name; default `legal_documents`, also `tutor_curriculum`, `glossary_seed`)
 
 ### Other
 - GET /api/health - Health check
@@ -259,7 +259,7 @@ Backend available at http://localhost:8000
 ### Phase 5 (Advanced Features) - COMPLETE
 - Memorandum drafting
 - Predictive analytics (future development)
-- AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review
+- AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student)
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
 
@@ -281,12 +281,16 @@ Backend available at http://localhost:8000
 The **`legal_documents`** Qdrant collection holds uploaded cases + the
 pre-ingested landmark cases. The **`tutor_curriculum`** collection holds the
 AI Tutor's 160 curated Q&A cards (one point per card; use the `topic` payload
-index for filtered retrievals).
+index for filtered retrievals). The **`glossary_seed`** collection holds the
+123 curated glossary definitions from `glossary_seed.json` (served only for
+high-confidence semantic matches, min score 0.55, so near-miss paraphrases
+fall back to the LLM instead of serving a wrong curated term).
 
 | Collection | Content | Points |
 |------------|---------|--------|
 | legal_documents | 24 courtlistener/seed landmark cases (chunked) + user uploads | ~1,200 |
 | tutor_curriculum | 160 AI Tutor flashcards (8 topics × 20) | 160 |
+| glossary_seed | 123 curated glossary definitions (term + definition + related terms) | 123 |
 
 Notes:
 - The legal templates and US Constitution are NOT embedded in Qdrant — they
@@ -296,6 +300,10 @@ Notes:
   (no cache-flag dependence), so restarts never re-bloat the collection.
 - `tutor_curriculum` is rebuilt from source on every boot (delete → recreate →
   upsert), so it is always in sync with `tutor_data.py`.
+- `glossary_seed` is likewise rebuilt from `glossary_seed.json` on every boot.
+  Glossary lookup order: keyword (exact/substring/fuzzy) → semantic
+  (min score 0.55) → LLM. The high threshold keeps wrong-term serves from
+  slipping through MiniLM's flat score band.
 
 **Sample landmark cases ingested:**
 - Criminal Procedure: Gideon v. Wainwright, Miranda v. Arizona

@@ -224,7 +224,8 @@ def test_tutor_follow_up_answers_count_toward_attempt_limit(client, auth_headers
     )
     reveal = _reveal_mock()
 
-    with patch("app.services.tutor.completion", side_effect=[fu_eval, fu_eval, fu_eval, reveal]):
+    with patch("app.services.tutor.completion", side_effect=[fu_eval, fu_eval, fu_eval, reveal]), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[]):
         resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "wrong 1"})
         data = resp.json()
         assert data["follow_up_question"]["question"] == "Simpler follow-up: what is a bargained-for exchange?"
@@ -354,17 +355,131 @@ def test_follow_up_without_answer_defaults_to_none(client, auth_headers):
     assert data["follow_up_question"]["answer"] is None
 
 
+# ------------------------------------------------- grounded answer evaluation
+
+def test_eval_prompt_grounded_in_curated_answer_for_bank_question(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+
+    start = _start_contracts(client, auth_headers)
+    q = start["current_question"]
+    mock_llm = _eval_mock(evaluation="correct", is_complete=True)
+
+    captured = {}
+    def recording_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return mock_llm
+
+    # Bank questions resolve from the session — retrieval must not be touched
+    with patch("app.services.tutor.completion", side_effect=recording_completion), \
+         patch("app.services.tutor.retrieve_curriculum",
+               side_effect=AssertionError("bank question must not retrieve")):
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "Correct"})
+
+    assert resp.status_code == 200
+    prompt = captured["prompt"]
+    assert "Reference material" in prompt
+    assert q["question"] in prompt
+    assert q["answer"] in prompt
+    for concept in q["expected_concepts"]:
+        assert concept in prompt
+
+
+def test_eval_prompt_grounded_via_retrieval_for_follow_up_question(client, auth_headers):
+    from unittest.mock import patch
+
+    _start_contracts(client, auth_headers)
+    fu_eval = _eval_mock(
+        evaluation="incorrect",
+        follow_up_question="Simpler follow-up: what is a bargained-for exchange?",
+        follow_up_hint="Think about the exchange.",
+        is_complete=False,
+    )
+    correct_eval = _eval_mock(evaluation="correct", is_complete=True)
+
+    captured = {}
+    def dispatch_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return fu_eval
+
+    parent = _curriculum_result(answer="A vetted parent-card answer for grading.")
+    with patch("app.services.tutor.completion", side_effect=dispatch_completion), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[parent]):
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "wrong"})
+        assert resp.status_code == 200
+        assert resp.json()["follow_up_question"] is not None
+
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "better now"})
+
+    assert resp.status_code == 200
+    prompt = captured["prompt"]
+    assert "Reference material" in prompt
+    assert "A vetted parent-card answer for grading." in prompt
+
+
+def test_eval_prompt_degrades_when_retrieval_unavailable(client, auth_headers):
+    from unittest.mock import patch
+
+    _start_contracts(client, auth_headers)
+    fu_eval = _eval_mock(
+        evaluation="incorrect",
+        follow_up_question="Simpler follow-up: what is a bargained-for exchange?",
+        follow_up_hint="Think about the exchange.",
+        is_complete=False,
+    )
+    correct_eval = _eval_mock(evaluation="correct", is_complete=True)
+
+    captured = {}
+    def dispatch_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return fu_eval
+
+    with patch("app.services.tutor.completion", side_effect=dispatch_completion), \
+         patch("app.services.tutor.retrieve_curriculum", side_effect=RuntimeError("qdrant down")):
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "wrong"})
+        assert resp.status_code == 200
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "better now"})
+
+    assert resp.status_code == 200
+    assert "Reference material" not in captured["prompt"]
+
+
+def test_eval_prompt_grounded_for_dynamic_session_questions(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=_question_mock_json()))]
+    with patch("app.services.tutor.completion", return_value=mock_llm), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[_curriculum_result()]):
+        resp = client.post("/api/tutor/start-dynamic", headers=auth_headers, json={"topic_id": "contracts"})
+    assert resp.status_code == 200
+
+    captured = {}
+    def dispatch_completion(model, messages, **kwargs):
+        captured["prompt"] = messages[-1]["content"]
+        return _eval_mock(evaluation="correct", is_complete=True)
+
+    parent = _curriculum_result(answer="A vetted answer for dynamic grounding.")
+    with patch("app.services.tutor.completion", side_effect=dispatch_completion), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[parent]):
+        resp = client.post("/api/tutor/answer", headers=auth_headers, json={"answer": "my analysis"})
+
+    assert resp.status_code == 200
+    prompt = captured["prompt"]
+    assert "Reference material" in prompt
+    assert "A short educative answer." in prompt
+
+
 # ------------------------------------------------- curriculum-grounded generation
 
-def _curriculum_result(question="What is consideration?", topic="contracts", topic_name=None):
+def _curriculum_result(question="What is consideration?", topic="contracts", topic_name=None, answer="answer"):
     return {
-        "content": f"Question: {question}\nHint: hint\nConcepts: consideration\nAnswer: answer",
+        "content": f"Question: {question}\nHint: hint\nConcepts: consideration\nAnswer: {answer}",
         "payload": {
             "kind": "curriculum",
             "topic": topic,
             "topic_name": topic_name or ("Contracts" if topic == "contracts" else topic.capitalize()),
             "question": question,
-            "answer": "answer",
+            "answer": answer,
             "expected_concepts": ["consideration"],
             "difficulty": 2,
         },
@@ -558,6 +673,27 @@ def test_review_mark_overwrites_previous_self_assessment(client, auth_headers):
         })
         resp = client.get("/api/tutor/review/queue", headers=auth_headers)
     assert resp.json()["total"] == 1
+
+
+def test_review_queue_returns_all_weak_cards_beyond_limit(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    # 14 cards marked "need to study" — the old 10-card cap dropped 4 of them
+    weak_cards = TOPICS["contracts"]["questions"][:14]
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        for q in weak_cards:
+            client.post("/api/tutor/review/mark", headers=auth_headers, json={
+                "question": q.question, "topic_id": "contracts", "got_it": False,
+            })
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 14
+    questions = [c["question"] for c in data["cards"]]
+    assert len(set(questions)) == 14
+    for q in weak_cards:
+        assert q.question in questions
 
 
 def test_review_queue_enriches_with_similar_cards_and_deduplicates(client, auth_headers):

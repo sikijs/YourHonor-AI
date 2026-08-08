@@ -144,6 +144,10 @@ Student's answer: {answer}
 
 Evaluate this answer and provide a follow-up or determine if the student has mastered this concept."""
 
+        reference_block = self._reference_block(session, q)
+        if reference_block:
+            user_prompt += reference_block
+
         if eval_result is None:
             try:
                 response = completion(
@@ -328,6 +332,62 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             return None
         return CurriculumCard(**card)
 
+    # ---------------------------------------------------- grounded evaluation
+
+    def _reference_card(self, session: "TutorSession", q: TutorQuestion) -> Optional[CurriculumCard]:
+        """Resolve the curated card that grounds evaluation of the current answer.
+
+        Bank questions: the curated card is already in the session (question
+        + expected concepts + vetted answer) — no Qdrant read needed.
+
+        Follow-up and dynamically generated questions: retrieve the parent
+        card semantically so the grader can anchor to the vetted answer
+        instead of inventing one. Returns None when nothing is found (e.g.
+        Qdrant down or empty), which leaves the prompt exactly as before.
+        """
+        if session.current_question_text == q.question:
+            return CurriculumCard(
+                question=q.question,
+                answer=q.answer or "",
+                topic_id=session.topic_id,
+                topic_name=session.topic_data["name"],
+                difficulty=q.difficulty,
+                expected_concepts=q.expected_concepts,
+            )
+        try:
+            results = retrieve_curriculum(
+                query=session.current_question_text or q.question,
+                top_k=3,
+                min_score=0.0,
+            )
+            for r in results:
+                card = self._card_from_payload(r.get("payload"))
+                if card is not None:
+                    return card
+        except Exception as e:
+            logger.warning(f"Reference card retrieval failed: {e}")
+        return None
+
+    def _reference_block(self, session: "TutorSession", q: TutorQuestion) -> str:
+        """Reference material appended to the evaluation prompt (never shown).
+
+        Anchors grading to the curated card's expected concepts and vetted
+        answer so the LLM judges against the standard answer. The block is
+        only ever part of the hidden evaluation prompt — it must not leak
+        into any client-visible response field.
+        """
+        ref = self._reference_card(session, q)
+        if ref is None:
+            return ""
+        concepts = ", ".join(ref.expected_concepts) if ref.expected_concepts else "(none listed)"
+        return (
+            "\n\nReference material (curated tutor card — hidden from the student; "
+            "anchor your evaluation against it):\n"
+            f"Question: {ref.question}\n"
+            f"Expected concepts: {concepts}\n"
+            f"Expected answer: {ref.answer}"
+        )
+
     def get_related_concepts(
         self,
         question: str,
@@ -408,10 +468,12 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
     def get_review_queue(self, user_id: int, limit: int = 10) -> list[CurriculumCard]:
         """Cards marked "need to study", enriched with similar curriculum cards.
 
-        Returns the student's own weak cards (most recently marked first),
-        then extends the queue with semantically similar cards retrieved
-        over the weak cards' expected concepts so re-study covers related
-        material. Deduplicated by question text.
+        Always returns ALL of the student's own weak cards (most recently
+        marked first) so nothing they flagged is dropped. The `limit` only
+        bounds the enrichment padding: when the student has fewer than
+        `limit` weak cards, the queue is extended with semantically similar
+        cards retrieved over the weak cards' expected concepts so re-study
+        covers related material. Deduplicated by question text.
         """
         from app import db
         conn = db.get_db()
@@ -467,7 +529,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             except Exception as e:
                 logger.warning(f"Review queue enrichment failed: {e}")
 
-        return cards[:limit]
+        return cards
 
     def _next_difficulty(self, session: TutorSession) -> int:
         if len(session.questions) == 0:

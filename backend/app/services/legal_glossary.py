@@ -14,6 +14,8 @@ from app.services.retrieval import (
     parse_llm_json,
     retrieve_curriculum,
     curriculum_card_from_payload,
+    retrieve_glossary_seed,
+    glossary_seed_from_payload,
 )
 from app.services.llm_errors import friendly_llm_error
 from app.services.document import load_user_document_content
@@ -265,27 +267,59 @@ class GlossaryService:
             "sources": list(source_labels),
         }, from_rag_results(results)
 
+    def _retrieve_seed_entry(self, query: str, min_score: float = 0.55) -> Optional[dict]:
+        """Semantic lookup over the curated glossary seed collection.
+
+        Catches close paraphrases ("who inherits when you die without a
+        will") that miss every keyword path. The threshold is intentionally
+        high (0.55) and tuned against live score distributions: all-MiniLM
+        scores cluster 0.3-0.55, and near-misses (e.g. "trade secret" for
+        "lawyer's duty to keep secrets" at 0.54) must NOT be served as the
+        answer. Below the threshold (or when Qdrant is unavailable/empty)
+        the caller falls back to the LLM, which is more accurate for loose
+        paraphrases.
+        """
+        try:
+            results = retrieve_glossary_seed(query=query, top_k=1, min_score=min_score)
+            for r in results:
+                entry = glossary_seed_from_payload(r.get("payload"))
+                if entry is not None:
+                    return entry
+        except Exception as e:
+            logger.warning(f"Glossary seed retrieval failed: {e}")
+        return None
+
+    def _seed_response(self, entry: dict, query: str) -> GlossaryResponse:
+        """Build the curated GlossaryResponse used by both lookup paths."""
+        seed_sources = [SourceDocument(
+            title=entry.get("term", query),
+            source_type="seed",
+        )]
+        return GlossaryResponse(
+            term=entry.get("term", query),
+            definition=entry.get("definition", ""),
+            etymology=entry.get("etymology"),
+            jurisdiction=entry.get("jurisdiction"),
+            usage_example=entry.get("usage_example", ""),
+            related_terms=entry.get("related_terms", []),
+            also_known_as=entry.get("also_known_as"),
+            practice_tips=entry.get("practice_tips"),
+            citations=entry.get("citations", []),
+            from_seed=True,
+            sources=seed_sources,
+            related_curriculum=self._retrieve_curriculum_cards(query, entry=entry),
+        )
+
     def lookup(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> GlossaryResponse:
         seed_entry = self._lookup_seed(query)
         if seed_entry:
-            seed_sources = [SourceDocument(
-                title=seed_entry.get("term", query),
-                source_type="seed",
-            )]
-            return GlossaryResponse(
-                term=seed_entry.get("term", query),
-                definition=seed_entry.get("definition", ""),
-                etymology=seed_entry.get("etymology"),
-                jurisdiction=seed_entry.get("jurisdiction"),
-                usage_example=seed_entry.get("usage_example", ""),
-                related_terms=seed_entry.get("related_terms", []),
-                also_known_as=seed_entry.get("also_known_as"),
-                practice_tips=seed_entry.get("practice_tips"),
-                citations=seed_entry.get("citations", []),
-                from_seed=True,
-                sources=seed_sources,
-                related_curriculum=self._retrieve_curriculum_cards(query, entry=seed_entry),
-            )
+            logger.info(f"Glossary hit via keyword match: '{query}'")
+            return self._seed_response(seed_entry, query)
+
+        semantic_entry = self._retrieve_seed_entry(query)
+        if semantic_entry:
+            logger.info(f"Glossary hit via semantic seed match: '{query}' -> '{semantic_entry['term']}'")
+            return self._seed_response(semantic_entry, query)
 
         user_content = None
         if document_id and user_id:

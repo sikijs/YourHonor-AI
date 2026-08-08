@@ -76,6 +76,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [quizRelated, setQuizRelated] = useState<CurriculumCard[] | null>(null);
   const [quizRelatedLoading, setQuizRelatedLoading] = useState(false);
   const [reviewQueueCards, setReviewQueueCards] = useState<CurriculumCard[] | null>(null);
+  const [reviewSessionMarked, setReviewSessionMarked] = useState<string[]>([]);
 
   const cancelRef = useRef<AbortController | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -133,11 +134,36 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     }
   }, [reviewMode, reviewComplete]);
 
-  function markCard(gotIt: boolean) {
-    if (!session) return;
+  function markCard(gotIt: boolean): Promise<void> {
+    if (!session) return Promise.resolve();
     const card = session.questions[reviewIndex];
-    if (!card) return;
-    api.tutor.markReview(card.question, session.topic_id, gotIt).catch(() => {});
+    if (!card) return Promise.resolve();
+    setReviewSessionMarked(prev => (prev.includes(card.question) ? prev : [...prev, card.question]));
+    return api.tutor.markReview(card.question, session.topic_id, gotIt)
+      .then(() => {})
+      .catch(() => {});
+  }
+
+  function removeFromReviewQueue(card: CurriculumCard) {
+    setReviewQueueCards(prev => (prev ? prev.filter(c => c.question !== card.question) : prev));
+    api.tutor.markReview(card.question, card.topic_id, true).catch(() => {
+      setReviewQueueCards(prev => (prev && prev.some(c => c.question === card.question) ? prev : [...(prev ?? []), card]));
+    });
+  }
+
+  function removeAllEarlier() {
+    setReviewQueueCards(prev => {
+      if (!prev) return prev;
+      const earlier = prev.filter(c => !reviewSessionMarked.includes(c.question));
+      const remaining = prev.filter(c => reviewSessionMarked.includes(c.question));
+      Promise.allSettled(earlier.map(c => api.tutor.markReview(c.question, c.topic_id, true))).then(results => {
+        const failed = earlier.filter((_, i) => results[i].status === 'rejected');
+        if (failed.length > 0) {
+          setReviewQueueCards(cur => [...(cur ?? []), ...failed]);
+        }
+      });
+      return remaining;
+    });
   }
 
   function loadQuizRelated() {
@@ -631,7 +657,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             </button>
             <button
               className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setReviewSessionMarked([]); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review
@@ -1187,20 +1213,52 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
             Ready to test yourself? Switch to Quiz mode to answer questions and get evaluated.
           </p>
-          {reviewQueueCards !== null && reviewQueueCards.length > 0 && (
-            <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', textAlign: 'left' }}>
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#856404', fontWeight: 600 }}>
-                Cards to restudy ({reviewQueueCards.length}) — from this and past review sessions
-              </p>
-              {reviewQueueCards.map((c, i) => (
-                <details key={i} style={{ marginBottom: '0.4rem' }}>
+          {reviewQueueCards !== null && reviewQueueCards.length > 0 && (() => {
+            const thisSession = reviewQueueCards.filter(c => reviewSessionMarked.includes(c.question));
+            const earlier = reviewQueueCards.filter(c => !reviewSessionMarked.includes(c.question));
+            const renderCards = (cards: CurriculumCard[]) => (
+              cards.map((c) => (
+                <details key={c.question} style={{ marginBottom: '0.4rem' }}>
                   <summary style={{ cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>{c.question}</summary>
                   <p style={{ fontSize: '0.8rem', color: '#444', marginTop: '0.3rem', marginBottom: '0.2rem' }}>{c.answer}</p>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                    <button type="button" onClick={() => removeFromReviewQueue(c)} style={{ fontSize: '0.7rem', color: '#1b7f3a', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
+                      Remove from restudy ✓
+                    </button>
+                  </div>
                 </details>
-              ))}
-            </div>
-          )}
+              ))
+            );
+            return (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', textAlign: 'left' }}>
+                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#856404', fontWeight: 600 }}>
+                  Cards to restudy ({reviewQueueCards.length}) — from this and past review sessions
+                </p>
+                {thisSession.length > 0 && (
+                  <>
+                    <p style={{ margin: '0.25rem 0 0.4rem 0', fontSize: '0.95rem', color: 'var(--dark-navy)', fontWeight: 700 }}>
+                      From this session ({thisSession.length})
+                    </p>
+                    {renderCards(thisSession)}
+                  </>
+                )}
+                {earlier.length > 0 && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0.5rem 0 0.4rem 0' }}>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--dark-navy)', fontWeight: 700 }}>
+                        From earlier sessions ({earlier.length})
+                      </p>
+                      <button type="button" onClick={removeAllEarlier} style={{ fontSize: '0.7rem', color: '#856404', background: 'none', border: '1px solid #856404', borderRadius: '4px', padding: '0.1rem 0.5rem', cursor: 'pointer' }}>
+                        Remove all ✓
+                      </button>
+                    </div>
+                    {renderCards(earlier)}
+                  </>
+                )}
+              </div>
+            );
+          })()}
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
             <button className="btn btn-primary" onClick={() => { setReviewMode(false); }}>Switch to Quiz Mode</button>
             <button className="btn btn-outline" onClick={resetSession}>Pick Another Topic</button>
@@ -1261,10 +1319,10 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                 </div>
               )}
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
-                <button type="button" className="btn btn-primary" onClick={() => { markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
+                <button type="button" className="btn btn-primary" onClick={() => { const markPromise = markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
                   Got it ✓
                 </button>
-                <button type="button" className="btn btn-outline" onClick={() => { markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { setReviewComplete(true); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
+                <button type="button" className="btn btn-outline" onClick={() => { const markPromise = markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
                   Need to Study ✗
                 </button>
               </div>

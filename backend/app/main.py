@@ -52,6 +52,11 @@ def _run_startup_tasks():
     except Exception as e:
         logger.warning(f"Tutor curriculum seeding skipped: {e}")
     try:
+        from app.ingest_glossary_seed import seed_glossary_seed_collection
+        seed_glossary_seed_collection()
+    except Exception as e:
+        logger.warning(f"Glossary seed collection seeding skipped: {e}")
+    try:
         from app.seed_local_cases import seed_local_cases
         seed_local_cases()
     except Exception as e:

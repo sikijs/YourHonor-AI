@@ -10,6 +10,9 @@ COLLECTION_NAME = "legal_documents"
 # Kept physically separate so educational study material never mixes with
 # legal document retrieval.
 TUTOR_COLLECTION_NAME = "tutor_curriculum"
+# Curated glossary definitions (glossary_seed.json). Separate from both so
+# definition lookups never pollute case retrieval or curriculum searches.
+GLOSSARY_SEED_COLLECTION_NAME = "glossary_seed"
 
 _client = None
 

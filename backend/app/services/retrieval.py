@@ -3,7 +3,13 @@ import json
 import logging
 from typing import Any
 from typing import Optional
-from .qdrant_store import search_similar, get_collection_stats, COLLECTION_NAME, TUTOR_COLLECTION_NAME
+from .qdrant_store import (
+    search_similar,
+    get_collection_stats,
+    COLLECTION_NAME,
+    TUTOR_COLLECTION_NAME,
+    GLOSSARY_SEED_COLLECTION_NAME,
+)
 from connectors.courtlistener import case_brief_from_query
 
 logger = logging.getLogger(__name__)
@@ -73,6 +79,53 @@ def retrieve_curriculum(
         collection_name=TUTOR_COLLECTION_NAME,
     )
     return [r for r in results if r.get("content")]
+
+
+def retrieve_glossary_seed(
+    query: str,
+    top_k: int = 5,
+    min_score: float = 0.5,
+) -> list[dict]:
+    """Semantic search over the curated glossary seed collection.
+
+    Returns search_similar-style dicts whose ``payload`` carries the full
+    structured entry (term, definition, related_terms, ...). Points are
+    filtered on the payload ``term`` rather than ``content`` because seed
+    points (like curriculum points) embed text only and store no payload
+    ``content`` or ``question`` key. Empty results return ``[]`` so callers
+    can fall back to keyword lookup or the LLM when Qdrant is unavailable.
+    """
+    results = search_similar(
+        query=query,
+        top_k=top_k,
+        min_score=min_score,
+        filters=None,
+        collection_name=GLOSSARY_SEED_COLLECTION_NAME,
+    )
+    return [r for r in results if (r.get("payload") or {}).get("term")]
+
+
+def glossary_seed_from_payload(payload: Optional[dict]) -> Optional[dict]:
+    """Convert a glossary_seed payload into a flat entry-shaped dict.
+
+    Kept model-free so the glossary service can build its response from one
+    shared converter. Returns None for malformed or non-glossary points.
+    """
+    if not payload:
+        return None
+    term = payload.get("term")
+    if not term:
+        return None
+    return {
+        "term": term,
+        "definition": payload.get("definition", ""),
+        "etymology": payload.get("etymology"),
+        "jurisdiction": payload.get("jurisdiction"),
+        "usage_example": payload.get("usage_example", ""),
+        "related_terms": payload.get("related_terms") or [],
+        "also_known_as": payload.get("also_known_as"),
+        "practice_tips": payload.get("practice_tips"),
+    }
 
 
 def curriculum_card_from_payload(payload: Optional[dict]) -> Optional[dict]:

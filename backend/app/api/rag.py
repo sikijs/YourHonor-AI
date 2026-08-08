@@ -68,7 +68,7 @@ def ingest_document(request: IngestRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-ALLOWED_STAT_COLLECTIONS = {"legal_documents", "tutor_curriculum"}
+ALLOWED_STAT_COLLECTIONS = {"legal_documents", "tutor_curriculum", "glossary_seed"}
 
 
 @router.get("/collection/stats")

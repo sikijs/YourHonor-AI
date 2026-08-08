@@ -125,6 +125,98 @@ def test_fuzzy_seed_match_rejects_unrelated_query():
     assert svc._lookup_seed("xylophone") is None
 
 
+# ------------------------------------------------- semantic glossary seed lookup
+
+def _seed_result(term, definition="A definition."):
+    return {
+        "content": f"Term: {term}\nDefinition: {definition}",
+        "payload": {
+            "kind": "glossary_seed",
+            "term": term,
+            "definition": definition,
+            "etymology": None,
+            "jurisdiction": "US",
+            "usage_example": f"Example using {term}.",
+            "related_terms": ["one", "two"],
+            "also_known_as": None,
+            "practice_tips": "A tip.",
+        },
+    }
+
+
+def test_semantic_seed_match_serves_paraphrase_without_llm():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[
+        _seed_result("intestate", "Dying without a valid will."),
+    ]), patch("app.services.legal_glossary.completion", side_effect=AssertionError("LLM must not be called")):
+        result = svc.lookup("who inherits when you die without making a will")
+
+    assert result.from_seed is True
+    assert result.term == "intestate"
+    assert result.related_terms == ["one", "two"]
+
+
+def test_keyword_match_takes_priority_over_semantic():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_glossary_seed",
+               side_effect=AssertionError("semantic must not run for exact term")):
+        result = svc.lookup("habeas corpus")
+
+    assert result.from_seed is True
+    assert result.term.lower() == "habeas corpus"
+
+
+def test_semantic_seed_empty_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[]), \
+         patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("some unknown phrase")
+
+    assert result.from_seed is False
+    assert result.term == "novel term"
+
+
+def test_semantic_seed_down_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    with patch("app.services.legal_glossary.retrieve_glossary_seed",
+               side_effect=RuntimeError("qdrant down")), \
+         patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("some unknown phrase")
+
+    assert result.from_seed is False
+    assert result.term == "novel term"
+
+
+def test_semantic_seed_below_threshold_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[]), \
+         patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("random unrelated words xylophone")
+
+    assert result.from_seed is False
+
+
 # ------------------------------------------------------------- LLM retry path
 
 def _mock_llm_response(content: str):
@@ -142,7 +234,8 @@ def test_glossary_retries_once_when_llm_output_is_not_json():
     })
     bad_response = _mock_llm_response("I cannot answer that question directly.")
     good_response = _mock_llm_response(good_json)
-    with patch("app.services.legal_glossary.completion", side_effect=[bad_response, good_response]):
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[]), \
+         patch("app.services.legal_glossary.completion", side_effect=[bad_response, good_response]):
         result = svc.lookup("random term")
 
     assert result.term == "test term"
@@ -152,7 +245,8 @@ def test_glossary_retries_once_when_llm_output_is_not_json():
 def test_glossary_raises_friendly_error_after_both_attempts_fail():
     svc = _service()
     bad_response = _mock_llm_response("still not json")
-    with patch("app.services.legal_glossary.completion", return_value=bad_response):
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[]), \
+         patch("app.services.legal_glossary.completion", return_value=bad_response):
         with pytest.raises(ValueError, match="Failed to look up term"):
             svc.lookup("random term")
 
@@ -180,6 +274,7 @@ def test_llm_path_tolerates_empty_qdrant_cards():
         "citations": [],
     })
     with patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)), \
+         patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[]), \
          patch("app.services.legal_glossary.retrieve_curriculum", return_value=[]):
         result = svc.lookup("novel term")
 
