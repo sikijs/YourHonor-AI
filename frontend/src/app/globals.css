@@ -705,6 +705,75 @@ h1, h2, h3 {
   margin-bottom: 1rem;
 }
 
+/* ------------------------------------------------------ tooltip */
+
+.tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  border: 1px solid var(--blue-primary);
+  color: var(--blue-primary);
+  background: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background: var(--dark-navy);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  white-space: normal;
+  z-index: 30;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--dark-navy);
+}
+
+.tooltip-wrap:hover .tooltip-text,
+.tooltip-wrap:focus-within .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media print {
+  .tooltip-wrap, .tooltip-icon {
+    display: none !important;
+  }
+}
+
 @media print {
   header, nav, .btn, button, form, select, .documents-list, .features,
   .chat-container, .hero, .disclaimer-card, footer, .app-footer, .update-banner {

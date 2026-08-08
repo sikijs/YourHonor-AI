@@ -41,13 +41,24 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
             style={{ flex: 1, minWidth: '200px' }}
             disabled={loading}
           />
-          <select value={summaryType} onChange={(e) => setSummaryType(e.target.value)} disabled={loading}
-            style={{ fontSize: '0.85rem', padding: '0.3rem 0.5rem' }} aria-label="Summary type">
-            <option value="general">General</option>
-            <option value="case">Case Summary</option>
-            <option value="statute">Statute Summary</option>
-            <option value="doctrine">Legal Doctrine</option>
-          </select>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+            <select value={summaryType} onChange={(e) => setSummaryType(e.target.value)} disabled={loading}
+              style={{ fontSize: '0.85rem', padding: '0.3rem 0.5rem' }} aria-label="Summary type">
+              <option value="general">General</option>
+              <option value="case">Case Summary</option>
+              <option value="statute">Statute Summary</option>
+              <option value="doctrine">Legal Doctrine</option>
+            </select>
+            <span className="tooltip-wrap" tabIndex={0}>
+              <span className="tooltip-icon" aria-hidden="true">?</span>
+              <span className="tooltip-text" role="tooltip">
+                <strong>General</strong> — balanced overview of any document.<br />
+                <strong>Case Summary</strong> — parties, procedural posture, issue, holding, reasoning, disposition.<br />
+                <strong>Statute Summary</strong> — purpose, scope, key provisions, elements, penalties, remedies.<br />
+                <strong>Legal Doctrine</strong> — rule, elements/tests, origin, landmark cases, exceptions, modern application.
+              </span>
+            </span>
+          </span>
           <span style={{ fontSize: '0.8rem', color: 'var(--gray-text)', whiteSpace: 'nowrap' }}>
             {summaryType === 'general' ? 'general summary' :
              summaryType === 'case' ? 'case-focused' :

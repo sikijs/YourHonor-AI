@@ -16,6 +16,24 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 MODEL = "openrouter/qwen/qwen3-14b"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 
+# Friendly display labels for the saved-document title, mirroring the
+# dropdown options in the frontend. Unknown types fall back to "Legal Summary".
+SUMMARY_TYPE_LABELS = {
+    "general": "General Summary",
+    "case": "Case Summary",
+    "statute": "Statute Summary",
+    "doctrine": "Legal Doctrine Summary",
+}
+
+# Stored doc_type per dropdown selection so "My Documents" can distinguish
+# the summary kinds (the old single "legal_summary" label hid the type).
+SUMMARY_TYPE_DOC_TYPES = {
+    "general": "general_summary",
+    "case": "case_summary",
+    "statute": "statute_summary",
+    "doctrine": "doctrine_summary",
+}
+
 SYSTEM_PROMPT = """You are a legal education assistant generating structured legal summaries for law students.
 Given the text of a legal document, case, or statute, produce a structured summary.
 
@@ -35,6 +53,46 @@ Guidelines:
 - If the text doesn't contain enough information for a section, summarize what is available
 - Write in clear, professional language appropriate for law students
 - Be precise about legal concepts and terminology"""
+
+SYSTEM_PROMPTS = {
+    "general": SYSTEM_PROMPT,
+    "case": SYSTEM_PROMPT + """
+
+This is a CASE SUMMARY. Emphasize:
+- The parties and their roles (petitioner/plaintiff and respondent/defendant)
+- The procedural posture (which court, and how the case arrived there)
+- The precise legal issue or issues presented
+- The holding (the court's answer to each issue) and the reasoning supporting it
+- The disposition (affirmed, reversed, remanded, etc.)
+- The case's significance for future litigation
+
+Do not change the output section structure above; simply give more weight to
+these case-focused elements within those sections.""",
+    "statute": SYSTEM_PROMPT + """
+
+This is a STATUTE SUMMARY. Emphasize:
+- The statute's purpose and the problem it addresses
+- Its scope: who is covered and what conduct or subject matter is regulated
+- Key provisions, including important statutory definitions
+- The elements of any cause of action or offense it creates
+- Penalties, remedies, or enforcement mechanisms
+- Any notable amendments, repeals, or historical context
+
+Do not change the output section structure above; simply give more weight to
+these statute-focused elements within those sections.""",
+    "doctrine": SYSTEM_PROMPT + """
+
+This is a LEGAL DOCTRINE SUMMARY. Emphasize:
+- The doctrine's rule or standard in a single clear statement
+- Its elements or the test(s) courts apply
+- Its origin and historical development
+- The landmark cases that established or refined it
+- Exceptions, limitations, or criticism of the doctrine
+- How it is applied in modern cases
+
+Do not change the output section structure above; simply give more weight to
+these doctrine-focused elements within those sections.""",
+}
 
 
 def _build_user_prompt(query: str, summary_type: str, context_text: str) -> str:
@@ -134,12 +192,13 @@ class LegalSummaryService:
 
         context_text = "\n\n---\n\n".join(context_parts)
         user_prompt = _build_user_prompt(query, summary_type, context_text)
+        system_prompt = SYSTEM_PROMPTS.get(summary_type, SYSTEM_PROMPTS["general"])
 
         try:
             response = completion(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format=GeneratedSummary,
@@ -159,7 +218,9 @@ class LegalSummaryService:
             try:
                 if user_id:
                     md = self._summary_to_markdown(summary, doc_sources)
-                    save_document(user_id, f"Legal Summary: {summary.title}", md, "legal_summary")
+                    label = SUMMARY_TYPE_LABELS.get(summary_type, "Legal Summary")
+                    doc_type = SUMMARY_TYPE_DOC_TYPES.get(summary_type, "legal_summary")
+                    save_document(user_id, f"{label}: {summary.title}", md, doc_type)
             except Exception as e:
                 logger.warning(f"Failed to save summary document: {e}")
 

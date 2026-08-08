@@ -1,3 +1,5 @@
+import pytest
+
 def test_glossary_seed_term_returns_without_llm(client, auth_headers):
     resp = client.post("/api/legal/glossary", headers=auth_headers, json={
         "query": "stare decisis",
@@ -127,6 +129,114 @@ def test_summary_success(client, auth_headers):
     assert data["summary_type"] == "general"
     assert "overview" in data
     assert len(data["key_findings"]) == 1
+
+
+@pytest.mark.parametrize("summary_type, expected_keyword", [
+    ("case", "procedural posture"),
+    ("statute", "remedies, or enforcement"),
+    ("doctrine", "elements or the test(s) courts apply"),
+])
+def test_summary_type_selects_type_specific_system_prompt(client, auth_headers, summary_type, expected_keyword):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "title": "Test Title",
+        "overview": "Overview.",
+        "key_findings": ["Finding"],
+        "legal_principles": ["Principle"],
+        "impact": "Impact",
+        "key_points": ["Point"],
+        "sources_consulted": ["Source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        captured["user"] = messages[1]["content"]
+        return mock_llm
+
+    with patch("app.services.legal_summary.completion", side_effect=recording_completion):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json={
+            "query": "Marbury v. Madison",
+            "summary_type": summary_type,
+        })
+    assert resp.status_code == 200
+    assert resp.json()["summary_type"] == summary_type
+    assert expected_keyword in captured["system"]
+    assert f"Summary Type: {summary_type}" in captured["user"]
+
+
+@pytest.mark.parametrize("summary_type, expected_prefix, expected_doc_type", [
+    ("general", "General Summary", "general_summary"),
+    ("case", "Case Summary", "case_summary"),
+    ("statute", "Statute Summary", "statute_summary"),
+    ("doctrine", "Legal Doctrine Summary", "doctrine_summary"),
+])
+def test_summary_saved_document_title_reflects_type(client, auth_headers, summary_type, expected_prefix, expected_doc_type):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "title": "Marbury v. Madison",
+        "overview": "Overview.",
+        "key_findings": ["Finding"],
+        "legal_principles": ["Principle"],
+        "impact": "Impact",
+        "key_points": ["Point"],
+        "sources_consulted": ["Source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    with patch("app.services.legal_summary.completion", return_value=mock_llm):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json={
+            "query": "Marbury v. Madison",
+            "summary_type": summary_type,
+        })
+    assert resp.status_code == 200
+
+    docs = client.get("/api/documents", headers=auth_headers).json()
+    titles = [d["title"] for d in docs]
+    assert any(t.startswith(f"{expected_prefix}:") for t in titles), (
+        f"expected a saved title starting with '{expected_prefix}:' in {titles}"
+    )
+    doc_types = [d["doc_type"] for d in docs]
+    assert expected_doc_type in doc_types, (
+        f"expected a saved doc_type '{expected_doc_type}' in {doc_types}"
+    )
+
+
+def test_summary_unknown_type_falls_back_to_general_prompt(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    from app.services.legal_summary import SYSTEM_PROMPTS
+    import json
+    valid = {
+        "title": "Test Title",
+        "overview": "Overview.",
+        "key_findings": [],
+        "legal_principles": [],
+        "impact": "Impact",
+        "key_points": [],
+        "sources_consulted": [],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        return mock_llm
+
+    with patch("app.services.legal_summary.completion", side_effect=recording_completion):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json={
+            "query": "test",
+            "summary_type": "bogus",
+        })
+    assert resp.status_code == 200
+    assert resp.json()["summary_type"] == "bogus"
+    assert captured["system"] == SYSTEM_PROMPTS["general"]
 
 
 def test_arguments_success(client, auth_headers):
