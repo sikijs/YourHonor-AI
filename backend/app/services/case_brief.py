@@ -7,6 +7,7 @@ from app.models.case_brief import GeneratedBrief, CaseBriefResponse
 from app.models.source import SourceDocument, from_rag_results, from_courtlistener_case, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
+from app.services.complexity import normalize_complexity, complexity_guide, COMPLEXITY_LABELS
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 from connectors.courtlistener import _has_auth
@@ -123,7 +124,8 @@ class CaseBriefService:
             parts.append("## Sources Consulted\n\n" + "\n".join(f"- {s}" for s in brief.sources_consulted))
         return "\n\n".join(parts)
 
-    def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None) -> CaseBriefResponse:
+    def generate(self, query: str, document_id: Optional[int] = None, user_id: Optional[int] = None, complexity: str = "standard") -> CaseBriefResponse:
+        complexity = normalize_complexity(complexity)
         case_data = None
         sources: list[SourceDocument] = []
 
@@ -190,12 +192,13 @@ class CaseBriefService:
             opinion_text = case_data["opinion_text"]
 
         user_prompt = _build_user_prompt(case_name, opinion_text)
+        system_prompt = SYSTEM_PROMPT + complexity_guide(complexity)
 
         try:
             response = completion(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format=GeneratedBrief,
@@ -215,12 +218,15 @@ class CaseBriefService:
             try:
                 if user_id:
                     md = self._brief_to_markdown(brief, case_name, citation, court, date_filed)
-                    save_document(user_id, f"Case Brief: {case_name}", md, "case_brief")
+                    label = COMPLEXITY_LABELS[complexity]
+                    title = f"Case Brief: {case_name}" if complexity == "standard" else f"Case Brief: {case_name} ({label})"
+                    save_document(user_id, title, md, "case_brief")
             except Exception as e:
                 logger.warning(f"Failed to save case brief document: {e}")
 
             return CaseBriefResponse(
                 case_name=brief.case_name,
+                complexity=complexity,
                 citation=citation if citation else brief.citation,
                 court=court or brief.court,
                 date_filed=date_filed or brief.date_filed,

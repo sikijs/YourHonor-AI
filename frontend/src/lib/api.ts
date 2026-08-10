@@ -2,6 +2,14 @@ const API_BASE = process.env.NODE_ENV === 'development' ? 'http://localhost:8000
 
 const REQUEST_TIMEOUT = 30_000;
 
+export const COMPLEXITY_OPTIONS = [
+  { value: 'intro', label: 'Introductory' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'advanced', label: 'Advanced' },
+] as const;
+
+export type ComplexityLevel = (typeof COMPLEXITY_OPTIONS)[number]['value'];
+
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}, signal?: AbortSignal, timeoutMs: number = REQUEST_TIMEOUT): Promise<T> {
   const headers: Record<string, string> = {};
   if (!(options.body instanceof FormData)) {
@@ -176,15 +184,15 @@ export const api = {
   },
 
   legal: {
-    caseBrief: (query: string, documentId?: number, signal?: AbortSignal) =>
+    caseBrief: (query: string, documentId?: number, signal?: AbortSignal, complexity?: string) =>
       fetchApi<CaseBriefResponse>('/api/legal/case-brief', {
         method: 'POST',
-        body: JSON.stringify({ query, document_id: documentId }),
+        body: JSON.stringify({ query, document_id: documentId, complexity: complexity || 'standard' }),
       }, signal, 180_000),
-    summary: (query: string, summaryType?: string, documentId?: number, signal?: AbortSignal) =>
+    summary: (query: string, summaryType?: string, documentId?: number, signal?: AbortSignal, complexity?: string) =>
       fetchApi<LegalSummaryResponse>('/api/legal/summary', {
         method: 'POST',
-        body: JSON.stringify({ query, summary_type: summaryType || 'general', document_id: documentId }),
+        body: JSON.stringify({ query, summary_type: summaryType || 'general', document_id: documentId, complexity: complexity || 'standard' }),
       }, signal, 180_000),
     arguments: (query: string, documentId?: number, signal?: AbortSignal) =>
       fetchApi<ArgumentExtractionResponse>('/api/legal/arguments', {
@@ -365,6 +373,7 @@ export interface ArgumentExtractionResponse {
 export interface LegalSummaryResponse {
   title: string;
   summary_type: string;
+  complexity: string;
   overview: string;
   key_findings: string[];
   legal_principles: string[];
@@ -377,6 +386,7 @@ export interface LegalSummaryResponse {
 
 export interface CaseBriefResponse {
   case_name: string;
+  complexity: string;
   citation: string[];
   court: string;
   date_filed: string;

@@ -7,6 +7,7 @@ from app.models.legal_summary import GeneratedSummary, LegalSummaryResponse
 from app.models.source import SourceDocument, from_rag_results, from_user_upload
 from app.services.retrieval import get_retrieval_service, deduplicate_rag_results, parse_llm_json
 from app.services.llm_errors import friendly_llm_error
+from app.services.complexity import normalize_complexity, complexity_guide, COMPLEXITY_LABELS
 from app.services.document import load_user_document_content
 from app.services.document_saver import save_document
 
@@ -163,7 +164,8 @@ class LegalSummaryService:
             parts.append("## Retrieved Sources\n\n" + "\n".join(lines))
         return "\n\n".join(parts)
 
-    def generate(self, query: str, summary_type: str = "general", document_id: Optional[int] = None, user_id: Optional[int] = None) -> LegalSummaryResponse:
+    def generate(self, query: str, summary_type: str = "general", document_id: Optional[int] = None, user_id: Optional[int] = None, complexity: str = "standard") -> LegalSummaryResponse:
+        complexity = normalize_complexity(complexity)
         user_content = None
         if document_id and user_id:
             user_doc = load_user_document_content(document_id, user_id)
@@ -192,7 +194,7 @@ class LegalSummaryService:
 
         context_text = "\n\n---\n\n".join(context_parts)
         user_prompt = _build_user_prompt(query, summary_type, context_text)
-        system_prompt = SYSTEM_PROMPTS.get(summary_type, SYSTEM_PROMPTS["general"])
+        system_prompt = SYSTEM_PROMPTS.get(summary_type, SYSTEM_PROMPTS["general"]) + complexity_guide(complexity)
 
         try:
             response = completion(
@@ -220,13 +222,17 @@ class LegalSummaryService:
                     md = self._summary_to_markdown(summary, doc_sources)
                     label = SUMMARY_TYPE_LABELS.get(summary_type, "Legal Summary")
                     doc_type = SUMMARY_TYPE_DOC_TYPES.get(summary_type, "legal_summary")
-                    save_document(user_id, f"{label}: {summary.title}", md, doc_type)
+                    title = f"{label}: {summary.title}"
+                    if complexity != "standard":
+                        title += f" ({COMPLEXITY_LABELS[complexity]})"
+                    save_document(user_id, title, md, doc_type)
             except Exception as e:
                 logger.warning(f"Failed to save summary document: {e}")
 
             return LegalSummaryResponse(
                 title=summary.title,
                 summary_type=summary_type,
+                complexity=complexity,
                 overview=summary.overview,
                 key_findings=summary.key_findings,
                 legal_principles=summary.legal_principles,

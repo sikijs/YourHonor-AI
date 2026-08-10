@@ -46,6 +46,7 @@ def generate_case_brief(
             request.query,
             document_id=request.document_id,
             user_id=user_id,
+            complexity=request.complexity or "standard",
         )
         return result
     except ValueError as e:
@@ -66,6 +67,7 @@ def generate_legal_summary(
             request.summary_type or "general",
             document_id=request.document_id,
             user_id=user_id,
+            complexity=request.complexity or "standard",
         )
         return result
     except ValueError as e:

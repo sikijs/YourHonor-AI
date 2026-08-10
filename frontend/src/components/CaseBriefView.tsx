@@ -1,6 +1,7 @@
 'use client';
 
-import { User, CaseBriefResponse, api } from '@/lib/api';
+import { useState } from 'react';
+import { User, CaseBriefResponse, COMPLEXITY_OPTIONS, api } from '@/lib/api';
 import { printContent, caseBriefHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
@@ -8,6 +9,7 @@ import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
 export default function CaseBriefView({ user, onError }: { user: User; onError: (err: string) => void }) {
+  const [complexity, setComplexity] = useState('standard');
   const {
     query, setQuery,
     result, loading,
@@ -16,7 +18,7 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
     documents, selectedDocId, setSelectedDocId,
     elapsed, handleSubmit, cancel,
   } = useLegalTool<CaseBriefResponse>(
-    (q, docId, signal) => api.legal.caseBrief(q, docId, signal),
+    (q, docId, signal) => api.legal.caseBrief(q, docId, signal, complexity),
     onError,
   );
 
@@ -39,6 +41,22 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
             style={{ flex: 1 }}
             disabled={loading}
           />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+            <select value={complexity} onChange={(e) => setComplexity(e.target.value)} disabled={loading}
+              style={{ fontSize: '0.85rem', padding: '0.3rem 0.5rem' }} aria-label="Complexity level">
+              {COMPLEXITY_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <span className="tooltip-wrap" tabIndex={0}>
+              <span className="tooltip-icon" aria-hidden="true">?</span>
+              <span className="tooltip-text" role="tooltip">
+                <strong>Introductory</strong> — plain language, defined terms, black-letter rule.<br />
+                <strong>Standard</strong> — balanced depth for law students.<br />
+                <strong>Advanced</strong> — policy debate, nuance, dissent/concurrence analysis, exam-style depth.
+              </span>
+            </span>
+          </span>
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Generating...' : 'Generate Brief'}
           </button>
@@ -99,6 +117,9 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
             <h2>{result.case_name}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
               {result.citation.join(', ')} | {result.court} | {result.date_filed}
+              {result.complexity && result.complexity !== 'standard' && (
+                <> | {COMPLEXITY_OPTIONS.find((o) => o.value === result.complexity)?.label}</>
+              )}
             </p>
           </div>
 

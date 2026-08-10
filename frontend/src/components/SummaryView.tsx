@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, LegalSummaryResponse, api } from '@/lib/api';
+import { User, LegalSummaryResponse, COMPLEXITY_OPTIONS, api } from '@/lib/api';
 import { printContent, summaryHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
@@ -10,6 +10,7 @@ import LoadingStatus from '@/components/LoadingStatus';
 
 export default function SummaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [summaryType, setSummaryType] = useState('general');
+  const [complexity, setComplexity] = useState('standard');
   const {
     query, setQuery,
     result, loading,
@@ -18,7 +19,7 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
     documents, selectedDocId, setSelectedDocId,
     elapsed, handleSubmit, cancel,
   } = useLegalTool<LegalSummaryResponse>(
-    (q, docId, signal) => api.legal.summary(q, summaryType, docId, signal),
+    (q, docId, signal) => api.legal.summary(q, summaryType, docId, signal, complexity),
     onError,
   );
 
@@ -56,6 +57,22 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
                 <strong>Case Summary</strong> — parties, procedural posture, issue, holding, reasoning, disposition.<br />
                 <strong>Statute Summary</strong> — purpose, scope, key provisions, elements, penalties, remedies.<br />
                 <strong>Legal Doctrine</strong> — rule, elements/tests, origin, landmark cases, exceptions, modern application.
+              </span>
+            </span>
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+            <select value={complexity} onChange={(e) => setComplexity(e.target.value)} disabled={loading}
+              style={{ fontSize: '0.85rem', padding: '0.3rem 0.5rem' }} aria-label="Complexity level">
+              {COMPLEXITY_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <span className="tooltip-wrap" tabIndex={0}>
+              <span className="tooltip-icon" aria-hidden="true">?</span>
+              <span className="tooltip-text" role="tooltip">
+                <strong>Introductory</strong> — plain language, defined terms, black-letter rule.<br />
+                <strong>Standard</strong> — balanced depth for law students.<br />
+                <strong>Advanced</strong> — policy debate, nuance, dissent/concurrence analysis, exam-style depth.
               </span>
             </span>
           </span>
@@ -119,6 +136,9 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
             <h2>{result.title}</h2>
             <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
               Type: {result.summary_type}
+              {result.complexity && result.complexity !== 'standard' && (
+                <> · {COMPLEXITY_OPTIONS.find((o) => o.value === result.complexity)?.label}</>
+              )}
             </p>
           </div>
           <div className="card" style={{ marginBottom: '0.75rem' }}>

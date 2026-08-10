@@ -79,6 +79,135 @@ def test_case_brief_without_auth_returns_401(client):
     assert resp.status_code == 401
 
 
+@pytest.mark.parametrize("complexity, expected_keyword", [
+    ("intro", "Complexity Level: INTRODUCTORY"),
+    ("standard", "Complexity Level: STANDARD"),
+    ("advanced", "Complexity Level: ADVANCED"),
+])
+def test_case_brief_complexity_selects_guide(client, auth_headers, complexity, expected_keyword):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid_brief = {
+        "case_name": "Test Case",
+        "citation": [],
+        "court": "Supreme Court",
+        "date_filed": "2024-01-01",
+        "facts": "Test facts.",
+        "procedural_history": "Test history.",
+        "issues": ["Issue one"],
+        "holding": "Test holding.",
+        "reasoning": "Test reasoning.",
+        "rule_of_law": "Test rule.",
+        "concurrence": None,
+        "dissent": None,
+        "significance": "Test significance.",
+        "sources_consulted": ["test source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid_brief)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        return mock_llm
+
+    with (
+        patch("app.services.case_brief.completion", side_effect=recording_completion),
+        patch("app.services.case_brief._has_auth", return_value=False),
+    ):
+        resp = client.post("/api/legal/case-brief", headers=auth_headers, json={
+            "query": "Marbury v. Madison",
+            "complexity": complexity,
+        })
+    assert resp.status_code == 200
+    assert resp.json()["complexity"] == complexity
+    assert expected_keyword in captured["system"]
+
+
+@pytest.mark.parametrize("sent_complexity, expected", [
+    (None, "standard"),
+    ("bogus", "standard"),
+])
+def test_case_brief_complexity_defaults_and_falls_back_to_standard(client, auth_headers, sent_complexity, expected):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid_brief = {
+        "case_name": "Test Case",
+        "citation": [],
+        "court": "Supreme Court",
+        "date_filed": "2024-01-01",
+        "facts": "Test facts.",
+        "procedural_history": "Test history.",
+        "issues": ["Issue one"],
+        "holding": "Test holding.",
+        "reasoning": "Test reasoning.",
+        "rule_of_law": "Test rule.",
+        "concurrence": None,
+        "dissent": None,
+        "significance": "Test significance.",
+        "sources_consulted": ["test source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid_brief)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        return mock_llm
+
+    payload = {"query": "Marbury v. Madison"}
+    if sent_complexity is not None:
+        payload["complexity"] = sent_complexity
+    with (
+        patch("app.services.case_brief.completion", side_effect=recording_completion),
+        patch("app.services.case_brief._has_auth", return_value=False),
+    ):
+        resp = client.post("/api/legal/case-brief", headers=auth_headers, json=payload)
+    assert resp.status_code == 200
+    assert resp.json()["complexity"] == expected
+    assert "Complexity Level: STANDARD" in captured["system"]
+
+
+def test_case_brief_advanced_saved_title_includes_level(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid_brief = {
+        "case_name": "Marbury v. Madison",
+        "citation": [],
+        "court": "Supreme Court",
+        "date_filed": "1803-02-24",
+        "facts": "Test facts.",
+        "procedural_history": "Test history.",
+        "issues": ["Issue one"],
+        "holding": "Test holding.",
+        "reasoning": "Test reasoning.",
+        "rule_of_law": "Test rule.",
+        "concurrence": None,
+        "dissent": None,
+        "significance": "Test significance.",
+        "sources_consulted": ["test source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid_brief)))]
+    with (
+        patch("app.services.case_brief.completion", return_value=mock_llm),
+        patch("app.services.case_brief._has_auth", return_value=False),
+    ):
+        resp = client.post("/api/legal/case-brief", headers=auth_headers, json={
+            "query": "Marbury v. Madison",
+            "complexity": "advanced",
+        })
+    assert resp.status_code == 200
+    docs = client.get("/api/documents", headers=auth_headers).json()
+    titles = [d["title"] for d in docs]
+    assert any(t.startswith("Case Brief: Marbury v. Madison (Advanced)") for t in titles), (
+        f"expected an advanced-level saved title in {titles}"
+    )
+
+
 def test_summary_without_auth_returns_401(client):
     resp = client.post("/api/legal/summary", json={"query": "contract law"})
     assert resp.status_code == 401
@@ -208,6 +337,105 @@ def test_summary_saved_document_title_reflects_type(client, auth_headers, summar
     )
 
 
+@pytest.mark.parametrize("complexity, expected_keyword", [
+    ("intro", "Complexity Level: INTRODUCTORY"),
+    ("standard", "Complexity Level: STANDARD"),
+    ("advanced", "Complexity Level: ADVANCED"),
+])
+def test_summary_complexity_selects_guide(client, auth_headers, complexity, expected_keyword):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "title": "Test Title",
+        "overview": "Overview.",
+        "key_findings": ["Finding"],
+        "legal_principles": ["Principle"],
+        "impact": "Impact",
+        "key_points": ["Point"],
+        "sources_consulted": ["Source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        return mock_llm
+
+    with patch("app.services.legal_summary.completion", side_effect=recording_completion):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json={
+            "query": "contract law",
+            "complexity": complexity,
+        })
+    assert resp.status_code == 200
+    assert resp.json()["complexity"] == complexity
+    assert expected_keyword in captured["system"]
+
+
+@pytest.mark.parametrize("sent_complexity, expected", [
+    (None, "standard"),
+    ("bogus", "standard"),
+])
+def test_summary_complexity_defaults_and_falls_back_to_standard(client, auth_headers, sent_complexity, expected):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "title": "Test Title",
+        "overview": "Overview.",
+        "key_findings": ["Finding"],
+        "legal_principles": ["Principle"],
+        "impact": "Impact",
+        "key_points": ["Point"],
+        "sources_consulted": ["Source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    captured = {}
+
+    def recording_completion(model, messages, **kwargs):
+        captured["system"] = messages[0]["content"]
+        return mock_llm
+
+    payload = {"query": "contract law"}
+    if sent_complexity is not None:
+        payload["complexity"] = sent_complexity
+    with patch("app.services.legal_summary.completion", side_effect=recording_completion):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json=payload)
+    assert resp.status_code == 200
+    assert resp.json()["complexity"] == expected
+    assert "Complexity Level: STANDARD" in captured["system"]
+
+
+def test_summary_advanced_saved_title_includes_level(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+
+    valid = {
+        "title": "Marbury v. Madison",
+        "overview": "Overview.",
+        "key_findings": ["Finding"],
+        "legal_principles": ["Principle"],
+        "impact": "Impact",
+        "key_points": ["Point"],
+        "sources_consulted": ["Source"],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid)))]
+    with patch("app.services.legal_summary.completion", return_value=mock_llm):
+        resp = client.post("/api/legal/summary", headers=auth_headers, json={
+            "query": "Marbury v. Madison",
+            "complexity": "advanced",
+        })
+    assert resp.status_code == 200
+    docs = client.get("/api/documents", headers=auth_headers).json()
+    titles = [d["title"] for d in docs]
+    assert any(t.startswith("General Summary: Marbury v. Madison (Advanced)") for t in titles), (
+        f"expected an advanced-level saved title in {titles}"
+    )
+
+
 def test_summary_unknown_type_falls_back_to_general_prompt(client, auth_headers):
     from unittest.mock import MagicMock, patch
     from app.services.legal_summary import SYSTEM_PROMPTS
@@ -236,7 +464,7 @@ def test_summary_unknown_type_falls_back_to_general_prompt(client, auth_headers)
         })
     assert resp.status_code == 200
     assert resp.json()["summary_type"] == "bogus"
-    assert captured["system"] == SYSTEM_PROMPTS["general"]
+    assert captured["system"].startswith(SYSTEM_PROMPTS["general"])
 
 
 def test_arguments_success(client, auth_headers):

@@ -7,6 +7,7 @@ from app.models.source import SourceDocument
 class CaseBriefRequest(BaseModel):
     query: str
     document_id: Optional[int] = None
+    complexity: Optional[str] = "standard"
 
 
 class GeneratedBrief(BaseModel):
@@ -28,6 +29,7 @@ class GeneratedBrief(BaseModel):
 
 class CaseBriefResponse(BaseModel):
     case_name: str
+    complexity: str = "standard"
     citation: list[str]
     court: str
     date_filed: str

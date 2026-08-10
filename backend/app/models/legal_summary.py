@@ -8,6 +8,7 @@ class LegalSummaryRequest(BaseModel):
     query: str
     summary_type: Optional[str] = "general"
     document_id: Optional[int] = None
+    complexity: Optional[str] = "standard"
 
 
 class GeneratedSummary(BaseModel):
@@ -23,6 +24,7 @@ class GeneratedSummary(BaseModel):
 class LegalSummaryResponse(BaseModel):
     title: str
     summary_type: str
+    complexity: str = "standard"
     overview: str
     key_findings: list[str]
     legal_principles: list[str]
