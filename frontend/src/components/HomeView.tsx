@@ -234,6 +234,10 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
           <h3>AI Tutor</h3>
           <p>Learn legal concepts through Socratic dialogue with adaptive AI tutoring</p>
         </div>
+        <div className="card feature-card" onClick={() => onNavigate('doctrines')} style={{ cursor: 'pointer' }}>
+          <h3>Doctrine Explorer</h3>
+          <p>Browse 70 landmark cases across 30+ doctrines with an interactive timeline</p>
+        </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'documents' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Document Management</h3>
           <p>Create new legal documents from templates and manage your saved documents</p>

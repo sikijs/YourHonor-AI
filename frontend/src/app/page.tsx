@@ -22,12 +22,14 @@ import AboutView from '@/components/AboutView';
 import AppFooter from '@/components/AppFooter';
 import ScratchPad from '@/components/ScratchPad';
 import IngestionBanner from '@/components/IngestionBanner';
+import DoctrineExplorerView from '@/components/DoctrineExplorerView';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'issuespotter' | 'resources' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'resources' | 'about'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [briefQuery, setBriefQuery] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -86,6 +88,7 @@ export default function Home() {
               <a href="#" onClick={() => setView('tutor')} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
               <a href="#" onClick={() => setView('documents')} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
               <a href="#" onClick={() => setView('glossary')} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
+              <a href="#" onClick={() => setView('doctrines')} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
               <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
               <a href="#" onClick={() => setView('chat')} style={view === 'chat' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Chat</a>
               <a href="#" onClick={handleSignOut}>Sign Out</a>
@@ -94,6 +97,7 @@ export default function Home() {
             <>
               <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
               <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
+              <a href="#" onClick={() => setView('doctrines')} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
               <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
               <a href="#" onClick={() => setView('auth')} style={view === 'auth' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Sign In</a>
             </>
@@ -125,7 +129,7 @@ export default function Home() {
         )}
 
         {view === 'briefs' && user && (
-          <CaseBriefView user={user} onError={setError} />
+          <CaseBriefView user={user} onError={setError} initialQuery={briefQuery} />
         )}
 
         {view === 'summaries' && user && (
@@ -158,6 +162,13 @@ export default function Home() {
 
         {view === 'glossary' && user && (
           <GlossaryView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
+        )}
+
+        {view === 'doctrines' && (
+          <DoctrineExplorerView
+            user={user}
+            onNavigate={(v, q) => { setBriefQuery(q || ''); setView(v as any); }}
+          />
         )}
 
         {view === 'generator' && user && (

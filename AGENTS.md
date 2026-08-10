@@ -218,6 +218,9 @@ Backend available at http://localhost:8000
 - POST /api/rag/ingest            - Ingest a document
 - GET  /api/rag/collection/stats?collection=legal_documents - Get collection statistics (optional whitelisted collection name; default `legal_documents`, also `tutor_curriculum`, `glossary_seed`)
 
+### Doctrine Explorer
+- GET /api/doctrine/map           - Curated doctrine map (31 doctrines over the 70 landmark cases; public, no auth, no LLM)
+
 ### Other
 - GET /api/health - Health check
 - GET /api/check-update - Check if a newer version is available on GitHub
@@ -253,7 +256,7 @@ Backend available at http://localhost:8000
 - Citation mapping
 - CourtListener connector with citation-lookup API, rate-limit retry, in-memory + SQLite caching
 - SQLite opinions_cache table with qdrant_ingested tracking
-- Auto pre-ingestion of 70 landmark cases into Qdrant at startup (background thread; 66 of 70 ship pre-seeded in the Docker image via `landmark_seed.json`, so boot needs no CourtListener calls — the rest are fetched live with a 12s delay between cases for rate limits)
+- Auto pre-ingestion of 70 landmark cases into Qdrant at startup (background thread; all 70 ship pre-seeded in the Docker image via `landmark_seed.json`, so boot needs no CourtListener calls at all)
 - Progress tracking: cache hit → skip API, cache miss → fetch → cache → ingest → mark done
 
 ### Phase 5 (Advanced Features) - COMPLETE
@@ -262,6 +265,7 @@ Backend available at http://localhost:8000
 - AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student)
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
+- Doctrine Explorer — curated doctrine map (`backend/app/data/doctrine_map.json`, 31 doctrines covering all 70 landmark cases) with card/timeline views, subject filters, and one-click case brief generation from any doctrine node; served via GET /api/doctrine/map (public, no LLM)
 
 ### Phase 6 (Error Handling) - COMPLETE
 - `app/services/llm_errors.py` — Detects OpenRouter payment/credit errors and returns a user-friendly message: *"Your OpenRouter credits are exhausted. Add funds at openrouter.ai/settings/credits to continue."* instead of raw API errors

@@ -317,7 +317,32 @@ export const api = {
   rag: {
     ingestionStatus: () => fetchApi<IngestionStatus>('/api/rag/ingestion-status'),
   },
+
+  doctrine: {
+    map: () => fetchApi<DoctrineMapResponse>('/api/doctrine/map'),
+  },
 };
+
+export interface DoctrineCaseNode {
+  name: string;
+  citation: string;
+  year: number;
+  holding: string;
+}
+
+export interface Doctrine {
+  id: string;
+  name: string;
+  subject: string;
+  description: string;
+  cases: DoctrineCaseNode[];
+}
+
+export interface DoctrineMapResponse {
+  version: number;
+  updated: string;
+  doctrines: Doctrine[];
+}
 
 export interface IngestionStatus {
   running: boolean;

@@ -24,6 +24,13 @@ _mock_llm.choices = [MagicMock(message=MagicMock(content="Mocked LLM response"))
 _mock_completion = patch("litellm.completion", return_value=_mock_llm)
 _mock_completion.start()
 
+# Never run the real background startup ingestion in tests: TestClient fires
+# the startup event, which spawns a daemon thread that embeds real opinion
+# text and mutates the shared INGESTION_PROGRESS dict — racing order-dependent
+# tests like test_landmark_ingest_tracks_progress_lifecycle.
+_mock_startup = patch("app.main._run_startup_tasks", return_value=None)
+_mock_startup.start()
+
 import pytest
 from fastapi.testclient import TestClient
 

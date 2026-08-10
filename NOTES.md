@@ -97,12 +97,12 @@ CourtListener (courtlistener.com) is a free, public database of real US court op
 4. **Fetch the opinion** — with the matched case's opinion ID, the app downloads the full opinion from `/opinions/{id}/`. Opinions arrive in several formats; the app tries plain text first, then HTML variants (tags stripped), then Harvard XML — whichever yields readable text wins
 5. **Store for next time** — metadata + full text are written into the SQLite cache, so the same case is never downloaded twice. Two smaller in-memory caches (HTTP responses and opinion text, both ~5 minutes) cover repeat lookups within a session
 
-**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 70 landmark cases are pre-ingested carefully — 66 of them ship pre-seeded in the Docker image (so no network is needed at boot), and the few remaining ones are fetched slowly, 12 seconds apart, in a background thread on startup.
+**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 70 landmark cases are pre-ingested carefully — all 70 ship pre-seeded in the Docker image (`landmark_seed.json`), so boot needs no network at all; runtime fetching is only a fallback for cases CourtListener cannot resolve.
 
 **Where it shows up in the app:**
 - **Case Briefs** — the main consumer: library miss → CourtListener fetch → AI brief written from the real opinion text
 - **Memoranda** — searches CourtListener for reference materials to ground the memo
-- **Landmark pre-ingestion** — on startup the app embeds 70 famous cases (66 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
+- **Landmark pre-ingestion** — on startup the app embeds all 70 famous cases (all 70 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
 
 **Small variations by tool:**
 - **Chat** keeps a conversation history (last 10 messages), so step 4 also includes what you and the AI said earlier
@@ -410,7 +410,7 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Signed out after restarting the app | JWT secret is auto-generated and changes every boot | Normal — just sign in again. Your saved documents are still there |
 | Scripts won't run on Mac (quarantine warning) | macOS blocks unsigned `.command` files from the internet | Run: `xattr -dr com.apple.quarantine /path/to/YourHonor-AI-main` then try again |
 | Qdrant connection refused on startup | Qdrant is slower to start than the backend | Normal — the health check retries up to 5 times over 60 seconds. Wait a moment and refresh |
-| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 70 landmark cases is still running (66 ship pre-seeded in the image; a few may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
+| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 70 landmark cases is still running (all 70 ship pre-seeded in the image; only rare cases may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
 | Case Brief returns "No case information found" | Library miss + no CourtListener token configured | Add `COURTLISTENER_TOKEN` to `.env` (free at courtlistener.com), then restart. Without it the app can only search metadata, not download full opinions |
 | Case Brief has metadata but thin/no opinion detail | "Set COURTLISTENER_TOKEN for full opinion text" — token missing | Same fix: add the token and restart. The full opinion text is only downloadable with a token |
 | CourtListener lookups failing (401) | Token invalid or expired | Log in at courtlistener.com and regenerate the token, update `.env`, restart |

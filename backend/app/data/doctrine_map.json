@@ -1,0 +1,686 @@
+{
+  "version": 1,
+  "updated": "2026-08-10",
+  "doctrines": [
+    {
+      "id": "judicial-review",
+      "name": "Judicial Review",
+      "subject": "Constitutional Law",
+      "description": "The power of courts to review legislative and executive action against the Constitution and declare it invalid. Established in Marbury v. Madison, it is the cornerstone of American constitutional law.",
+      "cases": [
+        {
+          "name": "Marbury v. Madison",
+          "citation": "5 U.S. 137",
+          "year": 1803,
+          "holding": "The Supreme Court has the power to review acts of Congress and declare them unconstitutional; Section 13 of the Judiciary Act of 1789, which purported to expand the Court's original jurisdiction, was unconstitutional."
+        }
+      ]
+    },
+    {
+      "id": "federalism-implied-powers",
+      "name": "Federalism & Implied Powers",
+      "subject": "Constitutional Law",
+      "description": "The relationship between the national government and the states, including Congress's implied powers under the Necessary and Proper Clause and the supremacy of federal law.",
+      "cases": [
+        {
+          "name": "McCulloch v. Maryland",
+          "citation": "17 U.S. 316",
+          "year": 1819,
+          "holding": "Congress may charter a national bank under the Necessary and Proper Clause, and states may not tax federal instrumentalities: the power to tax involves the power to destroy."
+        }
+      ]
+    },
+    {
+      "id": "commerce-clause",
+      "name": "Commerce Clause",
+      "subject": "Constitutional Law",
+      "description": "Congress's power to regulate interstate commerce, its expansion over 200 years, and the modern limits placed on it. Traces the arc from Gibbons to Wickard and back to Lopez.",
+      "cases": [
+        {
+          "name": "Gibbons v. Ogden",
+          "citation": "22 U.S. 1",
+          "year": 1824,
+          "holding": "Interstate commerce includes navigation, and the federal Commerce Clause power is broad — states cannot monopolize steamboat traffic on interstate waterways."
+        },
+        {
+          "name": "Wickard v. Filburn",
+          "citation": "317 U.S. 111",
+          "year": 1942,
+          "holding": "Congress may regulate purely local activity that, in the aggregate, substantially affects interstate commerce — wheat grown for home consumption."
+        },
+        {
+          "name": "United States v. Lopez",
+          "citation": "514 U.S. 549",
+          "year": 1995,
+          "holding": "The Gun-Free School Zones Act exceeds the Commerce Clause; Congress cannot regulate non-economic activity with no substantial effect on interstate commerce — the first limit on the clause since 1937."
+        }
+      ]
+    },
+    {
+      "id": "anti-commandeering",
+      "name": "Anti-Commandeering",
+      "subject": "Constitutional Law",
+      "description": "The principle that Congress may not commandeer state legislatures or state executives to implement federal regulatory programs, preserving the dual-sovereignty structure of federalism.",
+      "cases": [
+        {
+          "name": "New York v. United States",
+          "citation": "505 U.S. 144",
+          "year": 1992,
+          "holding": "Congress may not commandeer state legislatures to enact a federal regulatory program; the 'take title' provision of the Low-Level Radioactive Waste Act violated the Tenth Amendment."
+        }
+      ]
+    },
+    {
+      "id": "separation-of-powers",
+      "name": "Separation of Powers",
+      "subject": "Constitutional Law",
+      "description": "The allocation of power among the legislative, executive, and judicial branches, including the limits of executive authority and the qualified nature of executive privilege.",
+      "cases": [
+        {
+          "name": "Youngstown Sheet & Tube Co. v. Sawyer",
+          "citation": "343 U.S. 579",
+          "year": 1952,
+          "holding": "The President cannot seize private steel mills without congressional authorization; Justice Jackson's tripartite framework governs the scope of executive power."
+        },
+        {
+          "name": "United States v. Nixon",
+          "citation": "418 U.S. 683",
+          "year": 1974,
+          "holding": "Executive privilege is qualified, not absolute; the President must comply with a subpoena in a criminal case because the judiciary is the final arbiter of the Constitution."
+        }
+      ]
+    },
+    {
+      "id": "administrative-deference",
+      "name": "Administrative Deference",
+      "subject": "Administrative Law",
+      "description": "How courts review agency interpretations of statutes. The two-step Chevron framework dominated administrative law for four decades before being overruled in 2024.",
+      "cases": [
+        {
+          "name": "Chevron v. NRDC",
+          "citation": "467 U.S. 837",
+          "year": 1984,
+          "holding": "Courts should defer to reasonable agency interpretations of ambiguous statutes at Chevron step two — a doctrine overruled by Loper Bright Enterprises v. Raimondo (2024)."
+        }
+      ]
+    },
+    {
+      "id": "equal-protection",
+      "name": "Equal Protection",
+      "subject": "Constitutional Law",
+      "description": "The Fourteenth Amendment's guarantee of equal protection of the laws — from Plessy's separate-but-equal to Brown, the tiers of scrutiny, and the modern doctrine of race-conscious classifications.",
+      "cases": [
+        {
+          "name": "Plessy v. Ferguson",
+          "citation": "163 U.S. 537",
+          "year": 1896,
+          "holding": "Separate but equal railway accommodations do not violate the Equal Protection Clause — overruled by Brown v. Board of Education (1954)."
+        },
+        {
+          "name": "United States v. Carolene Products Co.",
+          "citation": "304 U.S. 144",
+          "year": 1938,
+          "holding": "Economic regulation is reviewed under rational basis; Footnote 4 suggested heightened scrutiny for 'discrete and insular minorities' — the origin of the tiers of scrutiny."
+        },
+        {
+          "name": "Brown v. Board of Education",
+          "citation": "347 U.S. 483",
+          "year": 1954,
+          "holding": "Racial segregation in public schools violates the Equal Protection Clause; separate educational facilities are inherently unequal."
+        },
+        {
+          "name": "Loving v. Virginia",
+          "citation": "388 U.S. 1",
+          "year": 1967,
+          "holding": "Racial restrictions on marriage violate both the Equal Protection and Due Process Clauses of the Fourteenth Amendment."
+        },
+        {
+          "name": "Korematsu v. United States",
+          "citation": "323 U.S. 214",
+          "year": 1944,
+          "holding": "The wartime exclusion of Japanese Americans was upheld under military necessity — a decision widely discredited and repudiated in Trump v. Hawaii (2018)."
+        },
+        {
+          "name": "Grutter v. Bollinger",
+          "citation": "539 U.S. 306",
+          "year": 2003,
+          "holding": "Narrowly tailored affirmative action in law school admissions survives strict scrutiny because student-body diversity is a compelling state interest — later limited by Students for Fair Admissions (2023)."
+        }
+      ]
+    },
+    {
+      "id": "voting-rights",
+      "name": "Voting Rights & Apportionment",
+      "subject": "Constitutional Law",
+      "description": "The constitutional rules governing legislative districts, racial gerrymandering, and the reach of the Voting Rights Act.",
+      "cases": [
+        {
+          "name": "Baker v. Carr",
+          "citation": "369 U.S. 186",
+          "year": 1962,
+          "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims."
+        },
+        {
+          "name": "Shaw v. Reno",
+          "citation": "509 U.S. 630",
+          "year": 1993,
+          "holding": "Racial gerrymandering claims are cognizable under the Equal Protection Clause where a district is so bizarre on its face that it can only be explained by race."
+        },
+        {
+          "name": "Shelby County v. Holder",
+          "citation": "570 U.S. 529",
+          "year": 2013,
+          "holding": "The preclearance coverage formula of Section 4(b) of the Voting Rights Act violates the Tenth Amendment's equal sovereignty principle; Congress must update it."
+        }
+      ]
+    },
+    {
+      "id": "standing-and-justiciability",
+      "name": "Standing & Justiciability",
+      "subject": "Constitutional Law",
+      "description": "The threshold rules that decide when a case is fit for federal court: standing, ripeness, mootness, and the political question doctrine.",
+      "cases": [
+        {
+          "name": "Baker v. Carr",
+          "citation": "369 U.S. 186",
+          "year": 1962,
+          "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims."
+        },
+        {
+          "name": "Lujan v. Defenders of Wildlife",
+          "citation": "504 U.S. 555",
+          "year": 1992,
+          "holding": "Standing requires an injury in fact, a causal connection, and redressability; Congress cannot erase the Article III case-or-controversy requirement."
+        }
+      ]
+    },
+    {
+      "id": "substantive-due-process-privacy",
+      "name": "Substantive Due Process & Privacy",
+      "subject": "Constitutional Law",
+      "description": "The contested doctrine that the Due Process Clauses protect unenumerated fundamental rights — contraception, marriage, intimacy, and abortion — and the modern battle over its scope.",
+      "cases": [
+        {
+          "name": "Griswold v. Connecticut",
+          "citation": "381 U.S. 479",
+          "year": 1965,
+          "holding": "The Constitution protects marital privacy through the penumbras and emanations of the Bill of Rights; a ban on contraceptives for married couples is unconstitutional."
+        },
+        {
+          "name": "Roe v. Wade",
+          "citation": "410 U.S. 113",
+          "year": 1973,
+          "holding": "The right of privacy under the Due Process Clause includes a woman's decision to terminate a pregnancy under the trimester framework — overruled by Dobbs v. Jackson (2022)."
+        },
+        {
+          "name": "Lawrence v. Texas",
+          "citation": "539 U.S. 558",
+          "year": 2003,
+          "holding": "Criminalizing same-sex sexual intimacy violates the Due Process Clause; Bowers v. Hardwick is overruled."
+        },
+        {
+          "name": "Obergefell v. Hodges",
+          "citation": "576 U.S. 644",
+          "year": 2015,
+          "holding": "The Fourteenth Amendment requires states to both license and recognize same-sex marriages; the right to marry is fundamental."
+        },
+        {
+          "name": "Dobbs v. Jackson Women's Health",
+          "citation": "597 U.S. 215",
+          "year": 2022,
+          "holding": "The Constitution does not confer a right to abortion; Roe and Casey are overruled, returning abortion regulation to the states."
+        }
+      ]
+    },
+    {
+      "id": "privileges-or-immunities",
+      "name": "Privileges or Immunities",
+      "subject": "Constitutional Law",
+      "description": "The Fourteenth Amendment's Privileges or Immunities Clause, narrowly read since 1873 to protect only federal citizenship rights — one of the great 'paths not taken' in constitutional law.",
+      "cases": [
+        {
+          "name": "Slaughter-House Cases",
+          "citation": "83 U.S. 36",
+          "year": 1873,
+          "holding": "The Privileges or Immunities Clause protects only the privileges of federal citizenship, not state citizenship — a narrow reading that channeled rights claims through the Due Process Clause instead."
+        }
+      ]
+    },
+    {
+      "id": "free-speech-press",
+      "name": "Free Speech & Press",
+      "subject": "First Amendment",
+      "description": "The core First Amendment doctrines: incitement, defamation, obscenity, expressive conduct, and student speech. Traces the evolution from the clear-and-present-danger test to modern categorical rules.",
+      "cases": [
+        {
+          "name": "Schenck v. United States",
+          "citation": "249 U.S. 47",
+          "year": 1919,
+          "holding": "Speech may be punished when it creates a clear and present danger of the evils Congress may prevent — the test later replaced by Brandenburg's imminent lawless action."
+        },
+        {
+          "name": "New York Times v. Sullivan",
+          "citation": "376 U.S. 254",
+          "year": 1964,
+          "holding": "Public officials must prove actual malice — knowledge of falsity or reckless disregard for the truth — to win a defamation suit."
+        },
+        {
+          "name": "Miller v. California",
+          "citation": "413 U.S. 15",
+          "year": 1973,
+          "holding": "Obscenity is defined by the three-part Miller test (prurient interest, patently offensive, serious value) and falls outside First Amendment protection."
+        },
+        {
+          "name": "Tinker v. Des Moines Independent Community School District",
+          "citation": "393 U.S. 503",
+          "year": 1969,
+          "holding": "Students retain First Amendment rights in school unless their speech substantially and materially disrupts the educational process."
+        },
+        {
+          "name": "Brandenburg v. Ohio",
+          "citation": "395 U.S. 444",
+          "year": 1969,
+          "holding": "Speech advocating lawlessness is protected unless it is directed to inciting and likely to incite imminent lawless action."
+        },
+        {
+          "name": "Texas v. Johnson",
+          "citation": "491 U.S. 397",
+          "year": 1989,
+          "holding": "Burning the American flag is expressive conduct protected by the First Amendment; the government cannot ban it to preserve the flag's symbolic value."
+        },
+        {
+          "name": "New York Times v. United States",
+          "citation": "403 U.S. 713",
+          "year": 1971,
+          "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm."
+        }
+      ]
+    },
+    {
+      "id": "prior-restraint",
+      "name": "Prior Restraint",
+      "subject": "First Amendment",
+      "description": "The doctrine that government may not restrain speech before it occurs, except in the most exceptional circumstances — from Near's newspapers to the Pentagon Papers.",
+      "cases": [
+        {
+          "name": "Near v. Minnesota",
+          "citation": "283 U.S. 697",
+          "year": 1931,
+          "holding": "Prior restraint is presumptively unconstitutional and applies to the states via the Fourteenth Amendment; a gag order on a defamatory newspaper was invalid."
+        },
+        {
+          "name": "New York Times v. United States",
+          "citation": "403 U.S. 713",
+          "year": 1971,
+          "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm."
+        }
+      ]
+    },
+    {
+      "id": "religious-freedom",
+      "name": "Religious Freedom",
+      "subject": "First Amendment",
+      "description": "The Free Exercise and Establishment Clauses: when generally applicable laws may burden religion, the Amish exemption, and the rise and fall of the Lemon test.",
+      "cases": [
+        {
+          "name": "Wisconsin v. Yoder",
+          "citation": "406 U.S. 205",
+          "year": 1972,
+          "holding": "Compulsory school attendance beyond eighth grade violates the Amish's Free Exercise rights where it threatens their religious way of life."
+        },
+        {
+          "name": "Lemon v. Kurtzman",
+          "citation": "403 U.S. 602",
+          "year": 1971,
+          "holding": "The Establishment Clause requires the three-part Lemon test (secular purpose, no primary religious effect, no excessive entanglement) — a framework later widely disfavored and effectively abandoned."
+        },
+        {
+          "name": "Employment Division v. Smith",
+          "citation": "494 U.S. 872",
+          "year": 1990,
+          "holding": "Neutral, generally applicable laws that burden religious exercise do not violate the Free Exercise Clause; strict scrutiny is not required — partially superseded by the Religious Freedom Restoration Act (1993)."
+        }
+      ]
+    },
+    {
+      "id": "commercial-speech-campaign-finance",
+      "name": "Commercial Speech & Campaign Finance",
+      "subject": "First Amendment",
+      "description": "The intermediate scrutiny applied to advertising and the First Amendment limits on regulating money in politics — from the Buckley distinction to corporate speech in Citizens United.",
+      "cases": [
+        {
+          "name": "Buckley v. Valeo",
+          "citation": "424 U.S. 1",
+          "year": 1976,
+          "holding": "Campaign expenditure limits violate the First Amendment, but contribution limits are upheld — creating the spending/contributions distinction that still governs campaign finance."
+        },
+        {
+          "name": "Central Hudson Gas & Electric Corp. v. Public Service Commission",
+          "citation": "447 U.S. 557",
+          "year": 1980,
+          "holding": "Commercial speech receives intermediate scrutiny under the four-part Central Hudson test (lawful activity, substantial government interest, direct advancement, narrow tailoring)."
+        },
+        {
+          "name": "Citizens United v. FEC",
+          "citation": "558 U.S. 310",
+          "year": 2010,
+          "holding": "Corporate independent expenditures in elections are protected political speech; the BCRA's electioneering-communication ban is unconstitutional."
+        }
+      ]
+    },
+    {
+      "id": "second-amendment",
+      "name": "Second Amendment",
+      "subject": "Constitutional Law",
+      "description": "The modern individual-rights reading of the right to keep and bear arms, announced in Heller after nearly 70 years of silence on the subject.",
+      "cases": [
+        {
+          "name": "District of Columbia v. Heller",
+          "citation": "554 U.S. 570",
+          "year": 2008,
+          "holding": "The Second Amendment protects an individual right to keep and bear arms for self-defense in the home; the District's handgun ban is unconstitutional."
+        }
+      ]
+    },
+    {
+      "id": "search-and-seizure",
+      "name": "Search & Seizure",
+      "subject": "Criminal Procedure",
+      "description": "Fourth Amendment doctrine: the exclusionary rule, the reasonable-expectation-of-privacy test, stop and frisk, and the wingspan limit on searches incident to arrest.",
+      "cases": [
+        {
+          "name": "Mapp v. Ohio",
+          "citation": "367 U.S. 643",
+          "year": 1961,
+          "holding": "The exclusionary rule applies to the states through the Fourteenth Amendment; evidence seized in violation of the Fourth Amendment is inadmissible."
+        },
+        {
+          "name": "Katz v. United States",
+          "citation": "389 U.S. 347",
+          "year": 1967,
+          "holding": "The Fourth Amendment protects people, not places; wiretapping a phone booth without a warrant violates a reasonable expectation of privacy."
+        },
+        {
+          "name": "Terry v. Ohio",
+          "citation": "392 U.S. 1",
+          "year": 1968,
+          "holding": "A brief investigatory stop and frisk for weapons is permitted on reasonable suspicion of criminal activity, weighing crime prevention against the Fourth Amendment."
+        },
+        {
+          "name": "Chimel v. California",
+          "citation": "395 U.S. 752",
+          "year": 1969,
+          "holding": "A search incident to arrest is limited to the area within the arrestee's immediate control; the full-house search was unconstitutional."
+        }
+      ]
+    },
+    {
+      "id": "self-incrimination",
+      "name": "Self-Incrimination & Miranda",
+      "subject": "Criminal Procedure",
+      "description": "The Fifth Amendment right against compelled self-incrimination and the Miranda warning regime that guards it in custodial interrogation.",
+      "cases": [
+        {
+          "name": "Miranda v. Arizona",
+          "citation": "384 U.S. 436",
+          "year": 1966,
+          "holding": "Suspects in custody must be warned of their right to remain silent and to counsel before interrogation; statements obtained without warnings are inadmissible."
+        }
+      ]
+    },
+    {
+      "id": "right-to-counsel",
+      "name": "Right to Counsel & Fair Trial",
+      "subject": "Criminal Procedure",
+      "description": "The Sixth and Fourteenth Amendment guarantees of counsel and the prosecutor's duty to disclose exculpatory evidence — twin pillars of a fair trial.",
+      "cases": [
+        {
+          "name": "Brady v. Maryland",
+          "citation": "373 U.S. 83",
+          "year": 1963,
+          "holding": "The prosecution must disclose material exculpatory evidence to the defense, or the conviction is unconstitutional — the foundation of the Brady disclosure rule."
+        },
+        {
+          "name": "Gideon v. Wainwright",
+          "citation": "372 U.S. 335",
+          "year": 1963,
+          "holding": "The Sixth Amendment right to counsel applies to the states through the Fourteenth Amendment; states must provide counsel to indigent felony defendants."
+        }
+      ]
+    },
+    {
+      "id": "jury-selection",
+      "name": "Jury Selection & Equal Protection",
+      "subject": "Criminal Procedure",
+      "description": "The constitutional limit on peremptory strikes: prosecutors (and in later cases, criminal defendants) may not exclude jurors on the basis of race.",
+      "cases": [
+        {
+          "name": "Batson v. Kentucky",
+          "citation": "476 U.S. 79",
+          "year": 1986,
+          "holding": "Peremptory strikes exercised on the basis of race violate the Equal Protection Clause; a defendant can challenge them under the Batson three-step inquiry."
+        }
+      ]
+    },
+    {
+      "id": "cruel-unusual-punishment",
+      "name": "Cruel & Unusual Punishment",
+      "subject": "Criminal Procedure",
+      "description": "The Eighth Amendment's prohibition on cruel and unusual punishments, applied to the death penalty's arbitrary administration.",
+      "cases": [
+        {
+          "name": "Furman v. Georgia",
+          "citation": "408 U.S. 238",
+          "year": 1972,
+          "holding": "The death penalty as administered was arbitrary and discriminatory, violating the Cruel and Unusual Punishments Clause — a moratorium that states later reformed around (Gregg v. Georgia, 1976)."
+        }
+      ]
+    },
+    {
+      "id": "contracts-consideration",
+      "name": "Consideration",
+      "subject": "Contracts",
+      "description": "The bargain element that makes a promise enforceable: what counts as consideration, including forbearance of a legal right.",
+      "cases": [
+        {
+          "name": "Hamer v. Sidway",
+          "citation": "27 N.E. 256 (N.Y. 1891)",
+          "year": 1891,
+          "holding": "Forbearance of a legal right — an uncle's promise not to drink or gamble in exchange for the nephew's abstinence — constitutes valid consideration."
+        }
+      ]
+    },
+    {
+      "id": "contracts-formation",
+      "name": "Formation & Unconscionability",
+      "subject": "Contracts",
+      "description": "When a contract is formed (objective intent) and when courts will refuse to enforce it (unconscionability).",
+      "cases": [
+        {
+          "name": "Lucy v. Zehmer",
+          "citation": "84 S.E.2d 516 (Va. 1954)",
+          "year": 1954,
+          "holding": "Contractual intent is judged by objective manifestations; a signed agreement to sell a farm is enforceable even where a party claims it was made in jest."
+        },
+        {
+          "name": "Williams v. Walker-Thomas Furniture Co.",
+          "citation": "350 F.2d 445 (D.C. Cir. 1965)",
+          "year": 1965,
+          "holding": "A court may refuse to enforce a contract for unconscionability where grossly unfair terms and unequal bargaining power shock the conscience."
+        }
+      ]
+    },
+    {
+      "id": "contracts-damages",
+      "name": "Damages & Expectancy",
+      "subject": "Contracts",
+      "description": "How contract damages are measured: expectation damages that put the promisee in the position promised, limited by foreseeability at formation.",
+      "cases": [
+        {
+          "name": "Hadley v. Baxendale",
+          "citation": "9 Exch. 341 (1854)",
+          "year": 1854,
+          "holding": "Consequential damages are recoverable only for losses within the parties' reasonable contemplation at the time of contract formation — the famous foreseeability rule."
+        },
+        {
+          "name": "Hawkins v. McGee",
+          "citation": "146 A. 641 (N.H. 1929)",
+          "year": 1929,
+          "holding": "Expectation damages give the plaintiff the benefit of the bargain — the 'hairy hand' case, where damages were measured by the perfect hand promised, not the cost of surgery."
+        }
+      ]
+    },
+    {
+      "id": "torts-negligence",
+      "name": "Negligence & Duty",
+      "subject": "Torts",
+      "description": "The fault-based liability regime: the ordinary-care standard, the duty of care owed to foreseeable plaintiffs, manufacturer liability without privity, and the Hand formula.",
+      "cases": [
+        {
+          "name": "Brown v. Kendall",
+          "citation": "60 Mass. 292 (1850)",
+          "year": 1850,
+          "holding": "Accidental injuries require proof of fault; liability rests on a failure to exercise ordinary care, not on strict liability for the act."
+        },
+        {
+          "name": "MacPherson v. Buick Motor Co.",
+          "citation": "217 N.Y. 382 (1916)",
+          "year": 1916,
+          "holding": "Manufacturers owe a duty of care to ultimate consumers even without privity of contract; Buick was liable for the defective wheel that injured a remote buyer."
+        },
+        {
+          "name": "Palsgraf v. Long Island Railroad",
+          "citation": "248 N.Y. 339 (1928)",
+          "year": 1928,
+          "holding": "A duty of care runs only to foreseeable plaintiffs; the railroad owed no duty to Mrs. Palsgraf because her injury was an unforeseeable consequence of its conduct."
+        },
+        {
+          "name": "United States v. Carroll Towing Co.",
+          "citation": "159 F.2d 169 (2d Cir. 1947)",
+          "year": 1947,
+          "holding": "Negligence is determined by the Hand formula: a duty of care is breached where the burden of adequate precautions is less than the probability of harm times its severity (B < PL)."
+        }
+      ]
+    },
+    {
+      "id": "torts-strict-liability",
+      "name": "Strict Liability",
+      "subject": "Torts",
+      "description": "Liability without fault for abnormally dangerous activities and defective products — the escape of dangerous things and the emerging doctrine of strict products liability.",
+      "cases": [
+        {
+          "name": "Rylands v. Fletcher",
+          "citation": "L.R. 3 H.L. 330 (1868)",
+          "year": 1868,
+          "holding": "A landowner is strictly liable for the escape of dangerous things brought onto land for non-natural uses — here, water flooding a neighbor's mine."
+        },
+        {
+          "name": "Escola v. Coca Cola Bottling Co.",
+          "citation": "150 P.2d 436 (Cal. 1944)",
+          "year": 1944,
+          "holding": "Res ipsa loquitur applies to an exploding soda bottle; Justice Traynor's concurrence argued for strict products liability because manufacturers can bear and spread the cost of harm."
+        }
+      ]
+    },
+    {
+      "id": "property-acquisition",
+      "name": "Acquisition & Sovereignty",
+      "subject": "Property",
+      "description": "How property rights come into being: first possession of wild animals and the discovery doctrine's impact on Native American land title.",
+      "cases": [
+        {
+          "name": "Pierson v. Post",
+          "citation": "3 Cai. R. 175 (N.Y. 1805)",
+          "year": 1805,
+          "holding": "First possession of a wild animal requires actual capture or control, not mere pursuit — the fox case that fixed the capture rule."
+        },
+        {
+          "name": "Johnson v. M'Intosh",
+          "citation": "21 U.S. 543",
+          "year": 1823,
+          "holding": "Under the discovery doctrine, European sovereigns acquired title to discovered lands; Native American tribes retain only a right of occupancy — a doctrine later repudiated in federal Indian law."
+        }
+      ]
+    },
+    {
+      "id": "takings",
+      "name": "Takings & Public Use",
+      "subject": "Property",
+      "description": "The Fifth Amendment's Takings Clause: when regulations go so far as to effect a taking, and what counts as public use in eminent domain.",
+      "cases": [
+        {
+          "name": "Penn Central Transportation Co. v. New York City",
+          "citation": "438 U.S. 104",
+          "year": 1978,
+          "holding": "Regulatory takings are judged by an ad hoc multifactor test (economic impact, interference with investment-backed expectations, character of the action); the Grand Central landmark law was not a taking."
+        },
+        {
+          "name": "Kelo v. City of New London",
+          "citation": "545 U.S. 469",
+          "year": 2005,
+          "holding": "'Public use' under the Takings Clause includes economic development by a private developer, so long as just compensation is paid — one of the most controversial eminent-domain decisions."
+        }
+      ]
+    },
+    {
+      "id": "property-rights-limits",
+      "name": "Property Rights & Their Limits",
+      "subject": "Property",
+      "description": "The principle that property rights are not absolute: an owner's right to exclude yields to the public interest and the basic needs of those on the land.",
+      "cases": [
+        {
+          "name": "State v. Shack",
+          "citation": "277 A.2d 369 (N.J. 1971)",
+          "year": 1971,
+          "holding": "A landowner may not exclude government officials entering to provide essential services to migrant farmworkers; property rights do not include absolute dominion."
+        }
+      ]
+    },
+    {
+      "id": "civpro-jurisdiction",
+      "name": "Personal Jurisdiction",
+      "subject": "Civil Procedure",
+      "description": "The constitutional limits on a court's power over defendants — from physical presence in Pennoyer to minimum contacts and purposeful availment in the modern era.",
+      "cases": [
+        {
+          "name": "Pennoyer v. Neff",
+          "citation": "95 U.S. 714",
+          "year": 1878,
+          "holding": "A court has personal jurisdiction over a defendant only through presence within the forum or consent; in rem jurisdiction attaches to property in the state."
+        },
+        {
+          "name": "International Shoe Co. v. Washington",
+          "citation": "326 U.S. 310",
+          "year": 1945,
+          "holding": "Personal jurisdiction requires minimum contacts such that the suit does not offend traditional notions of fair play and substantial justice."
+        },
+        {
+          "name": "Asahi Metal Industry Co. v. Superior Court",
+          "citation": "480 U.S. 102",
+          "year": 1987,
+          "holding": "Mere placement of a product into the stream of commerce is insufficient for jurisdiction; the exercise of jurisdiction must be reasonable and comport with fair play."
+        }
+      ]
+    },
+    {
+      "id": "civpro-erie-pleading",
+      "name": "Erie Doctrine & Pleading",
+      "subject": "Civil Procedure",
+      "description": "The two great structural rules of modern federal civil litigation: state law governs substantive issues in diversity, and pleadings must state a plausible claim.",
+      "cases": [
+        {
+          "name": "Erie Railroad v. Tompkins",
+          "citation": "304 U.S. 64",
+          "year": 1938,
+          "holding": "Federal courts sitting in diversity must apply state substantive law; there is no general federal common law — Swift v. Tyson is overruled."
+        },
+        {
+          "name": "Ashcroft v. Iqbal",
+          "citation": "556 U.S. 662",
+          "year": 2009,
+          "holding": "Complaints must plead a facially plausible claim, not merely a conceivable one — the Twombly/Iqbal plausibility standard that governs federal pleading."
+        }
+      ]
+    }
+  ]
+}

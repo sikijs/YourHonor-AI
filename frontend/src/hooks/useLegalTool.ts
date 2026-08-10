@@ -26,8 +26,9 @@ interface UseLegalToolResult<T> {
 export function useLegalTool<T>(
   apiCall: (query: string, documentId: number | undefined, signal: AbortSignal) => Promise<T>,
   onError: (err: string) => void,
+  initialQuery: string = '',
 ): UseLegalToolResult<T> {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [result, setResult] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);

@@ -8,7 +8,7 @@ import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function CaseBriefView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function CaseBriefView({ user, onError, initialQuery }: { user: User; onError: (err: string) => void; initialQuery?: string }) {
   const [complexity, setComplexity] = useState('standard');
   const {
     query, setQuery,
@@ -20,6 +20,7 @@ export default function CaseBriefView({ user, onError }: { user: User; onError: 
   } = useLegalTool<CaseBriefResponse>(
     (q, docId, signal) => api.legal.caseBrief(q, docId, signal, complexity),
     onError,
+    initialQuery,
   );
 
   return (
