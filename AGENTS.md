@@ -253,7 +253,7 @@ Backend available at http://localhost:8000
 - Citation mapping
 - CourtListener connector with citation-lookup API, rate-limit retry, in-memory + SQLite caching
 - SQLite opinions_cache table with qdrant_ingested tracking
-- Auto pre-ingestion of 24 landmark cases from CourtListener into Qdrant at startup (background thread, 12s delay between cases for rate limits)
+- Auto pre-ingestion of 70 landmark cases into Qdrant at startup (background thread; 66 of 70 ship pre-seeded in the Docker image via `landmark_seed.json`, so boot needs no CourtListener calls — the rest are fetched live with a 12s delay between cases for rate limits)
 - Progress tracking: cache hit → skip API, cache miss → fetch → cache → ingest → mark done
 
 ### Phase 5 (Advanced Features) - COMPLETE
@@ -288,7 +288,7 @@ fall back to the LLM instead of serving a wrong curated term).
 
 | Collection | Content | Points |
 |------------|---------|--------|
-| legal_documents | 24 courtlistener/seed landmark cases (chunked) + user uploads | ~1,200 |
+| legal_documents | 70 courtlistener/seed landmark cases (chunked) + user uploads | ~3,500 |
 | tutor_curriculum | 160 AI Tutor flashcards (8 topics × 20) | 160 |
 | glossary_seed | 123 curated glossary definitions (term + definition + related terms) | 123 |
 

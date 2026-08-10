@@ -71,6 +71,18 @@ def ingest_document(request: IngestRequest):
 ALLOWED_STAT_COLLECTIONS = {"legal_documents", "tutor_curriculum", "glossary_seed"}
 
 
+@router.get("/ingestion-status")
+def get_ingestion_status():
+    """Report in-memory progress of the background landmark-case ingestion.
+
+    Returns the INGESTION_PROGRESS dict (running, total, done, failed,
+    current). The frontend polls this after boot to show a loading banner
+    until the landmark library is fully embedded.
+    """
+    from app.ingest_landmark_cases import INGESTION_PROGRESS
+    return INGESTION_PROGRESS
+
+
 @router.get("/collection/stats")
 def get_collection_stats(collection: str = "legal_documents"):
     if collection not in ALLOWED_STAT_COLLECTIONS:

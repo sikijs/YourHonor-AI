@@ -305,7 +305,19 @@ export const api = {
   },
 
   health: () => fetchApi<{ status: string; service: string }>('/api/health'),
+
+  rag: {
+    ingestionStatus: () => fetchApi<IngestionStatus>('/api/rag/ingestion-status'),
+  },
 };
+
+export interface IngestionStatus {
+  running: boolean;
+  total: number;
+  done: number;
+  failed: number;
+  current: string;
+}
 
 export interface CitedAuthority {
   name: string;

@@ -9,7 +9,24 @@ logger = logging.getLogger(__name__)
 
 SEED_PATH = Path(__file__).parent / "data" / "landmark_seed.json"
 
+# In-memory progress tracker for the background ingestion thread. Exposed to
+# the frontend via GET /api/rag/ingestion-status so users can see landmark
+# cases loading after a fresh boot. Lives in memory only — no DB writes.
+INGESTION_PROGRESS = {
+    "running": False,
+    "total": 0,
+    "done": 0,
+    "failed": 0,
+    "current": "",
+}
+
+# 70 landmark cases covering the standard 1L curriculum plus the deep
+# constitutional-law threads used by the Doctrine Explorer. The names here
+# MUST match the "name" keys in landmark_seed.json exactly — _get_or_fetch
+# matches seeds by lowercase name, so mismatches silently fall back to a
+# rate-limited CourtListener fetch on every boot.
 LANDMARK_CASES = [
+    # Existing core (24)
     {"name": "Marbury v. Madison", "citation": "5 U.S. 137", "year": 1803},
     {"name": "McCulloch v. Maryland", "citation": "17 U.S. 316", "year": 1819},
     {"name": "Gibbons v. Ogden", "citation": "22 U.S. 1", "year": 1824},
@@ -34,6 +51,59 @@ LANDMARK_CASES = [
     {"name": "Miller v. California", "citation": "413 U.S. 15", "year": 1973},
     {"name": "Shaw v. Reno", "citation": "509 U.S. 630", "year": 1993},
     {"name": "Chevron v. NRDC", "citation": "467 U.S. 837", "year": 1984},
+    # Contracts (5)
+    {"name": "Hamer v. Sidway", "citation": "27 N.E. 256 (N.Y. 1891)", "year": 1891},
+    {"name": "Hadley v. Baxendale", "citation": "9 Exch. 341 (1854)", "year": 1854},
+    {"name": "Lucy v. Zehmer", "citation": "84 S.E.2d 516 (Va. 1954)", "year": 1954},
+    {"name": "Williams v. Walker-Thomas Furniture Co.", "citation": "350 F.2d 445 (D.C. Cir. 1965)", "year": 1965},
+    {"name": "Hawkins v. McGee", "citation": "146 A. 641 (N.H. 1929)", "year": 1929},
+    # Torts (6)
+    {"name": "Palsgraf v. Long Island Railroad", "citation": "248 N.Y. 339 (1928)", "year": 1928},
+    {"name": "MacPherson v. Buick Motor Co.", "citation": "217 N.Y. 382 (1916)", "year": 1916},
+    {"name": "Rylands v. Fletcher", "citation": "L.R. 3 H.L. 330 (1868)", "year": 1868},
+    {"name": "United States v. Carroll Towing Co.", "citation": "159 F.2d 169 (2d Cir. 1947)", "year": 1947},
+    {"name": "Escola v. Coca Cola Bottling Co.", "citation": "150 P.2d 436 (Cal. 1944)", "year": 1944},
+    {"name": "Brown v. Kendall", "citation": "60 Mass. 292 (1850)", "year": 1850},
+    # Property (5)
+    {"name": "Pierson v. Post", "citation": "3 Cai. R. 175 (N.Y. 1805)", "year": 1805},
+    {"name": "Johnson v. M'Intosh", "citation": "21 U.S. 543", "year": 1823},
+    {"name": "Penn Central Transportation Co. v. New York City", "citation": "438 U.S. 104", "year": 1978},
+    {"name": "State v. Shack", "citation": "277 A.2d 369 (N.J. 1971)", "year": 1971},
+    {"name": "Kelo v. City of New London", "citation": "545 U.S. 469", "year": 2005},
+    # Civil Procedure (4)
+    {"name": "Pennoyer v. Neff", "citation": "95 U.S. 714", "year": 1878},
+    {"name": "International Shoe Co. v. Washington", "citation": "326 U.S. 310", "year": 1945},
+    {"name": "Asahi Metal Industry Co. v. Superior Court", "citation": "480 U.S. 102", "year": 1987},
+    {"name": "Ashcroft v. Iqbal", "citation": "556 U.S. 662", "year": 2009},
+    # Criminal Law & Procedure (5)
+    {"name": "Terry v. Ohio", "citation": "392 U.S. 1", "year": 1968},
+    {"name": "Katz v. United States", "citation": "389 U.S. 347", "year": 1967},
+    {"name": "Chimel v. California", "citation": "395 U.S. 752", "year": 1969},
+    {"name": "Brady v. Maryland", "citation": "373 U.S. 83", "year": 1963},
+    {"name": "Batson v. Kentucky", "citation": "476 U.S. 79", "year": 1986},
+    # First Amendment (6)
+    {"name": "Brandenburg v. Ohio", "citation": "395 U.S. 444", "year": 1969},
+    {"name": "Schenck v. United States", "citation": "249 U.S. 47", "year": 1919},
+    {"name": "Texas v. Johnson", "citation": "491 U.S. 397", "year": 1989},
+    {"name": "Tinker v. Des Moines Independent Community School District", "citation": "393 U.S. 503", "year": 1969},
+    {"name": "New York Times v. United States", "citation": "403 U.S. 713", "year": 1971},
+    {"name": "Wisconsin v. Yoder", "citation": "406 U.S. 205", "year": 1972},
+    # Constitutional Law (15)
+    {"name": "United States v. Nixon", "citation": "418 U.S. 683", "year": 1974},
+    {"name": "Youngstown Sheet & Tube Co. v. Sawyer", "citation": "343 U.S. 579", "year": 1952},
+    {"name": "United States v. Carolene Products Co.", "citation": "304 U.S. 144", "year": 1938},
+    {"name": "Loving v. Virginia", "citation": "388 U.S. 1", "year": 1967},
+    {"name": "Shelby County v. Holder", "citation": "570 U.S. 529", "year": 2013},
+    {"name": "Wickard v. Filburn", "citation": "317 U.S. 111", "year": 1942},
+    {"name": "New York v. United States", "citation": "505 U.S. 144", "year": 1992},
+    {"name": "Lujan v. Defenders of Wildlife", "citation": "504 U.S. 555", "year": 1992},
+    {"name": "Slaughter-House Cases", "citation": "83 U.S. 36", "year": 1873},
+    {"name": "Grutter v. Bollinger", "citation": "539 U.S. 306", "year": 2003},
+    {"name": "Furman v. Georgia", "citation": "408 U.S. 238", "year": 1972},
+    {"name": "Near v. Minnesota", "citation": "283 U.S. 697", "year": 1931},
+    {"name": "Lemon v. Kurtzman", "citation": "403 U.S. 602", "year": 1971},
+    {"name": "Central Hudson Gas & Electric Corp. v. Public Service Commission", "citation": "447 U.S. 557", "year": 1980},
+    {"name": "Buckley v. Valeo", "citation": "424 U.S. 1", "year": 1976},
 ]
 
 
@@ -123,14 +193,20 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
     skipped = 0
     failed = 0
 
+    INGESTION_PROGRESS.update(
+        {"running": True, "total": total, "done": 0, "failed": 0, "current": ""}
+    )
+
     logger.info(f"Landmark case ingestion: {total} cases (seed: {len(seed_data)} pre-seeded)")
 
     for i, case in enumerate(cases, 1):
         name = case["name"]
         citation = case["citation"]
+        INGESTION_PROGRESS["current"] = name
 
         if _already_in_qdrant(name):
             skipped += 1
+            INGESTION_PROGRESS["done"] = i
             logger.info(f"  [{i}/{total}] {name} — already in Qdrant, skipping")
             continue
 
@@ -139,6 +215,8 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
 
         if not result or not result.get("opinion_text"):
             failed += 1
+            INGESTION_PROGRESS["done"] = i
+            INGESTION_PROGRESS["failed"] = failed
             logger.warning(f"  [{i}/{total}] {name} — no text available, skipping")
             if not has_token and name.lower() not in seed_data:
                 logger.warning(f"  [{i}/{total}] {name} — set COURTLISTENER_TOKEN in .env")
@@ -161,14 +239,19 @@ def ingest_landmark_cases(max_cases: Optional[int] = None):
                 },
             )
             ingested += 1
+            INGESTION_PROGRESS["done"] = i
             logger.info(f"  [{i}/{total}] {name} — ✓ ingested ({len(result['opinion_text'])} chars)")
         except Exception as e:
             failed += 1
+            INGESTION_PROGRESS["done"] = i
+            INGESTION_PROGRESS["failed"] = failed
             logger.error(f"  [{i}/{total}] {name} — ✗ error: {e}")
 
         if name.lower() not in seed_data:
             _save_to_cache(name, result)
             time.sleep(12)
+
+    INGESTION_PROGRESS.update({"running": False, "current": ""})
 
     logger.info(
         f"Landmark case ingestion complete: "

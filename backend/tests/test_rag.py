@@ -37,3 +37,15 @@ def test_rag_collection_stats_accepts_collection_param(client):
 def test_rag_collection_stats_rejects_unknown_collection(client):
     resp = client.get("/api/rag/collection/stats?collection=unknown")
     assert resp.status_code == 400
+
+
+def test_rag_ingestion_status_returns_progress_shape(client):
+    resp = client.get("/api/rag/ingestion-status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "running" in data
+    assert "total" in data
+    assert "done" in data
+    assert "failed" in data
+    assert "current" in data
+    assert isinstance(data["running"], bool)

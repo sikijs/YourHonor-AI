@@ -21,6 +21,7 @@ import ResourcesView from '@/components/ResourcesView';
 import AboutView from '@/components/AboutView';
 import AppFooter from '@/components/AppFooter';
 import ScratchPad from '@/components/ScratchPad';
+import IngestionBanner from '@/components/IngestionBanner';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -99,6 +100,8 @@ export default function Home() {
           )}
         </nav>
       </header>
+
+      <IngestionBanner />
 
       <main className="container">
         {error && <div className="error">{error}</div>}

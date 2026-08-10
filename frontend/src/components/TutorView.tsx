@@ -593,7 +593,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                     Start
                   </button>
                   <div style={{ position: 'relative' }}>
-                    <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setDynamicConfirmTopic(topic.id)}>
+                    <button className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setDynamicConfirmTopic(topic.id)}>
                       AI Quick Start
                     </button>
                   </div>
