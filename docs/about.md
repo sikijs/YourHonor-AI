@@ -164,6 +164,22 @@ ethical responsibility, clear reasoning, and effective communication.
 
 ------------------------------------------------------------------------
 
+## 🆕 What's New in v1.4.0
+
+- **Doctrine Explorer** — browse 31 doctrines across 70 landmark cases
+  with an interactive timeline, subject filters, and one-click case brief
+  generation from any case node.
+- **Expanded Resources** — new *Understanding AI in Law* explainers on
+  **Predictive Analytics** and **Legal Reasoning Graphs**, covering how
+  each is used in the legal system and its limitations.
+- **Scanned PDF support** — uploaded scanned documents are now read with
+  OCR (tesseract) when no embedded text is found.
+- **More reliable landmark library** — the Penn Central opinion now always
+  resolves to its full text, and update checks are cached so the app
+  doesn't hit the GitHub API on every page load.
+
+------------------------------------------------------------------------
+
 ## ⚠️ Educational Use Only
 
 YourHonor AI is an **educational platform** and is **not** a law firm or

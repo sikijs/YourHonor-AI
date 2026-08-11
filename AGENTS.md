@@ -241,7 +241,7 @@ Backend available at http://localhost:8000
 ### Phase 2 (Document Ingestion) - COMPLETE
 - PDF upload (POST /api/documents/upload)
 - Text extraction (pypdf/PdfReader)
-- OCR support (future upgrade — scanned PDFs not yet supported)
+- OCR support for scanned PDFs — falls back to tesseract (PyMuPDF page rendering + pytesseract) when a PDF has no embedded text
 
 ### Phase 3 (Basic RAG) - COMPLETE
 - Legal document chunking (LangChain)

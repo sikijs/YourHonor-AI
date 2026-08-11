@@ -4,6 +4,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# tesseract-ocr: the OCR engine behind scanned-PDF support (pytesseract wraps
+# this binary; PyMuPDF renders PDF pages to images without system poppler).
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install uv
 
 COPY backend/pyproject.toml ./

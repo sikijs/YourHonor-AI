@@ -71,16 +71,22 @@ def upload_document(
 
     ingestion = get_ingestion_service()
     content = ingestion.load_pdf(file_info["file_path"])
-    if content is None:
-        file_storage.delete_file(file_info["file_path"])
-        raise HTTPException(status_code=400, detail="Failed to extract text from PDF")
-    if len(content.strip()) < 100:
-        file_storage.delete_file(file_info["file_path"])
-        raise HTTPException(
-            status_code=400,
-            detail="This PDF appears to be a scanned document (no readable text found). "
-                   "OCR support is not yet available — please upload a text-based PDF.",
-        )
+    if content is None or len(content.strip()) < 100:
+        # Scanned PDF — no embedded text. Try OCR before giving up.
+        ocr_content = ingestion.ocr_pdf(file_info["file_path"])
+        if ocr_content and len(ocr_content.strip()) >= 100:
+            content = ocr_content
+            logger.info(
+                f"OCR applied to {file_info['original_filename']} "
+                f"({len(content.strip())} chars extracted)"
+            )
+        else:
+            file_storage.delete_file(file_info["file_path"])
+            raise HTTPException(
+                status_code=400,
+                detail="This PDF appears to be a scanned document and OCR could not "
+                       "extract readable text. Please upload a clear text-based PDF.",
+            )
 
     conn = get_db()
     cursor = conn.cursor()

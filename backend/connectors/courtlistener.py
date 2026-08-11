@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+from pathlib import Path
 from typing import Optional
 
 import httpx
@@ -10,6 +11,13 @@ from app.db import get_db
 
 COURTLISTENER_BASE = "https://www.courtlistener.com/api/rest/v4"
 COURTLISTENER_TOKEN = os.getenv("COURTLISTENER_TOKEN", "")
+
+# Below this length a fetched "opinion" is almost certainly a syllabus or
+# headnote stub rather than a real opinion — e.g. Penn Central's first
+# sub-opinion is a ~180-char syllabus. The pre-seeded landmark data carries
+# the full combined opinion, so stubs fall back to it.
+_SEED_TEXT_THRESHOLD = 500
+_SEED_PATH = Path(__file__).resolve().parent.parent / "app" / "data" / "landmark_seed.json"
 
 
 def opinion_url(opinion_id: Optional[int]) -> Optional[str]:
@@ -257,16 +265,56 @@ def _extract_opinion_id_from_cluster(cluster: dict) -> Optional[int]:
     return None
 
 
+def _seed_fallback(query: str) -> Optional[dict]:
+    """Return the pre-seeded landmark opinion matching a query, if one exists.
+
+    The 70 landmark cases ship in the image as `landmark_seed.json` with full
+    combined opinion text. When a live CourtListener fetch comes back empty
+    or suspiciously short (a syllabus stub), the seed is the authoritative
+    fallback — it is offline, rate-limit-free, and covers the whole core
+    curriculum plus the Doctrine Explorer's 70 cases.
+    """
+    try:
+        if not _SEED_PATH.exists():
+            return None
+        with open(_SEED_PATH) as f:
+            cases = json.load(f)
+        query_key = _clean_query(query).lower()
+        for c in cases:
+            text = c.get("opinion_text", "")
+            if len(text) < _SEED_TEXT_THRESHOLD:
+                continue
+            names = [c.get("case_name", ""), c.get("name", "")]
+            if any(n and n.lower() == query_key for n in names):
+                return {
+                    "case_name": c.get("case_name", query),
+                    "citation": c.get("citation", []),
+                    "court": c.get("court", ""),
+                    "date_filed": c.get("date_filed", ""),
+                    "opinion_text": text,
+                    "snippet": "",
+                    "opinion_id": c.get("opinion_id"),
+                    "cluster_id": c.get("cluster_id"),
+                    "source": "seed",
+                }
+    except Exception:
+        pass
+    return None
+
+
 def case_brief_from_query(query: str) -> Optional[dict]:
     query_key = _clean_query(query).lower()
     cached = _cache_get(query_key)
-    if cached:
+    if cached and len(cached.get("opinion_text", "")) >= _SEED_TEXT_THRESHOLD:
         return {
             **cached,
             "opinion_id": None,
             "cluster_id": None,
             "source": "cache",
         }
+    # Cached text below the threshold is a syllabus stub (or a placeholder
+    # cached before the fix) — fall through to the live fetch + seed
+    # fallback below, which will overwrite the row with real text.
 
     cluster = _lookup_citation(query)
     if cluster:
@@ -315,6 +363,17 @@ def case_brief_from_query(query: str) -> Optional[dict]:
 
     if not _has_auth():
         result["auth_note"] = "Set COURTLISTENER_TOKEN for full opinion text"
+
+    if result.get("opinion_text") and len(result["opinion_text"]) >= _SEED_TEXT_THRESHOLD:
+        _cache_set(query_key, result)
+        return result
+
+    # Empty or stub-short text (no token, fetch failure, or a syllabus-only
+    # first sub-opinion like Penn Central's) — prefer the curated seed.
+    seed = _seed_fallback(query)
+    if seed:
+        _cache_set(query_key, seed)
+        return seed
 
     if result.get("opinion_text"):
         _cache_set(query_key, result)

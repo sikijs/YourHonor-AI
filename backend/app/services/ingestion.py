@@ -28,6 +28,31 @@ class IngestionService:
             print(f"Error reading PDF {file_path}: {e}")
             return None
 
+    def ocr_pdf(self, file_path: str) -> Optional[str]:
+        """Extract text from a scanned (image-only) PDF via tesseract OCR.
+
+        Each page is rendered to an image with PyMuPDF, then run through
+        pytesseract. Slower than load_pdf and sensitive to scan quality, so
+        it is used only as a fallback when a PDF has no embedded text.
+        """
+        try:
+            import io
+            import pymupdf
+            import pytesseract
+            from PIL import Image
+
+            pages_text = []
+            with pymupdf.open(file_path) as doc:
+                for page in doc:
+                    pix = page.get_pixmap(dpi=200)
+                    img = Image.open(io.BytesIO(pix.tobytes("png")))
+                    pages_text.append(pytesseract.image_to_string(img))
+            text = "\n".join(pages_text)
+            return text if text.strip() else None
+        except Exception as e:
+            print(f"Error running OCR on PDF {file_path}: {e}")
+            return None
+
     def load_docx(self, file_path: str) -> Optional[str]:
         try:
             from docx import Document as DocxDocument

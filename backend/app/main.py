@@ -1,5 +1,6 @@
 import threading
 import os
+import time
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -90,8 +91,14 @@ if static_path.exists():
 def health_check():
     return {"status": "healthy", "service": "YourHonor AI Backend"}
 
-@app.get("/api/check-update")
-def check_update():
+# GitHub's unauthenticated API is rate-limited to 60 requests/hour. The
+# footer calls /api/check-update on every page load, so the result is cached
+# and refreshed at most every 15 minutes to avoid burning the limit.
+_update_cache: dict = {"ts": 0.0, "payload": None}
+_UPDATE_CACHE_TTL_SECONDS = 15 * 60
+
+
+def _fetch_latest_version() -> dict:
     try:
         resp = httpx.get(
             "https://api.github.com/repos/sikijs/YourHonor-AI/git/refs/tags",
@@ -123,6 +130,15 @@ def check_update():
         "up_to_date": False,
         "latest_version": "unknown",
     }
+
+
+@app.get("/api/check-update")
+def check_update():
+    now = time.time()
+    if _update_cache["payload"] is None or now - _update_cache["ts"] >= _UPDATE_CACHE_TTL_SECONDS:
+        _update_cache["ts"] = now
+        _update_cache["payload"] = _fetch_latest_version()
+    return _update_cache["payload"]
 
 @app.get("/")
 def serve_index():
