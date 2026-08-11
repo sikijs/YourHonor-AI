@@ -121,6 +121,28 @@ export const AI_IN_LAW: AiSection[] = [
     ],
   },
   {
+    id: "predictive-analytics",
+    title: "Predictive Analytics",
+    paragraphs: [
+      "Predictive analytics uses historical data — past rulings, judge behavior, settlement patterns, claim statistics, and jury tendencies — to estimate the likely outcome of a case before it is decided. It does not predict with certainty; it calculates probabilities based on how similar matters have resolved in the past.",
+      "In the legal system, law firms use these tools to advise clients on whether to settle, what a fair settlement range might be, how long litigation may take, and which arguments a particular judge tends to find persuasive. Courts and governments use them too: risk-assessment systems such as COMPAS analyze a defendant's background to estimate the likelihood of reoffending, informing decisions about bail, sentencing, and parole.",
+      "Predictive analytics works well with large, stable bodies of data — insurance disputes, routine contracts, traffic offenses — where patterns are statistically meaningful. It is far less reliable for novel legal questions, first-impression issues, or cases driven by unique human facts.",
+      "Critics raise serious concerns. The models are only as good as their training data: if that data reflects historic bias, the predictions may reproduce it. Some systems are 'black boxes' whose reasoning cannot be fully explained, which conflicts with legal values of transparency and due process. And a probability is not a verdict — a judge or jury must still weigh the case on its own facts.",
+      "For students, predictive analytics is worth understanding because it is reshaping practice: associates increasingly use it for case strategy, budgeting, and settlement recommendations. The skill is not running the tool — it is knowing when the prediction is trustworthy and when it must be challenged.",
+    ],
+  },
+  {
+    id: "reasoning-graphs",
+    title: "Legal Reasoning Graphs",
+    paragraphs: [
+      "A legal reasoning graph is a visual map of how authorities connect. Cases are represented as nodes, and the links between them are relationships: case A cites case B, case C overrules case D, this doctrine derives from that line of cases, this argument responds to that counterargument. The result is a picture of an argument's or a doctrine's full lineage, instead of a flat list of citations.",
+      "In practice, this is the idea behind the citation maps used in legal research platforms such as Westlaw and LexisNexis. When a lawyer 'Shepardizes' a case, they trace the web of later decisions that cite, distinguish, or overrule it — effectively walking a reasoning graph to confirm a case is still good law and to find how courts have treated it.",
+      "Reasoning graphs are also used to teach and analyze doctrine. A graph can show how a principle evolved — for example, how the right to counsel developed from Betts v. Brady to Gideon v. Wainwright — or how one holding such as Roe v. Wade was later limited and overruled by Dobbs v. Jackson. In litigation, lawyers build informal graphs of their own: every claim supported by premises, every premise supported by authorities, and every authority open to attack.",
+      "The limits are important. A graph shows relationships that already exist in the data; it does not create new arguments or tell you which line of cases will persuade a court. Links can mislead if the data is incomplete or if similar-sounding cases are conflated. And legal reasoning is more than structure — the weight of authority, policy considerations, and the facts of the case are not captured in a node and an edge.",
+      "For students, reasoning graphs are a study aid as much as a tool: mapping a doctrine by hand forces you to see which cases are load-bearing, which are peripheral, and which have been quietly undermined. The Doctrine Explorer in this app is a small example — 31 doctrines traced across 70 landmark cases.",
+    ],
+  },
+  {
     id: "courts",
     title: "AI in Courts",
     paragraphs: [
