@@ -196,6 +196,74 @@ These tools can improve strategic planning, but they also raise concerns:
 These are questions the legal profession is still struggling to answer.
 
 
+# Predictive Analytics
+
+Predictive analytics uses historical data to estimate the likely outcome of a case before it is decided.
+
+It analyzes:
+
+* Past rulings
+* Judge behavior
+* Settlement patterns
+* Claim statistics
+* Jury tendencies
+
+It does not predict with certainty -- it calculates probabilities based on how similar matters have resolved in the past.
+
+In the legal system, law firms use these tools to:
+
+* Advise clients on whether to settle
+* Estimate settlement ranges
+* Anticipate how long litigation may last
+* Gauge which arguments a particular judge tends to find persuasive
+
+Courts and governments use them too: risk-assessment systems such as COMPAS analyze a defendant's background to estimate the likelihood of reoffending, informing decisions about bail, sentencing, and parole.
+
+Predictive analytics works well with large, stable bodies of data -- insurance disputes, routine contracts, traffic offenses -- where patterns are statistically meaningful.
+
+It is far less reliable for:
+
+* Novel legal questions
+* First-impression issues
+* Cases driven by unique human facts
+
+Critics raise serious concerns:
+
+* Models are only as good as their training data -- if that data reflects historic bias, the predictions may reproduce it
+* Some systems are 'black boxes' whose reasoning cannot be fully explained
+* A probability is not a verdict -- a judge or jury must still weigh the case on its own facts
+
+
+# Legal Reasoning Graphs
+
+A legal reasoning graph is a visual map of how authorities connect.
+
+Cases are represented as nodes, and the links between them are relationships:
+
+* Case A cites case B
+* Case C overrules case D
+* This doctrine derives from that line of cases
+* This argument responds to that counterargument
+
+The result is a picture of an argument's or a doctrine's full lineage, instead of a flat list of citations.
+
+This is the idea behind the citation maps used in legal research platforms such as Westlaw and LexisNexis.
+
+When a lawyer 'Shepardizes' a case, they trace the web of later decisions that cite, distinguish, or overrule it -- effectively walking a reasoning graph to confirm a case is still good law.
+
+Reasoning graphs are also used to teach and analyze doctrine:
+
+* How the right to counsel developed from Betts v. Brady to Gideon v. Wainwright
+* How one holding such as Roe v. Wade was later limited and overruled by Dobbs v. Jackson
+* Which cases in a doctrine are load-bearing and which are peripheral
+
+The limits are important:
+
+* A graph shows relationships that already exist in the data -- it does not create new arguments
+* Links can mislead if the data is incomplete or similar-sounding cases are conflated
+* Legal reasoning is more than structure -- the weight of authority, policy considerations, and the facts are not captured in a node and an edge
+
+
 # AI in Courts
 
 AI is not only used by lawyers -- it is increasingly used inside court systems themselves.

@@ -167,6 +167,9 @@ Drafts a law-firm style legal memo. Type a legal question and get a complete mem
 ### Debate
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
 
+### Doctrine Explorer
+A visual map of landmark US law. Browse **31 doctrines** across **70 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
+
 ### Issue Spotter
 Exam practice. Paste a fact pattern — a story full of legal problems — and it identifies **every issue** in it. Each issue gets the full treatment: **Issue, Rule, Application, Conclusion, Missing Information, and Relevant Authorities**, and results are grouped by legal area (e.g. Fourth Amendment, Contracts, Torts) with an overview and tips for writing the exam answer. It's deliberately thorough: in law school exams, missing an issue costs more than over-identifying one. **Use it for** drilling exam-style fact patterns.
 
@@ -183,7 +186,7 @@ Your personal filing cabinet. Every tool can save its output here, and you can u
 Type a legal term and get a plain-English definition. Lookups run through a three-step ladder: 1) **keyword match** against 123 curated definitions, 2) **semantic match** (vector search, only served when high-confidence), 3) **AI-generated** definition as fallback. Each entry includes the definition, etymology, jurisdiction, a usage example, related terms, alternative names, practice tips, and citations. **Use it for** quick term lookups mid-study.
 
 ### Resources
-Static educational pages — how-to guides for the tools and legal tech reading material. No AI involved.
+Static educational pages — how-to guides for the tools and legal tech reading material, including explainers on AI concepts, predictive analytics, and legal reasoning graphs. No AI involved.
 
 ### ScratchPad
 A small on-screen notepad that stays available while you're signed in — handy for jotting thoughts while you work. It saves automatically in the background.
@@ -206,7 +209,7 @@ YourHonor AI/
 │   │   ├── main.py         # App entry point, version constant, router registration
 │   │   ├── api/            # 11 route files (thin layer — delegates to services)
 │   │   ├── services/       # 25 service files (all business logic lives here)
-│   │   ├── models/         # 17 Pydantic schemas (request/response types)
+│   │   ├── models/         # 16 Pydantic schemas (request/response types)
 │   │   ├── data/           # SQLite database (yourhonor.db)
 │   │   ├── static/         # Built frontend (copied from frontend/out/)
 │   │   └── uploads/        # User-uploaded PDFs
@@ -217,7 +220,7 @@ YourHonor AI/
 ├── frontend/               # Next.js React app
 │   ├── src/
 │   │   ├── app/            # page.tsx (SPA), layout.tsx, globals.css
-│   │   ├── components/     # 21 view components (one per tool)
+│   │   ├── components/     # 27 view components (one per tool)
 │   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts
 │   ├── public/             # Static assets (logo, favicon, md files)
 │   ├── next.config.js      # Frontend version constant

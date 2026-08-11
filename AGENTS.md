@@ -30,6 +30,8 @@ The content for a "Welcome page" for the user on the app is available in the fil
 
 @AI-in_Law.md 
 
+The app renders this content from `frontend/src/lib/aiInLawContent.ts` (source of truth for the Resources "Understanding AI in Law" pill bar). Keep the root markdown copy in sync when adding or editing sections.
+
 Accuracy, transparency, traceability, modularity, and maintainability are top priorities.
 
 ---
@@ -261,7 +263,8 @@ Backend available at http://localhost:8000
 
 ### Phase 5 (Advanced Features) - COMPLETE
 - Memorandum drafting
-- Predictive analytics (future development)
+- Predictive analytics (future development; educational explainer in the Resources AI-in-Law section — not implemented)
+- Legal reasoning graphs (future development; educational explainer in the Resources AI-in-Law section — not implemented)
 - AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student)
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
