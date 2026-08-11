@@ -1,7 +1,7 @@
 
 # YOURHONOR AI  ----   Platform & AI Agent Guidelines
 
-> **Current Version: 1.3.0**
+> **Current Version: 1.4.0**
 
 ## Project Overview
 
@@ -272,7 +272,7 @@ Backend available at http://localhost:8000
 - All 9 LLM service files route errors through `friendly_llm_error()`
 
 ### Phase 7 (Version Awareness) - COMPLETE
-- App version (`v1.3.0`) displayed in the footer on every page
+- App version (`v1.4.0`) displayed in the footer on every page
 - "Check for Updates" button calls `GET /api/check-update` which fetches the latest release from the GitHub API
 - Yellow banner with download link + upgrade instructions shown when a newer version exists
 - Green "up to date" banner when the current version matches the latest release

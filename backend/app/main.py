@@ -9,7 +9,7 @@ from pathlib import Path
 from app.api import auth, documents, chat, rag, legal, templates, tutor, debate, about, notes, doctrine
 from app.services.document import file_storage
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.4.0"
 
 app = FastAPI(title="YourHonor AI", description="Legal AI Education Platform")
 
