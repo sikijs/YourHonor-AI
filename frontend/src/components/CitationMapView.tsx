@@ -1,7 +1,7 @@
 'use client';
 
 import { User, CitationMapResponse, api } from '@/lib/api';
-import { printContent, citationMapHtml, resultToPlainText } from '@/lib/print';
+import { citationMapHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -154,7 +154,10 @@ export default function CitationMapView({ user, onError }: { user: User; onError
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Citation Map: ' + result.case_name, citationMapHtml(result))}
+            content={citationMapHtml(result)}
+            filename={'Citation Map - ' + result.case_name}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ marginTop: '1rem' }}>

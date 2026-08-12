@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { User, CaseBriefResponse, COMPLEXITY_OPTIONS, api } from '@/lib/api';
-import { printContent, caseBriefHtml, resultToPlainText } from '@/lib/print';
+import { caseBriefHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -173,7 +173,10 @@ export default function CaseBriefView({ user, onError, initialQuery }: { user: U
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Case Brief: ' + result.case_name, caseBriefHtml(result))}
+            content={caseBriefHtml(result)}
+            filename={'Case Brief - ' + result.case_name}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ marginTop: '1rem' }}>

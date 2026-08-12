@@ -1,7 +1,7 @@
 'use client';
 
 import { User, ArgumentExtractionResponse, api } from '@/lib/api';
-import { printContent, argumentsHtml, resultToPlainText } from '@/lib/print';
+import { argumentsHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -173,7 +173,10 @@ export default function ArgumentsView({ user, onError }: { user: User; onError: 
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Argument Map: ' + result.case_name, argumentsHtml(result))}
+            content={argumentsHtml(result)}
+            filename={'Argument Analysis - ' + result.case_name}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ marginTop: '1rem' }}>

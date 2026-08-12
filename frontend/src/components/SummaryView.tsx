@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { User, LegalSummaryResponse, COMPLEXITY_OPTIONS, api } from '@/lib/api';
-import { printContent, summaryHtml, resultToPlainText } from '@/lib/print';
+import { summaryHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -188,7 +188,10 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Legal Summary: ' + result.title, summaryHtml(result))}
+            content={summaryHtml(result)}
+            filename={'Legal Summary - ' + result.title}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ marginTop: '1rem' }}>

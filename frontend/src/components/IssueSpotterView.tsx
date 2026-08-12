@@ -1,7 +1,7 @@
 'use client';
 
 import { User, IssueSpotterResponse, api } from '@/lib/api';
-import { printContent, issueSpotterHtml, resultToPlainText } from '@/lib/print';
+import { issueSpotterHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -201,7 +201,10 @@ export default function IssueSpotterView({ user, onError }: { user: User; onErro
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Issue Spotter Analysis', issueSpotterHtml(result))}
+            content={issueSpotterHtml(result)}
+            filename={'Issue Spotter Analysis'}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ marginTop: '1rem' }}>

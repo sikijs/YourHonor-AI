@@ -1,7 +1,7 @@
 'use client';
 
 import { User, DebateResponse, api } from '@/lib/api';
-import { printContent, debateHtml, resultToPlainText } from '@/lib/print';
+import { debateHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -191,7 +191,10 @@ export default function DebateView({ user, onError }: { user: User; onError: (er
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Debate Analysis: ' + result.topic, debateHtml(result))}
+            content={debateHtml(result)}
+            filename={'Debate Analysis - ' + result.topic}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ background: '#fff3cd', border: '1px solid #ffc107', marginTop: '0.5rem' }}>

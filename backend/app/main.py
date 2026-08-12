@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pathlib import Path
-from app.api import auth, documents, chat, rag, legal, templates, tutor, debate, about, notes, doctrine
+from app.api import auth, documents, chat, rag, legal, templates, tutor, debate, about, notes, doctrine, export
 from app.services.document import file_storage
 
 APP_VERSION = "1.4.0"
@@ -33,6 +33,7 @@ app.include_router(debate.router)
 app.include_router(about.router)
 app.include_router(notes.router)
 app.include_router(doctrine.router)
+app.include_router(export.router)
 
 
 @app.on_event("startup")

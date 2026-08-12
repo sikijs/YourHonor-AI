@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { User, Document, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
-import { printContent, documentHtml } from '@/lib/print';
+import { downloadExport } from '@/lib/export';
 import GenerateDocumentView from '@/components/GenerateDocumentView';
 
 function stripLeadingH1(content: string): string {
@@ -279,9 +279,17 @@ export default function DocumentsView({ user, onError }: { user: User; onError: 
                       View
                     </button>
                     {doc.content && (
-                      <button className="btn btn-outline" onClick={() => printContent(doc.title, documentHtml(stripLeadingH1(doc.content!)))}>
-                        Download
-                      </button>
+                      <>
+                        <button className="btn btn-outline" onClick={() => downloadExport(doc.content!, doc.title, 'pdf').catch((err: any) => onError(err.message || 'Export failed'))}>
+                          PDF
+                        </button>
+                        <button className="btn btn-outline" onClick={() => downloadExport(doc.content!, doc.title, 'docx').catch((err: any) => onError(err.message || 'Export failed'))}>
+                          DOCX
+                        </button>
+                        <button className="btn btn-outline" onClick={() => downloadExport(doc.content!, doc.title, 'md').catch((err: any) => onError(err.message || 'Export failed'))}>
+                          .MD
+                        </button>
+                      </>
                     )}
                     <input
                       type="checkbox"

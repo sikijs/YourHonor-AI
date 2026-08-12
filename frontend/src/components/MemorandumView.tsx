@@ -1,7 +1,7 @@
 'use client';
 
 import { User, MemorandumResponse, api } from '@/lib/api';
-import { printContent, memorandumHtml, resultToPlainText } from '@/lib/print';
+import { memorandumHtml, resultToPlainText } from '@/lib/print';
 import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
@@ -142,7 +142,10 @@ export default function MemorandumView({ user, onError }: { user: User; onError:
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            onSavePdf={() => printContent('Legal Memorandum: ' + result.re, memorandumHtml(result))}
+            content={memorandumHtml(result)}
+            filename={'Legal Memorandum - ' + result.re}
+            contentType="html"
+            onExportError={onError}
           />
 
           <div className="card" style={{ background: '#fff3cd', border: '1px solid #ffc107', marginTop: '1rem' }}>

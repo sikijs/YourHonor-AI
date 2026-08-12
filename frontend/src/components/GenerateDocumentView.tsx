@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { marked } from 'marked';
 import { User, CatalogResponse, CatalogTemplate, GenerateDocumentResponse, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
+import { downloadExport } from '@/lib/export';
 import LoadingStatus from '@/components/LoadingStatus';
 
 export default function GenerateDocumentView({ user, onError, onDocumentCreated }: { user: User; onError: (err: string) => void; onDocumentCreated?: () => void }) {
@@ -16,6 +16,19 @@ export default function GenerateDocumentView({ user, onError, onDocumentCreated 
   const [result, setResult] = useState<GenerateDocumentResponse | null>(null);
   const [saved, setSaved] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [exporting, setExporting] = useState<'pdf' | 'docx' | null>(null);
+
+  async function handleExport(format: 'pdf' | 'docx') {
+    if (!result) return;
+    setExporting(format);
+    try {
+      await downloadExport(result.content, result.title, format, 'markdown');
+    } catch (err: any) {
+      onError(err.message || 'Export failed');
+    } finally {
+      setExporting(null);
+    }
+  }
 
   useEffect(() => {
     if (!loading) { setElapsed(0); return; }
@@ -177,6 +190,12 @@ export default function GenerateDocumentView({ user, onError, onDocumentCreated 
                 <h3>Document Generated</h3>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   {saved && <span style={{ color: 'var(--blue-primary)', fontSize: '0.85rem' }}>✓ Saved to My Documents</span>}
+                  <button className="btn btn-outline" onClick={() => handleExport('pdf')} disabled={exporting !== null}>
+                    {exporting === 'pdf' ? 'Exporting...' : 'PDF'}
+                  </button>
+                  <button className="btn btn-outline" onClick={() => handleExport('docx')} disabled={exporting !== null}>
+                    {exporting === 'docx' ? 'Exporting...' : 'DOCX'}
+                  </button>
                   <button className="btn btn-outline" onClick={() => {
                     const blob = new Blob([result.content], { type: 'text/markdown' });
                     const url = URL.createObjectURL(blob);
@@ -187,26 +206,6 @@ export default function GenerateDocumentView({ user, onError, onDocumentCreated 
                     URL.revokeObjectURL(url);
                   }}>
                     Download
-                  </button>
-                  <button className="btn btn-outline" onClick={() => {
-                    const printWindow = window.open('', '_blank');
-                    if (printWindow) {
-                      printWindow.document.write(`<!DOCTYPE html><html><head><title>${result.title}</title>
-<style>
-  body{font-family:Georgia,serif;line-height:1.8;padding:2rem 3rem;max-width:800px;margin:auto;color:#222}
-  h1{font-size:1.5rem;border-bottom:2px solid #000;padding-bottom:0.3rem;margin-top:1.5rem}
-  h2{font-size:1.2rem;margin-top:1.25rem}
-  h3{font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.3rem}
-  p{margin-bottom:0.5rem;text-align:justify}
-  table{border-collapse:collapse;width:100%;margin:0.75rem 0}
-  td,th{border:1px solid #999;padding:0.4rem 0.6rem;text-align:left}
-  @media print{body{padding:0.5in}}
-</style></head><body>${marked.parse(result.content)}</body></html>`);
-                      printWindow.document.close();
-                      printWindow.print();
-                    }
-                  }}>
-                    Print
                   </button>
                 </div>
               </div>
