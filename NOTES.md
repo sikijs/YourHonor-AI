@@ -330,6 +330,8 @@ cd ~/YourHonor\ AI/docker
 
 If you've restarted your computer or Docker Desktop, get the app back with:
 
+> **Auto-restart note:** both services now have `restart: unless-stopped`, so once Docker Desktop finishes starting, the app comes back automatically (takes a few seconds to become healthy). Steps 4–5 below are only needed if you want to force-pull the newest image.
+
 | Step | Command / Action | Notes |
 |------|-----------------|-------|
 | **1. Start Docker Desktop** | Open Docker Desktop from Applications | Wait for the whale icon in the menu bar to stop animating. `docker info` confirms it's ready. |
@@ -404,9 +406,14 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
 | "OpenRouter credits exhausted" in any AI tool | No credits left in your OpenRouter account | Go to `openrouter.ai/settings/credits` and add funds (~$5 lasts a long time) |
+| AI tools fail with "authentication" or 401 errors (but credits are fine) | `OPENROUTER_API_KEY` or `CEREBRAS_API_KEY` in `.env` is missing, invalid, or stale | Check both keys exist and are correct in `.env` (see the .env File Reference above), then restart: `docker compose -f docker/docker-compose.yml up -d backend` |
 | `docker: command not found` | Docker Desktop not installed | Download from `docker.com/products/docker-desktop` and install |
+| Docker Desktop opens but containers won't start / engine stuck at "Docker is starting" | Docker Desktop update or Mac restart left the engine in a bad state | Wait for the whale icon to stop animating; if stuck, quit & relaunch Docker Desktop. Verify with `docker info`. Reinstall from docker.com if it persists |
 | Port 8000 already in use | Another app or Docker container is using it | `lsof -i :8000` → find the PID → `kill -9 <PID>`. Or let the app auto-pick another port |
 | Container exits immediately on start | Port conflict or database initialization failed | `docker compose logs backend` to see the exact error |
+| App won't load on port 8000 after restarting your Mac or Docker Desktop | Containers were stopped when Docker shut down (they don't survive a reboot on their own) | Open Docker Desktop and wait for it to finish starting — since v1.4.0 both services have `restart: unless-stopped` and will come back automatically. If they don't: `docker ps -a` to check, then `docker compose up -d` |
+| Containers show `Exited (255)` after a reboot | Normal — exit 255 is just "stopped by Docker Desktop shutdown", not a crash | Start the app again (`docker compose up -d`); confirm nothing crashed by viewing `docker compose logs backend` |
+| Backend container shows `health: starting` for up to a minute after start | Normal — startup includes RAG collection checks and landmark pre-ingestion; the health check has a 60s start period | Wait ~30-60s, then refresh. `curl localhost:8000/api/health` returns 200 once ready |
 | "No module named X" error after code changes | Docker image is stale (built before your changes) | Rebuild: `docker compose up -d --build` |
 | Frontend changes not showing in browser | Browser cache or stale static files | Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows). If you edited `frontend/src/`, run `bash scripts/sync-frontend.sh` (rebuilds the frontend and copies it into the Docker image), then rebuild: `docker compose -f docker/docker-compose.yml build backend && docker compose -f docker/docker-compose.yml up -d backend` |
 | Can't sign in / user missing | Database was deleted or reset | Just sign up again with the same email — fresh account |
@@ -418,6 +425,7 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Case Brief has metadata but thin/no opinion detail | "Set COURTLISTENER_TOKEN for full opinion text" — token missing | Same fix: add the token and restart. The full opinion text is only downloadable with a token |
 | CourtListener lookups failing (401) | Token invalid or expired | Log in at courtlistener.com and regenerate the token, update `.env`, restart |
 | First CourtListener fetch is slow (10-30s) | Rate limiting — the app waits out the retry delay (up to 15s per retry) | Normal — it's cached in SQLite afterwards, so the next lookup of the same case is instant |
+| Uploaded PDF fails to parse or produces empty text | OCR needed (scanned PDF with no embedded text) but tesseract unavailable, or the PDF is corrupt/image-only | Make sure the PDF has selectable text (copy-paste a line to test). Scanned PDFs rely on OCR — if extraction fails, upload a text-based PDF instead |
 | Disk space low | Old Docker images and build cache accumulate | `docker system prune` (add `-a` to remove all unused images, not just dangling ones) |
 | "Failed to spot issues" or similar AI error | Temporary OpenRouter outage or model overload | Wait a minute and try again. If it persists, check `openrouter.ai/status` |
 
@@ -427,7 +435,7 @@ Run these checks in order when you want to confirm the app is healthy:
 
 **1. Health endpoint** — open `http://localhost:8000/api/health` in your browser. Should return:
 ```json
-{"status":"healthy","version":"1.3.0"}
+{"status":"healthy","version":"1.4.0"}
 ```
 
 **2. Containers running** — run `docker ps`. Should show 2 containers:

@@ -1,6 +1,7 @@
 services:
   qdrant:
     image: qdrant/qdrant:v1.18.0
+    restart: unless-stopped
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -12,6 +13,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.backend
     image: ghcr.io/sikijs/yourhonor-ai/backend:latest
+    restart: unless-stopped
     ports:
       - "${HOST_PORT:-8000}:8000"
     healthcheck:
