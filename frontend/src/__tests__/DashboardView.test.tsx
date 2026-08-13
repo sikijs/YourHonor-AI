@@ -38,6 +38,15 @@ const FULL_STATS = {
       { topic_id: 'torts', topic_name: 'Torts', weak_count: 2 },
     ],
   },
+  tutor_sessions: {
+    total_sessions: 2,
+    total_answers: 18,
+    accuracy: 0.667,
+    per_topic: [
+      { topic_id: 'contracts', topic_name: 'Contracts', sessions: 1, correct: 7, wrong: 3, accuracy: 0.7 },
+      { topic_id: 'torts', topic_name: 'Torts', sessions: 1, correct: 5, wrong: 3, accuracy: 0.625 },
+    ],
+  },
 };
 
 const EMPTY_STATS = {
@@ -50,6 +59,12 @@ const EMPTY_STATS = {
     mastered: 0,
     weak: 0,
     weak_topics: [],
+  },
+  tutor_sessions: {
+    total_sessions: 0,
+    total_answers: 0,
+    accuracy: 0,
+    per_topic: [],
   },
 };
 
@@ -103,6 +118,21 @@ describe('DashboardView', () => {
     expect(screen.getByText(/haven.t marked any review cards/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Review Queue (empty)' })).toBeDisabled();
     expect(screen.getByText('account — welcome!')).toBeInTheDocument();
+    expect(screen.getByText(/No completed live sessions yet/)).toBeInTheDocument();
+  });
+
+  it('renders live tutor session stats with per-topic accuracy', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Live Tutor Sessions')).toBeInTheDocument());
+    expect(screen.getByText('Tutor Sessions')).toBeInTheDocument();
+    expect(screen.getByText('completed live sessions')).toBeInTheDocument();
+    expect(screen.getByText(/2 sessions · 18 answers/)).toBeInTheDocument();
+    expect(screen.getByText('67% correct')).toBeInTheDocument();
+    expect(screen.getByText(/70% · 7\/10/)).toBeInTheDocument();
+    expect(screen.getByText(/63% · 5\/8/)).toBeInTheDocument();
   });
 
   it('reports fetch errors through onError', async () => {

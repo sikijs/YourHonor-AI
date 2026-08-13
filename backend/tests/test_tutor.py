@@ -745,3 +745,91 @@ def test_review_queue_excludes_mastered_cards_from_enrichment(client, auth_heade
     data = resp.json()
     assert data["total"] == 1
     assert data["cards"][0]["question"] == weak.question
+
+
+# ---------------------------------------------- completed-session persistence
+
+def test_tutor_completed_session_persists_to_db(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+    from app import db
+
+    start = client.post("/api/tutor/start", headers=auth_headers, json={"topic_id": "contracts"})
+    assert start.status_code == 200
+    total = start.json()["total_questions"]
+    assert total > 0
+
+    valid_eval = {
+        "evaluation": "correct",
+        "explanation": "Good answer!",
+        "follow_up_question": None,
+        "follow_up_hint": None,
+        "is_complete": True,
+        "missed_concepts": [],
+    }
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=json.dumps(valid_eval)))]
+    with patch("app.services.tutor.completion", return_value=mock_llm):
+        for _ in range(total):
+            resp = client.post("/api/tutor/answer", headers=auth_headers, json={
+                "answer": "Consideration is a bargained-for exchange.",
+            })
+            assert resp.status_code == 200
+
+    conn = db.get_db()
+    try:
+        user_id = conn.execute("SELECT id FROM users ORDER BY id LIMIT 1").fetchone()["id"]
+        row = conn.execute("SELECT * FROM tutor_sessions").fetchone()
+        assert row is not None, "completed session was not persisted"
+        assert row["user_id"] == user_id
+        assert row["topic_id"] == "contracts"
+        assert row["mode"] == "curriculum"
+        assert row["correct_count"] == total
+        assert row["wrong_count"] == 0
+        assert row["total_questions"] == total
+    finally:
+        conn.close()
+
+
+def test_tutor_completed_mc_quiz_persists_to_db(client, auth_headers):
+    from unittest.mock import MagicMock, patch
+    import json
+    from app import db
+
+    mc_json = json.dumps({
+        "question": "Which of the following is consideration?",
+        "options": ["A gift", "A bargained-for exchange", "A promise with no return", "A moral obligation"],
+        "correct_index": 1,
+        "explanation": "Consideration is a bargained-for exchange.",
+        "option_explanations": ["Gifts lack exchange.", "Correct.", "No return = no exchange.", "Moral duties are not consideration."],
+        "difficulty": 3,
+    })
+    mock_llm = MagicMock()
+    mock_llm.choices = [MagicMock(message=MagicMock(content=mc_json))]
+    with patch("app.services.tutor.completion", return_value=mock_llm), \
+         patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        resp = client.post("/api/tutor/mc/start", headers=auth_headers, json={
+            "topic_id": "contracts", "difficulty": 3,
+        })
+        assert resp.status_code == 200
+        total = resp.json()["total_questions"]
+        for _ in range(total):
+            resp = client.post("/api/tutor/mc/answer", headers=auth_headers, json={
+                "selected_index": 1,
+            })
+            assert resp.status_code == 200
+            assert resp.json()["correct"] is True
+
+    conn = db.get_db()
+    try:
+        user_id = conn.execute("SELECT id FROM users ORDER BY id LIMIT 1").fetchone()["id"]
+        row = conn.execute("SELECT * FROM tutor_sessions").fetchone()
+        assert row is not None, "completed MC quiz was not persisted"
+        assert row["user_id"] == user_id
+        assert row["topic_id"] == "contracts"
+        assert row["mode"] == "mc"
+        assert row["correct_count"] == total
+        assert row["wrong_count"] == 0
+        assert row["total_questions"] == total
+    finally:
+        conn.close()

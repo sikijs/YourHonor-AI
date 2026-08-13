@@ -143,26 +143,21 @@ The app stores things in two places, and they do *different* jobs. If you need t
 ### Chat
 Like texting a tutor. Type any legal question and the AI answers conversationally, remembering the last 10 messages so you can go back and forth. When helpful, it quietly pulls relevant case text from its library to ground the answer, and shows the sources at the bottom. **Use it for** open-ended questions, brainstorming, and clarifying concepts before switching to a structured tool.
 
-### Case Briefs
-The "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (70 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**. **Use it for** fast exam prep — grasping the essentials of any case in minutes.
+### Legal Drafting
+Four drafting tools under one roof (tabs: **Case Brief, Summary, Arguments, Memorandum**):
+- **Case Briefs** — the "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (70 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**.
+- **Summaries** — a condensed overview of any legal topic, in four flavours — pick one from the dropdown, and the output adapts:
+  - **General** — a balanced overview of anything (overview, key findings, legal principles, impact, key points)
+  - **Case Summary** — parties, procedural posture, issue, holding, reasoning, disposition
+  - **Statute Summary** — a law's purpose, scope, key provisions, elements, penalties, remedies
+  - **Legal Doctrine** — the rule, its tests, origin, landmark cases, exceptions, modern application
+- **Arguments** — the anatomy of a court fight. Give it a case or topic, and it extracts the arguments **petitioner vs. respondent** — each side's arguments, the reasoning behind them, the authorities cited, and how the court resolved each one — plus counterarguments the court considered, key doctrines, and the winning party with the court's rationale.
+- **Memoranda** — drafts a law-firm style legal memo. Type a legal question and get a complete memo with a **TO / AUTHOR / DATE / RE** header, **Question Presented, Brief Answer, Facts**, then one **IRAC** block per issue (**Issue, Rule, Application, Conclusion**), an **Overall Conclusion**, and Sources.
 
-### Summaries
-A condensed overview of any legal topic, in four flavours — pick one from the dropdown, and the output adapts:
-- **General** — a balanced overview of anything (overview, key findings, legal principles, impact, key points)
-- **Case Summary** — parties, procedural posture, issue, holding, reasoning, disposition
-- **Statute Summary** — a law's purpose, scope, key provisions, elements, penalties, remedies
-- **Legal Doctrine** — the rule, its tests, origin, landmark cases, exceptions, modern application
-
-**Use it for** quickly grasping a case, statute, or doctrine without reading the full text.
-
-### Arguments
-The anatomy of a court fight. Give it a case or topic, and it extracts the arguments **petitioner vs. respondent** — each side's arguments, the reasoning behind them, the authorities cited, and how the court resolved each one — plus counterarguments the court considered, key doctrines, and the winning party with the court's rationale. **Use it for** understanding both sides' case theories before moot court or a debate.
+**Use it for** exam prep, grasping cases, understanding both sides' theories, and practicing the standard internal legal-analysis format used in real law firms.
 
 ### Citations
 The family tree of the law. Give it a case, and it maps every authority the opinion cites: **cases** (full citation, why it was cited, and how it was treated — followed, distinguished, overruled, abrogated...), **statutes**, and **constitutional provisions**, plus a total count and which single authority was the key precedent and why. The same view also hosts the **Bluebook Formatter** tab — paste raw citations and get them reformatted to proper Bluebook style, with rule references and confidence ratings for each entry. **Use it for** seeing how a case fits into a doctrine and finding its most important authority.
-
-### Memoranda
-Drafts a law-firm style legal memo. Type a legal question and get a complete memo with a **TO / AUTHOR / DATE / RE** header, **Question Presented, Brief Answer, Facts**, then one **IRAC** block per issue (**Issue, Rule, Application, Conclusion**), an **Overall Conclusion**, and Sources. **Use it for** practicing the standard internal legal-analysis format used in real law firms.
 
 ### Debate
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
@@ -177,7 +172,7 @@ Exam practice. Paste a fact pattern — a story full of legal problems — and i
 Socratic dialogue. Pick one of 8 subjects (160+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
 
 ### Study Dashboard
-Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, and your account age. **Use it for** checking overall progress without digging through every tool.
+Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, **live tutor session accuracy** (completed sessions, answers, and % correct per topic), and your account age. **Use it for** checking overall progress without digging through every tool.
 
 ### Generate Document
 A drafting assistant. Chat with the AI to figure out which document you need from the catalog of **24 templates** (agreements, contracts, briefs, etc.), and it helps you supply the fields (parties, dates, amounts...), then produces the finished document and saves it to My Documents. **Use it for** drafting routine documents conversationally without knowing the format yourself.
@@ -186,7 +181,7 @@ A drafting assistant. Chat with the AI to figure out which document you need fro
 Your personal filing cabinet. Every tool can save its output here, and you can upload PDFs, view them, and delete them. Uploaded PDFs also become usable sources — most tools let you select a PDF so the analysis is based on *your* document rather than the app's library. **Use it for** keeping all your briefs, memos, and source materials in one place.
 
 ### Glossary
-Type a legal term and get a plain-English definition. Lookups run through a three-step ladder: 1) **keyword match** against 123 curated definitions, 2) **semantic match** (vector search, only served when high-confidence), 3) **AI-generated** definition as fallback. Each entry includes the definition, etymology, jurisdiction, a usage example, related terms, alternative names, practice tips, and citations. **Use it for** quick term lookups mid-study.
+Type a legal term and get a plain-English definition. Lookups run through a three-step ladder: 1) **keyword match** against 123 curated definitions, 2) **semantic match** (vector search, served only when the top hit is high-confidence or beats the runner-up by a clear margin), 3) **AI-generated** definition as fallback. Each entry includes the definition, etymology, jurisdiction, a usage example, related terms, alternative names, practice tips, and citations. **Use it for** quick term lookups mid-study.
 
 ### Resources
 Static educational pages — how-to guides for the tools and legal tech reading material, including explainers on AI concepts, predictive analytics, and legal reasoning graphs. No AI involved.
@@ -223,7 +218,7 @@ YourHonor AI/
 ├── frontend/               # Next.js React app
 │   ├── src/
 │   │   ├── app/            # page.tsx (SPA), layout.tsx, globals.css
-│   │   ├── components/     # 32 view components (one per tool + shared UI)
+│   │   ├── components/     # 33 view components (one per tool + shared UI)
 │   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts
 │   ├── public/             # Static assets (logo, favicon, md files)
 │   ├── next.config.js      # Frontend version constant

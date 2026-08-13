@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DocTypeCount(BaseModel):
@@ -19,9 +19,26 @@ class TutorReviewStats(BaseModel):
     weak_topics: list[WeakTopic] = []
 
 
+class TutorSessionTopic(BaseModel):
+    topic_id: str
+    topic_name: str
+    sessions: int
+    correct: int
+    wrong: int
+    accuracy: float
+
+
+class TutorSessionStats(BaseModel):
+    total_sessions: int
+    total_answers: int
+    accuracy: float
+    per_topic: list[TutorSessionTopic] = []
+
+
 class StatsResponse(BaseModel):
     account_age_days: int
     documents_total: int
     documents_by_type: list[DocTypeCount] = []
     notes_total: int
     tutor_review: TutorReviewStats
+    tutor_sessions: TutorSessionStats = Field(default_factory=TutorSessionStats)

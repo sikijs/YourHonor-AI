@@ -26,6 +26,14 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 MODEL = "openrouter/qwen/qwen3-14b"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 
+# Semantic seed-lookup thresholds. all-MiniLM cosine scores for the
+# glossary_seed collection sit in a flat band (~0.3-0.55), so selection
+# uses two tiers: a confident top-of-band serve, or a lower score that
+# still clears a clear margin over the runner-up. See _retrieve_seed_entry.
+SEED_SEMANTIC_MIN = 0.35
+SEED_CONFIDENT_SCORE = 0.55
+SEED_MARGIN = 0.10
+
 SYSTEM_PROMPT = """You are a legal glossary assistant specializing in defining legal terms and providing educational explanations for law students.
 
 Given a legal term and relevant source material, generate a structured glossary entry:
@@ -267,24 +275,45 @@ class GlossaryService:
             "sources": list(source_labels),
         }, from_rag_results(results)
 
-    def _retrieve_seed_entry(self, query: str, min_score: float = 0.55) -> Optional[dict]:
+    def _retrieve_seed_entry(self, query: str) -> Optional[dict]:
         """Semantic lookup over the curated glossary seed collection.
 
         Catches close paraphrases ("who inherits when you die without a
-        will") that miss every keyword path. The threshold is intentionally
-        high (0.55) and tuned against live score distributions: all-MiniLM
-        scores cluster 0.3-0.55, and near-misses (e.g. "trade secret" for
-        "lawyer's duty to keep secrets" at 0.54) must NOT be served as the
-        answer. Below the threshold (or when Qdrant is unavailable/empty)
-        the caller falls back to the LLM, which is more accurate for loose
-        paraphrases.
+        will") that miss every keyword path. all-MiniLM cosine scores for
+        this collection cluster in a flat band (roughly 0.3-0.55), so a
+        single absolute cutoff is a blunt instrument: 0.55 rejects honest
+        paraphrases (paying an LLM call) while a lower cutoff would serve
+        near-miss wrong terms (e.g. "trade secret" for "lawyer's duty to
+        keep secrets" at 0.54). Selection therefore uses two tiers:
+
+          - best score >= 0.55: serve (unambiguous top-of-band match)
+          - best score >= 0.35 with a clear margin over the runner-up:
+            serve (genuine matches sit well above their nearest
+            competitor, while near-misses cluster together)
+          - otherwise None -> the caller falls back to the LLM
+
+        A missing/absent score (mocks, malformed results) is treated as
+        zero, i.e. conservative fall-through.
         """
         try:
-            results = retrieve_glossary_seed(query=query, top_k=1, min_score=min_score)
-            for r in results:
-                entry = glossary_seed_from_payload(r.get("payload"))
-                if entry is not None:
-                    return entry
+            results = retrieve_glossary_seed(query=query, top_k=5, min_score=SEED_SEMANTIC_MIN)
+            scored = [
+                (float(r.get("score") or 0.0), glossary_seed_from_payload(r.get("payload")))
+                for r in results
+            ]
+            scored = [(s, e) for s, e in scored if e is not None]
+            if not scored:
+                return None
+            scored.sort(key=lambda pair: pair[0], reverse=True)
+            best_score, best_entry = scored[0]
+            if best_score >= SEED_CONFIDENT_SCORE:
+                return best_entry
+            if (
+                best_score >= SEED_SEMANTIC_MIN
+                and len(scored) >= 2
+                and (best_score - scored[1][0]) >= SEED_MARGIN
+            ):
+                return best_entry
         except Exception as e:
             logger.warning(f"Glossary seed retrieval failed: {e}")
         return None

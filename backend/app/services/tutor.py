@@ -18,6 +18,7 @@ from app.services.retrieval import (
 )
 from app.services.llm_errors import friendly_llm_error
 from app.services.tutor_data import TOPICS
+from app import db
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,33 @@ class TutorService:
     def __init__(self):
         self._sessions: dict[int, TutorSession] = {}
         self._mc_sessions: dict[int, MCQuizSession] = {}
+
+    def _persist_session(
+        self, user_id: int, topic_id: str, mode: str,
+        correct_count: int, wrong_count: int, total_questions: int,
+    ) -> None:
+        """Persist a completed tutor session for the study dashboard.
+
+        Live-session counters live in memory; this row is the durable
+        record written once when the session finishes. Failures are logged
+        and swallowed so a DB hiccup never breaks the tutor flow.
+        """
+        try:
+            conn = db.get_db()
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO tutor_sessions
+                        (user_id, topic_id, mode, correct_count, wrong_count, total_questions)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (user_id, topic_id, mode, correct_count, wrong_count, total_questions),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception as e:
+            logger.error(f"Failed to persist tutor session for user {user_id}: {e}")
 
     def get_topics(self) -> list[dict]:
         return [
@@ -294,6 +322,11 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             total = len(session.questions)
             logger.info(f"User {user_id} completed topic '{session.topic_data['name']}' "
                         f"({session.correct_count}/{total} correct)")
+            mode = "dynamic" if session.dynamic_used else "curriculum"
+            self._persist_session(
+                user_id, session.topic_id, mode,
+                session.correct_count, session.wrong_count, total,
+            )
 
         return TutorAnswerResponse(
             evaluation=eval_result.evaluation,
@@ -795,7 +828,14 @@ Return valid JSON with these exact keys:
         next_question = None
         is_complete = session.answered >= session.total_questions
 
-        if not is_complete:
+        if is_complete:
+            self._persist_session(
+                user_id, session.topic_id, "mc",
+                session.correct_count,
+                session.answered - session.correct_count,
+                session.answered,
+            )
+        else:
             next_q = self._generate_mc_question(session)
             session.questions.append(next_q)
             session.current_question = next_q

@@ -639,12 +639,29 @@ export interface TutorReviewStats {
   weak_topics: WeakTopic[];
 }
 
+export interface TutorSessionTopic {
+  topic_id: string;
+  topic_name: string;
+  sessions: number;
+  correct: number;
+  wrong: number;
+  accuracy: number;
+}
+
+export interface TutorSessionStats {
+  total_sessions: number;
+  total_answers: number;
+  accuracy: number;
+  per_topic: TutorSessionTopic[];
+}
+
 export interface UserStats {
   account_age_days: number;
   documents_total: number;
   documents_by_type: DocTypeCount[];
   notes_total: number;
   tutor_review: TutorReviewStats;
+  tutor_sessions: TutorSessionStats;
 }
 
 export interface GlossaryResponse {

@@ -127,9 +127,10 @@ def test_fuzzy_seed_match_rejects_unrelated_query():
 
 # ------------------------------------------------- semantic glossary seed lookup
 
-def _seed_result(term, definition="A definition."):
+def _seed_result(term, definition="A definition.", score=0.58):
     return {
         "content": f"Term: {term}\nDefinition: {definition}",
+        "score": score,
         "payload": {
             "kind": "glossary_seed",
             "term": term,
@@ -215,6 +216,77 @@ def test_semantic_seed_below_threshold_falls_through_to_llm():
         result = svc.lookup("random unrelated words xylophone")
 
     assert result.from_seed is False
+
+
+def test_semantic_seed_serves_low_score_with_clear_margin():
+    svc = _service()
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[
+        _seed_result("intestate", "Dying without a valid will.", score=0.52),
+        _seed_result("probate", "Court-supervised distribution of an estate.", score=0.30),
+    ]), patch("app.services.legal_glossary.completion", side_effect=AssertionError("LLM must not be called")):
+        result = svc.lookup("who inherits when you die without making a will")
+
+    assert result.from_seed is True
+    assert result.term == "intestate"
+
+
+def test_semantic_seed_tie_near_band_top_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    # 0.52 vs 0.51: flat band near-miss — the margin is too thin to trust,
+    # so the LLM (not a possibly-wrong seed term) must answer.
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[
+        _seed_result("intestate", "Dying without a valid will.", score=0.52),
+        _seed_result("probate", "Court-supervised distribution of an estate.", score=0.51),
+    ]), patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("who inherits when you die without making a will")
+
+    assert result.from_seed is False
+    assert result.term == "novel term"
+
+
+def test_semantic_seed_single_result_below_confident_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    # One candidate only — there is no runner-up to establish a margin.
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[
+        _seed_result("intestate", "Dying without a valid will.", score=0.40),
+    ]), patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("who inherits when you die without making a will")
+
+    assert result.from_seed is False
+    assert result.term == "novel term"
+
+
+def test_semantic_seed_below_floor_falls_through_to_llm():
+    svc = _service()
+    good_json = json.dumps({
+        "term": "novel term",
+        "definition": "A definition.",
+        "usage_example": "An example.",
+        "related_terms": [],
+        "citations": [],
+    })
+    with patch("app.services.legal_glossary.retrieve_glossary_seed", return_value=[
+        _seed_result("intestate", "Dying without a valid will.", score=0.30),
+        _seed_result("probate", "Court-supervised distribution of an estate.", score=0.20),
+    ]), patch("app.services.legal_glossary.completion", return_value=_mock_llm_response(good_json)):
+        result = svc.lookup("who inherits when you die without making a will")
+
+    assert result.from_seed is False
+    assert result.term == "novel term"
 
 
 # ------------------------------------------------------------- LLM retry path

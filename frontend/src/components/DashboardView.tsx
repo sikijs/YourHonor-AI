@@ -79,6 +79,8 @@ export default function DashboardView({
   const reviewPct = review.total_reviewed > 0
     ? Math.round((review.mastered / review.total_reviewed) * 100)
     : 0;
+  const sessions = stats.tutor_sessions;
+  const sessionsPct = Math.round(sessions.accuracy * 100);
 
   return (
     <div>
@@ -99,6 +101,11 @@ export default function DashboardView({
           <p className="stat-label">Review Queue</p>
           <p className="stat-value">{review.weak}</p>
           <p className="stat-sub">cards to restudy</p>
+        </div>
+        <div className="card stat-card">
+          <p className="stat-label">Tutor Sessions</p>
+          <p className="stat-value">{sessions.total_sessions}</p>
+          <p className="stat-sub">completed live sessions</p>
         </div>
         <div className="card stat-card">
           <p className="stat-label">Account Age</p>
@@ -186,6 +193,44 @@ export default function DashboardView({
             </button>
           </div>
         </div>
+
+        <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+          <h3 style={{ color: 'var(--dark-navy)', margin: '0 0 1rem 0', fontSize: '1.05rem' }}>Live Tutor Sessions</h3>
+          {sessions.total_sessions === 0 ? (
+            <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+              No completed live sessions yet. Finish an <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('tutor'); }}>AI Tutor</a> session to see your accuracy here.
+            </p>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+                <span style={{ fontWeight: 600, color: 'var(--dark-navy)' }}>
+                  {sessions.total_sessions} session{sessions.total_sessions === 1 ? '' : 's'} · {sessions.total_answers} answer{sessions.total_answers === 1 ? '' : 's'}
+                </span>
+                <span style={{ color: 'var(--gray-text)' }}>{sessionsPct}% correct</span>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${sessionsPct}%`, background: 'var(--accent-yellow)' }} />
+              </div>
+              <div style={{ marginTop: '1rem' }}>
+                {sessions.per_topic.map((t) => {
+                  const pct = Math.round(t.accuracy * 100);
+                  const total = t.correct + t.wrong;
+                  return (
+                    <div key={t.topic_id} style={{ marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--dark-navy)' }}>{t.topic_name}</span>
+                        <span style={{ color: 'var(--gray-text)' }}>{pct}% · {t.correct}/{total}</span>
+                      </div>
+                      <div className="progress-track">
+                        <div className="progress-fill" style={{ width: `${pct}%`, background: 'var(--accent-yellow)' }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
@@ -193,7 +238,7 @@ export default function DashboardView({
         <button className="btn btn-outline" onClick={() => onNavigate('tutor')}>AI Tutor</button>
       </div>
       <p style={{ color: 'var(--gray-text)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-        Dashboard stats reflect your saved documents, notes, and tutor review marks. Educational software — not legal advice.
+        Dashboard stats reflect your saved documents, notes, tutor review marks, and completed live tutor sessions. Educational software — not legal advice.
       </p>
     </div>
   );

@@ -75,6 +75,20 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tutor_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            topic_id TEXT NOT NULL,
+            mode TEXT NOT NULL,
+            correct_count INTEGER NOT NULL,
+            wrong_count INTEGER NOT NULL,
+            total_questions INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    """)
+
     try:
         cursor.execute("ALTER TABLE opinions_cache ADD COLUMN qdrant_ingested INTEGER DEFAULT 0")
     except Exception:

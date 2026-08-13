@@ -226,7 +226,7 @@ Backend available at http://localhost:8000
 - POST /api/doctrine/compare      - Compare two landmark cases (auth required): curated facts table + LLM narrative comparison (similarities/differences/doctrinal relationship/significance/practice note) built from the offline seed opinions; saves case_comparison docs
 
 ### Study Dashboard
-- GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), account age in days. Pure SQLite aggregations, zero LLM cost.
+- GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), completed live tutor sessions (sessions/answers/accuracy per topic), account age in days. Pure SQLite aggregations, zero LLM cost.
 
 ### Other
 - GET /api/health - Health check
@@ -287,15 +287,19 @@ Backend available at http://localhost:8000
 - Version constants in `backend/app/main.py` (`APP_VERSION`), `frontend/next.config.js` (`NEXT_PUBLIC_APP_VERSION`), and `frontend/package.json` / `backend/pyproject.toml`
 
 ### Phase 8 (Study Dashboard) - COMPLETE
-- `GET /api/stats/me` — per-user study stats from plain SQLite (no LLM): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak via `review_progress`), weak-topics list, account age in days
-- `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, account-age display
+- `GET /api/stats/me` — per-user study stats from plain SQLite (no LLM): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak via `review_progress`), weak-topics list, completed live-session stats (sessions/answers/accuracy per topic via `tutor_sessions`), account age in days
+- `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, live tutor session accuracy panel, account-age display
 - `ReviewQueueView.tsx` — standalone cross-topic review of the persisted review queue (`GET /api/tutor/review/queue` + `POST /api/tutor/review/mark`); "Got it ✓" drains cards from the queue, "Need to Study ✗" keeps them
-- Caveat: live-session tutor performance (correct/wrong counts) is in-memory only — dashboard tutor stats cover only persisted review marks
+- Persistence: completed curriculum/dynamic sessions and MC quizzes write one `tutor_sessions` row each (mode, correct/wrong counts, total questions); abandoned mid-session progress stays in-memory and is not included in dashboard stats
 
 ### Phase 9 (Bluebook Formatter + Case Comparison) - COMPLETE
 - `POST /api/legal/bluebook-format` — two-tier citation formatter: local deterministic pass over the 70 landmark cases (normalized longest-name substring match from `landmark_seed.json`, zero LLM) then LLM (qwen3-14b/Cerebras, structured outputs) with per-entry Bluebook rule numbers (`rules_applied`) and confidence ratings; saves `bluebook_citations` docs; `BluebookView.tsx` per-entry copy + ActionBar export, served as the "Bluebook Formatter" tab inside the Citations view (`CitationsView.tsx`) — no separate nav item; one combined "Citation Maps" card on Home
 - `POST /api/doctrine/compare` — compare any two of the 70 landmark cases (auth): curated facts table (citation/year/court/date/subjects/holdings from `LANDMARK_CASES` + seed + doctrine map — zero LLM) plus LLM narrative (similarities/differences/doctrinal relationship/significance/exam practice note) built from offline seed opinions (no CourtListener calls); saves `case_comparison` docs
 - `CompareView.tsx` — side-by-side facts table + on-demand "Generate AI Comparison" button; entry points: checkboxes in `DoctrineDetail` (in-doctrine) and a global "Compare Cases" picker over all 70 cases
+
+### Phase 10 (Nav Consolidation + Tutor Persistence + Glossary Margin) - COMPLETE
+- Nav 17 → 14 links: Case Briefs/Summaries/Arguments/Memoranda merged into one "Legal Drafting" link backed by `DraftingView.tsx` (tab wrapper over the four existing views, same pattern as `CitationsView.tsx`); Home feature cards 12 → 9 (one "Legal Drafting" card); Doctrine Explorer's "brief this case" deep-link still lands on the Case Brief tab with the case prefilled via the `navigate()` alias map in `page.tsx`
+- Glossary semantic lookup is now margin-based (`SEED_SEMANTIC_MIN=0.35`, `SEED_CONFIDENT_SCORE=0.55`, `SEED_MARGIN=0.10`): serve the top seed entry when it clears 0.55, or when it sits ≥0.35 with a clear gap over the runner-up; ties in the flat score band fall to the LLM
 
 ---
 
@@ -305,9 +309,10 @@ The **`legal_documents`** Qdrant collection holds uploaded cases + the
 pre-ingested landmark cases. The **`tutor_curriculum`** collection holds the
 AI Tutor's 160 curated Q&A cards (one point per card; use the `topic` payload
 index for filtered retrievals). The **`glossary_seed`** collection holds the
-123 curated glossary definitions from `glossary_seed.json` (served only for
-high-confidence semantic matches, min score 0.55, so near-miss paraphrases
-fall back to the LLM instead of serving a wrong curated term).
+123 curated glossary definitions from `glossary_seed.json` (served via
+margin-based semantic selection — confident top-of-band match, or a clear
+gap over the runner-up — so near-miss paraphrases fall back to the LLM
+instead of serving a wrong curated term).
 
 | Collection | Content | Points |
 |------------|---------|--------|
@@ -325,8 +330,10 @@ Notes:
   upsert), so it is always in sync with `tutor_data.py`.
 - `glossary_seed` is likewise rebuilt from `glossary_seed.json` on every boot.
   Glossary lookup order: keyword (exact/substring/fuzzy) → semantic
-  (min score 0.55) → LLM. The high threshold keeps wrong-term serves from
-  slipping through MiniLM's flat score band.
+  (top-k with margin-based selection) → LLM. The margin rule keeps wrong-term
+  serves from slipping through MiniLM's flat score band: best score ≥0.55
+  serves outright, ≥0.35 serves only with a ≥0.10 gap over the runner-up,
+  and ties fall to the LLM.
 
 **Sample landmark cases ingested:**
 - Criminal Procedure: Gideon v. Wainwright, Miranda v. Arizona
