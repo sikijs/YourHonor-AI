@@ -6,10 +6,7 @@ import { api, User } from '@/lib/api';
 import HomeView from '@/components/HomeView';
 import AuthView from '@/components/AuthView';
 import DocumentsView from '@/components/DocumentsView';
-import CaseBriefView from '@/components/CaseBriefView';
-import SummaryView from '@/components/SummaryView';
-import ArgumentsView from '@/components/ArgumentsView';
-import MemorandumView from '@/components/MemorandumView';
+import DraftingView from '@/components/DraftingView';
 import TutorView from '@/components/TutorView';
 import DebateView from '@/components/DebateView';
 import GlossaryView from '@/components/GlossaryView';
@@ -27,10 +24,22 @@ import CitationsView from '@/components/CitationsView';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'dashboard' | 'resources' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'citations' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'dashboard' | 'resources' | 'about' | 'drafting'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [briefQuery, setBriefQuery] = useState('');
+  const [draftTab, setDraftTab] = useState<'brief' | 'summary' | 'arguments' | 'memorandum'>('brief');
+
+  function navigate(v: string, q?: string) {
+    if (v === 'briefs' || v === 'summaries' || v === 'arguments' || v === 'memoranda') {
+      if (q) setBriefQuery(q);
+      setDraftTab(v === 'briefs' ? 'brief' : v === 'summaries' ? 'summary' : v === 'arguments' ? 'arguments' : 'memorandum');
+      setView('drafting');
+      return;
+    }
+    if (q) setBriefQuery(q);
+    setView(v as any);
+  }
 
   useEffect(() => {
     checkAuth();
@@ -80,11 +89,8 @@ export default function Home() {
               <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
               <a href="#" onClick={() => setView('dashboard')} style={view === 'dashboard' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Dashboard</a>
               <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
-              <a href="#" onClick={() => setView('briefs')} style={view === 'briefs' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Case Briefs</a>
-              <a href="#" onClick={() => setView('summaries')} style={view === 'summaries' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Summaries</a>
-              <a href="#" onClick={() => setView('arguments')} style={view === 'arguments' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Arguments</a>
+              <a href="#" onClick={() => setView('drafting')} style={view === 'drafting' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Legal Drafting</a>
               <a href="#" onClick={() => setView('citations')} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
-              <a href="#" onClick={() => setView('memoranda')} style={view === 'memoranda' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Memoranda</a>
               <a href="#" onClick={() => setView('debate')} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
               <a href="#" onClick={() => setView('issuespotter')} style={view === 'issuespotter' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Issue Spotter</a>
               <a href="#" onClick={() => setView('tutor')} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
@@ -113,7 +119,7 @@ export default function Home() {
         {error && <div className="error">{error}</div>}
 
         {view === 'home' && (
-          <HomeView user={user} onNavigate={(v) => setView(v as any)} />
+          <HomeView user={user} onNavigate={navigate} />
         )}
 
         {view === 'auth' && (
@@ -131,27 +137,15 @@ export default function Home() {
         )}
 
         {view === 'dashboard' && user && (
-          <DashboardView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
+          <DashboardView user={user} onError={setError} onNavigate={navigate} />
         )}
 
-        {view === 'briefs' && user && (
-          <CaseBriefView user={user} onError={setError} initialQuery={briefQuery} />
-        )}
-
-        {view === 'summaries' && user && (
-          <SummaryView user={user} onError={setError} />
-        )}
-
-        {view === 'arguments' && user && (
-          <ArgumentsView user={user} onError={setError} />
+        {view === 'drafting' && user && (
+          <DraftingView user={user} onError={setError} initialQuery={draftTab === 'brief' ? briefQuery : undefined} />
         )}
 
         {view === 'citations' && user && (
           <CitationsView user={user} onError={setError} />
-        )}
-
-        {view === 'memoranda' && user && (
-          <MemorandumView user={user} onError={setError} />
         )}
 
         {view === 'tutor' && user && (
@@ -167,14 +161,11 @@ export default function Home() {
         )}
 
         {view === 'glossary' && user && (
-          <GlossaryView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
+          <GlossaryView user={user} onError={setError} onNavigate={navigate} />
         )}
 
         {view === 'doctrines' && (
-          <DoctrineExplorerView
-            user={user}
-            onNavigate={(v, q) => { setBriefQuery(q || ''); setView(v as any); }}
-          />
+          <DoctrineExplorerView user={user} onNavigate={navigate} />
         )}
 
         {view === 'generator' && user && (
@@ -182,7 +173,7 @@ export default function Home() {
         )}
 
         {view === 'chat' && user && (
-          <ChatView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
+          <ChatView user={user} onError={setError} onNavigate={navigate} />
         )}
 
         {view === 'resources' && (

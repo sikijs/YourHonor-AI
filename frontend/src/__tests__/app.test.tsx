@@ -108,6 +108,7 @@ describe('Home page', () => {
 
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'About' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Legal Drafting' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Citations' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'AI Tutor' })).toBeInTheDocument();
   });

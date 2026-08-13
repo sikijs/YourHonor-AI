@@ -202,29 +202,17 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
 
       <div className="features-wrapper">
       <div className="features">
-        <div className="card feature-card" onClick={() => onNavigate(user ? 'briefs' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
-          <h3>Case Briefs</h3>
-          <p>Generate structured case briefs with facts, holding, reasoning, and analysis</p>
-        </div>
-        <div className="card feature-card" onClick={() => onNavigate(user ? 'summaries' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
-          <h3>Legal Summaries</h3>
-          <p>Summarize cases, statutes, and legal doctrines with key findings and principles</p>
+        <div className="card feature-card" onClick={() => onNavigate(user ? 'drafting' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <h3>Legal Drafting</h3>
+          <p>Generate case briefs, legal summaries, argument analysis, and IRAC memoranda</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'dashboard' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Study Dashboard</h3>
           <p>Track your documents, notes, and review queue in one overview</p>
         </div>
-        <div className="card feature-card" onClick={() => onNavigate(user ? 'arguments' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
-          <h3>Argument Analysis</h3>
-          <p>Extract and analyze legal arguments made by each party in a case</p>
-        </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'citations' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Citation Maps</h3>
           <p>Map cited authorities, statutes, and constitutional provisions — and reformat raw citations to Bluebook style</p>
-        </div>
-        <div className="card feature-card" onClick={() => onNavigate(user ? 'memoranda' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
-          <h3>Legal Memoranda</h3>
-          <p>Draft structured legal memoranda with IRAC analysis for any legal question</p>
         </div>
                 <div className="card feature-card" onClick={() => onNavigate(user ? 'debate' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
                   <h3>Debate Analysis</h3>

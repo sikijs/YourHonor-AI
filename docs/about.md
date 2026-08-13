@@ -74,20 +74,17 @@ skills.**
 
 ## 📚 What You Can Do With YourHonor AI
 
-### 📖 Case Briefs
+### 📝 Legal Drafting
 
-Generate structured case briefs covering Facts, Procedural History,
-Legal Issues, Holdings, Court Reasoning, and Key Takeaways.
-
-### 📝 Legal Summaries
-
-Transform lengthy legal materials into concise, understandable
-explanations.
-
-### ⚖️ Argument Analysis
-
-Identify, organize, and compare legal arguments from cases, articles,
-and other legal sources.
+Four drafting tools under one tabbed view:
+- **Case Briefs** — structured briefs covering Facts, Procedural History,
+  Legal Issues, Holdings, Court Reasoning, and Key Takeaways.
+- **Legal Summaries** — transform lengthy legal materials into concise,
+  understandable explanations.
+- **Argument Analysis** — identify, organize, and compare legal arguments
+  from cases, articles, and other legal sources.
+- **Memorandum Generator** — practice creating structured legal memoranda
+  using the **IRAC** framework.
 
 ### 🔗 Citations
 
@@ -107,11 +104,6 @@ grounded in landmark case law.
 Browse **70 landmark cases** across **30+ doctrines** with an interactive
 timeline and subject filters, compare any two cases side by side, and
 generate case briefs directly from doctrine nodes.
-
-### 📄 Memorandum Generator
-
-Practice creating structured legal memoranda using the **IRAC**
-framework.
 
 ### 🗣️ Debate Analysis
 
@@ -141,7 +133,8 @@ templates**.
 ### 📊 Study Dashboard
 
 Track your documents by type, notes, and AI Tutor review progress in one
-overview — with weakest-topic identification and an account-age timeline.
+overview — with weakest-topic identification, completed live tutor
+session accuracy, and an account-age timeline.
 
 ### 💬 AI Chat Assistant
 
