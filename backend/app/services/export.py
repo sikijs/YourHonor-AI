@@ -340,6 +340,28 @@ def _prepend_title_if_missing(body: str, title: str) -> str:
     return f"# {title}\n\n{body}"
 
 
+def _strip_duplicate_heading(html: str, title: str) -> str:
+    """Drop the body's first heading when it repeats the export title.
+
+    Tool views (bluebook formatter, issue spotter, case comparison) ship
+    their own <h2> title inside the printable HTML, and PDF/DOCX/MD exports
+    also render `filename` as a title — without this, downloads show the
+    heading twice. A non-matching first heading is left untouched.
+    """
+    if not title:
+        return html
+    target = " ".join(title.split()).strip().lower()
+    if not target:
+        return html
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"]):
+        text = " ".join(tag.get_text().split()).strip().lower()
+        if text == target:
+            tag.decompose()
+        break
+    return str(soup)
+
+
 def export_content(content: str, content_type: str, fmt: str, title: str = "") -> bytes:
     """Render `content` as PDF/DOCX bytes or raw markdown bytes."""
     if fmt not in SUPPORTED_FORMATS:
@@ -349,15 +371,16 @@ def export_content(content: str, content_type: str, fmt: str, title: str = "") -
     if not content or not content.strip():
         raise ExportError("Nothing to export: content is empty")
 
+    normalized = _strip_duplicate_heading(_normalize_to_html(content, content_type), title)
     if fmt == "md":
         if content_type == "markdown":
             body = content
         else:
-            body = _html_to_markdown(_normalize_to_html(content, content_type))
+            body = _html_to_markdown(normalized)
         return _prepend_title_if_missing(body, title).encode("utf-8")
     if fmt == "pdf":
-        return _pdf_bytes(_normalize_to_html(content, content_type), title or "Document")
-    return _docx_bytes(_normalize_to_html(content, content_type), title or "Document")
+        return _pdf_bytes(normalized, title or "Document")
+    return _docx_bytes(normalized, title or "Document")
 
 
 def sanitize_filename(name: str) -> str:

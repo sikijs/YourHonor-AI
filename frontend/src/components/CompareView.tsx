@@ -195,7 +195,7 @@ export default function CompareView({
               setTimeout(() => setCopied(false), 2000);
             }}
             content={compareHtml(result)}
-            filename={'Case Comparison - ' + result.case_a.name + ' vs ' + result.case_b.name}
+            filename={'Case Comparison: ' + result.case_a.name + ' vs ' + result.case_b.name}
             contentType="html"
             onExportError={onError}
           />

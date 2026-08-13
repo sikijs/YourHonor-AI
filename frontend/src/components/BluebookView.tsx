@@ -21,6 +21,54 @@ const TYPE_COLORS: Record<string, string> = {
   internet: '#ecad0a',
 };
 
+const TOOLTIP_STYLES: React.CSSProperties = {
+  position: 'absolute',
+  top: 'calc(100% + 6px)',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  background: '#032147',
+  color: '#fff',
+  fontSize: '0.75rem',
+  lineHeight: 1.45,
+  padding: '0.45rem 0.6rem',
+  borderRadius: '6px',
+  width: '240px',
+  maxWidth: '240px',
+  zIndex: 20,
+  boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+  fontWeight: 400,
+  textAlign: 'left',
+};
+
+function TipBadge({ label, bg, color, tip }: { label: string; bg: string; color: string; tip: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span
+      style={{ position: 'relative', display: 'inline-block', cursor: 'help' }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      onFocus={() => setShow(true)}
+      onBlur={() => setShow(false)}
+      tabIndex={0}
+      aria-label={tip}
+    >
+      <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '3px', fontWeight: 600, background: bg, color }}>
+        {label}
+      </span>
+      {show && <span style={TOOLTIP_STYLES}>{tip}</span>}
+    </span>
+  );
+}
+
+const AUTHORITY_TIP =
+  'What kind of authority this citation is. The Bluebook has different formatting rules for each type: cases (Rule 10), statutes (Rule 12), constitutions (Rule 8), rules (Rule 14), and internet sources (Rule 18).';
+
+const CONFIDENCE_TIP =
+  'How sure the formatter is that this citation is correct. High = reliable. Medium or low means the input was incomplete or ambiguous — read the note below the citation for what is missing.';
+
+const CURATED_TIP =
+  'This citation matched one of the 70 landmark cases in the offline library, so it was formatted from its official reporter citation and year — instantly and at no AI cost. No badge means the citation was formatted by AI.';
+
 export default function BluebookView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [text, setText] = useState('');
   const [result, setResult] = useState<BluebookFormatResponse | null>(null);
@@ -115,24 +163,25 @@ export default function BluebookView({ user, onError }: { user: User; onError: (
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  <span style={{
-                    fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '3px',
-                    background: TYPE_COLORS[entry.authority_type] || '#eee',
-                    color: '#fff', fontWeight: 600,
-                  }}>
-                    {entry.authority_type}
-                  </span>
-                  <span style={{
-                    fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '3px', fontWeight: 600,
-                    background: CONFIDENCE_COLORS[entry.confidence]?.bg || '#eee',
-                    color: CONFIDENCE_COLORS[entry.confidence]?.color || '#333',
-                  }}>
-                    {entry.confidence}
-                  </span>
+                  <TipBadge
+                    label={entry.authority_type}
+                    bg={TYPE_COLORS[entry.authority_type] || '#eee'}
+                    color="#fff"
+                    tip={AUTHORITY_TIP}
+                  />
+                  <TipBadge
+                    label={entry.confidence}
+                    bg={CONFIDENCE_COLORS[entry.confidence]?.bg || '#eee'}
+                    color={CONFIDENCE_COLORS[entry.confidence]?.color || '#333'}
+                    tip={CONFIDENCE_TIP}
+                  />
                   {entry.from_local && (
-                    <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '3px', background: '#e8f5e9', color: '#2e7d32', fontWeight: 600 }}>
-                      curated match
-                    </span>
+                    <TipBadge
+                      label="curated match"
+                      bg="#e8f5e9"
+                      color="#2e7d32"
+                      tip={CURATED_TIP}
+                    />
                   )}
                   <button className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem' }} onClick={() => copyEntry(entry)}>
                     Copy

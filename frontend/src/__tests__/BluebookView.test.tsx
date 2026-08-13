@@ -147,4 +147,38 @@ describe('BluebookView', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Format Citations' }).closest('form')!);
     expect(mockFormat).not.toHaveBeenCalled();
   });
+
+  it('shows an explanatory tooltip when hovering the curated match badge', async () => {
+    mockFormat.mockResolvedValue(RESPONSE);
+    render(<BluebookView user={USER} onError={jest.fn()} />);
+    await userEvent.type(screen.getByPlaceholderText(/e\.g\./), 'Miranda vs Arizona');
+    await userEvent.click(screen.getByRole('button', { name: 'Format Citations' }));
+    await waitFor(() => expect(screen.getByText('curated match')).toBeInTheDocument());
+
+    await userEvent.hover(screen.getByText('curated match'));
+    expect(await screen.findByText(/70 landmark cases in the offline library/)).toBeInTheDocument();
+  });
+
+  it('shows an explanatory tooltip when hovering the confidence badge', async () => {
+    mockFormat.mockResolvedValue(RESPONSE);
+    render(<BluebookView user={USER} onError={jest.fn()} />);
+    await userEvent.type(screen.getByPlaceholderText(/e\.g\./), 'Smith v Jones');
+    await userEvent.click(screen.getByRole('button', { name: 'Format Citations' }));
+    await waitFor(() => expect(screen.getByText('medium')).toBeInTheDocument());
+
+    await userEvent.hover(screen.getByText('medium'));
+    expect(await screen.findByText(/How sure the formatter is/)).toBeInTheDocument();
+  });
+
+  it('shows an explanatory tooltip when hovering the authority type badge', async () => {
+    mockFormat.mockResolvedValue(RESPONSE);
+    render(<BluebookView user={USER} onError={jest.fn()} />);
+    await userEvent.type(screen.getByPlaceholderText(/e\.g\./), 'Miranda vs Arizona');
+    await userEvent.click(screen.getByRole('button', { name: 'Format Citations' }));
+    const caseBadges = await screen.findAllByText('case');
+    expect(caseBadges.length).toBeGreaterThan(0);
+
+    await userEvent.hover(caseBadges[0]);
+    expect(await screen.findByText(/different formatting rules for each type/)).toBeInTheDocument();
+  });
 });

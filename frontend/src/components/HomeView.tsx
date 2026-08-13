@@ -220,11 +220,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'citations' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Citation Maps</h3>
-          <p>Map cited authorities, statutes, and constitutional provisions</p>
-        </div>
-        <div className="card feature-card" onClick={() => onNavigate(user ? 'bluebook' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
-          <h3>Bluebook Formatter</h3>
-          <p>Reformat raw citations into proper Bluebook style with rule references</p>
+          <p>Map cited authorities, statutes, and constitutional provisions — and reformat raw citations to Bluebook style</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'memoranda' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Legal Memoranda</h3>

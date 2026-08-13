@@ -232,3 +232,76 @@ def test_export_pdf_from_tool_html_renders(client, auth_headers):
     })
     assert resp.status_code == 200
     assert resp.content.startswith(b"%PDF-")
+
+
+def test_export_md_strips_heading_that_duplicates_title(client, auth_headers):
+    """Tool views ship their own <h2> title; the .md export must not render
+    it twice (once as the promoted H1, once as the body's own heading)."""
+    html = "<h2>Bluebook Citations</h2><p>Raw: miranda vs arizona</p>"
+    resp = client.post("/api/export", headers=auth_headers, json={
+        "content": html,
+        "filename": "Bluebook Citations",
+        "format": "md",
+        "content_type": "html",
+    })
+    assert resp.status_code == 200
+    text = resp.content.decode("utf-8")
+    assert text.startswith("# Bluebook Citations\n\n")
+    assert text.count("Bluebook Citations") == 1, text
+
+
+def test_export_md_keeps_heading_that_differs_from_title(client, auth_headers):
+    html = "<h2>Authorities</h2><p>Body.</p>"
+    resp = client.post("/api/export", headers=auth_headers, json={
+        "content": html,
+        "filename": "Bluebook Citations",
+        "format": "md",
+        "content_type": "html",
+    })
+    assert resp.status_code == 200
+    text = resp.content.decode("utf-8")
+    assert text.startswith("# Bluebook Citations\n\n")
+    assert "## Authorities" in text
+
+
+def test_export_docx_strips_heading_that_duplicates_title(client, auth_headers):
+    """DOCX renders the filename as a level-0 heading; a body <h2> with the
+    same text must not add a second heading line."""
+    html = "<h2>Bluebook Citations</h2><p>Raw: miranda vs arizona</p>"
+    resp = client.post("/api/export", headers=auth_headers, json={
+        "content": html,
+        "filename": "Bluebook Citations",
+        "format": "docx",
+        "content_type": "html",
+    })
+    assert resp.status_code == 200
+    xml = zipfile.ZipFile(io.BytesIO(resp.content)).read("word/document.xml").decode()
+    assert xml.count("Bluebook Citations") == 1, "duplicate title heading in DOCX"
+
+
+def test_export_docx_keeps_heading_that_differs_from_title(client, auth_headers):
+    html = "<h2>Authorities</h2><p>Body.</p>"
+    resp = client.post("/api/export", headers=auth_headers, json={
+        "content": html,
+        "filename": "Bluebook Citations",
+        "format": "docx",
+        "content_type": "html",
+    })
+    assert resp.status_code == 200
+    xml = zipfile.ZipFile(io.BytesIO(resp.content)).read("word/document.xml").decode()
+    assert xml.count("Bluebook Citations") == 1
+    assert "Authorities" in xml
+
+
+def test_export_md_strip_is_case_insensitive(client, auth_headers):
+    html = "<h2>bluebook citations</h2><p>Body.</p>"
+    resp = client.post("/api/export", headers=auth_headers, json={
+        "content": html,
+        "filename": "Bluebook Citations",
+        "format": "md",
+        "content_type": "html",
+    })
+    assert resp.status_code == 200
+    text = resp.content.decode("utf-8")
+    assert text.count("Bluebook Citations") == 1
+    assert text.count("bluebook citations") == 0

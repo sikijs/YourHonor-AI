@@ -89,10 +89,24 @@ explanations.
 Identify, organize, and compare legal arguments from cases, articles,
 and other legal sources.
 
-### 🔗 Citation Explorer
+### 🔗 Citations
 
-Explore relationships between cases and understand how courts interpret,
-apply, and distinguish legal precedents.
+Map cited authorities, statutes, and constitutional provisions to see how
+courts interpret, apply, and distinguish legal precedents — and reformat
+raw citations into proper **Bluebook** style with rule references and
+confidence ratings.
+
+### 🎯 Issue Spotter
+
+Uncover the legal issues a court would examine in any scenario — from
+jurisdiction and procedure to damages — with precedent-backed analysis
+grounded in landmark case law.
+
+### 🧭 Doctrine Explorer
+
+Browse **70 landmark cases** across **30+ doctrines** with an interactive
+timeline and subject filters, compare any two cases side by side, and
+generate case briefs directly from doctrine nodes.
 
 ### 📄 Memorandum Generator
 
@@ -123,6 +137,11 @@ Practice drafting legal documents using **24 professionally structured
 templates**.
 
 
+
+### 📊 Study Dashboard
+
+Track your documents by type, notes, and AI Tutor review progress in one
+overview — with weakest-topic identification and an account-age timeline.
 
 ### 💬 AI Chat Assistant
 

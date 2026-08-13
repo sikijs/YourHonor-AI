@@ -159,7 +159,7 @@ A condensed overview of any legal topic, in four flavours — pick one from the 
 The anatomy of a court fight. Give it a case or topic, and it extracts the arguments **petitioner vs. respondent** — each side's arguments, the reasoning behind them, the authorities cited, and how the court resolved each one — plus counterarguments the court considered, key doctrines, and the winning party with the court's rationale. **Use it for** understanding both sides' case theories before moot court or a debate.
 
 ### Citations
-The family tree of the law. Give it a case, and it maps every authority the opinion cites: **cases** (full citation, why it was cited, and how it was treated — followed, distinguished, overruled, abrogated...), **statutes**, and **constitutional provisions**, plus a total count and which single authority was the key precedent and why. **Use it for** seeing how a case fits into a doctrine and finding its most important authority.
+The family tree of the law. Give it a case, and it maps every authority the opinion cites: **cases** (full citation, why it was cited, and how it was treated — followed, distinguished, overruled, abrogated...), **statutes**, and **constitutional provisions**, plus a total count and which single authority was the key precedent and why. The same view also hosts the **Bluebook Formatter** tab — paste raw citations and get them reformatted to proper Bluebook style, with rule references and confidence ratings for each entry. **Use it for** seeing how a case fits into a doctrine and finding its most important authority.
 
 ### Memoranda
 Drafts a law-firm style legal memo. Type a legal question and get a complete memo with a **TO / AUTHOR / DATE / RE** header, **Question Presented, Brief Answer, Facts**, then one **IRAC** block per issue (**Issue, Rule, Application, Conclusion**), an **Overall Conclusion**, and Sources. **Use it for** practicing the standard internal legal-analysis format used in real law firms.
@@ -175,6 +175,9 @@ Exam practice. Paste a fact pattern — a story full of legal problems — and i
 
 ### AI Tutor
 Socratic dialogue. Pick one of 8 subjects (160+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
+
+### Study Dashboard
+Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, and your account age. **Use it for** checking overall progress without digging through every tool.
 
 ### Generate Document
 A drafting assistant. Chat with the AI to figure out which document you need from the catalog of **24 templates** (agreements, contracts, briefs, etc.), and it helps you supply the fields (parties, dates, amounts...), then produces the finished document and saves it to My Documents. **Use it for** drafting routine documents conversationally without knowing the format yourself.
@@ -220,7 +223,7 @@ YourHonor AI/
 ├── frontend/               # Next.js React app
 │   ├── src/
 │   │   ├── app/            # page.tsx (SPA), layout.tsx, globals.css
-│   │   ├── components/     # 27 view components (one per tool)
+│   │   ├── components/     # 32 view components (one per tool + shared UI)
 │   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts
 │   ├── public/             # Static assets (logo, favicon, md files)
 │   ├── next.config.js      # Frontend version constant
