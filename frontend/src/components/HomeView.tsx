@@ -210,6 +210,10 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
           <h3>Legal Summaries</h3>
           <p>Summarize cases, statutes, and legal doctrines with key findings and principles</p>
         </div>
+        <div className="card feature-card" onClick={() => onNavigate(user ? 'dashboard' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <h3>Study Dashboard</h3>
+          <p>Track your documents, notes, and review queue in one overview</p>
+        </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'arguments' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <h3>Argument Analysis</h3>
           <p>Extract and analyze legal arguments made by each party in a case</p>

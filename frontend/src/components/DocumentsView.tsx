@@ -5,25 +5,11 @@ import ReactMarkdown from 'react-markdown';
 import { User, Document, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
 import { downloadExport } from '@/lib/export';
+import { friendlyDocType } from '@/lib/docTypes';
 import GenerateDocumentView from '@/components/GenerateDocumentView';
 
 function stripLeadingH1(content: string): string {
   return content.replace(/^# .+\n?(?:\n|$)/, '');
-}
-
-// Friendlier display names for stored doc_type values. Anything not listed
-// falls back to snake_case → Title Case ("citation_map" → "Citation Map").
-const DOC_TYPE_LABELS: Record<string, string> = {
-  general_summary: 'General Summary',
-  case_summary: 'Case Summary',
-  statute_summary: 'Statute Summary',
-  doctrine_summary: 'Legal Doctrine Summary',
-};
-
-function friendlyDocType(docType: string | null): string {
-  if (!docType) return 'Document';
-  return DOC_TYPE_LABELS[docType] ??
-    docType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default function DocumentsView({ user, onError }: { user: User; onError: (err: string) => void }) {

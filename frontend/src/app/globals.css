@@ -362,6 +362,55 @@ h1, h2, h3 {
   accent-color: var(--purple-secondary);
 }
 
+.dashboard-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-text);
+}
+
+.stat-value {
+  margin: 0.4rem 0 0.15rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark-navy);
+}
+
+.stat-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--gray-text);
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #eef1f5;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--blue-primary);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

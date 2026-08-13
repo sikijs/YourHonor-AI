@@ -321,6 +321,10 @@ export const api = {
   doctrine: {
     map: () => fetchApi<DoctrineMapResponse>('/api/doctrine/map'),
   },
+
+  stats: {
+    me: () => fetchApi<UserStats>('/api/stats/me'),
+  },
 };
 
 export interface DoctrineCaseNode {
@@ -559,6 +563,32 @@ export interface CurriculumCard {
   topic_name: string;
   difficulty: number;
   expected_concepts?: string[];
+}
+
+export interface DocTypeCount {
+  doc_type: string;
+  count: number;
+}
+
+export interface WeakTopic {
+  topic_id: string;
+  topic_name: string;
+  weak_count: number;
+}
+
+export interface TutorReviewStats {
+  total_reviewed: number;
+  mastered: number;
+  weak: number;
+  weak_topics: WeakTopic[];
+}
+
+export interface UserStats {
+  account_age_days: number;
+  documents_total: number;
+  documents_by_type: DocTypeCount[];
+  notes_total: number;
+  tutor_review: TutorReviewStats;
 }
 
 export interface GlossaryResponse {

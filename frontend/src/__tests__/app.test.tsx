@@ -67,6 +67,7 @@ jest.mock('@/lib/api', () => {
         update: mockFn,
         delete: mockFn,
       },
+      stats: { me: mockFn },
       health: mockFn,
     },
   };

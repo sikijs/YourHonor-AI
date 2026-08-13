@@ -23,10 +23,11 @@ import AppFooter from '@/components/AppFooter';
 import ScratchPad from '@/components/ScratchPad';
 import IngestionBanner from '@/components/IngestionBanner';
 import DoctrineExplorerView from '@/components/DoctrineExplorerView';
+import DashboardView from '@/components/DashboardView';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'resources' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'dashboard' | 'resources' | 'about'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [briefQuery, setBriefQuery] = useState('');
@@ -77,6 +78,7 @@ export default function Home() {
           {user ? (
             <>
               <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
+              <a href="#" onClick={() => setView('dashboard')} style={view === 'dashboard' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Dashboard</a>
               <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
               <a href="#" onClick={() => setView('briefs')} style={view === 'briefs' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Case Briefs</a>
               <a href="#" onClick={() => setView('summaries')} style={view === 'summaries' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Summaries</a>
@@ -126,6 +128,10 @@ export default function Home() {
 
         {view === 'documents' && user && (
           <DocumentsView user={user} onError={setError} />
+        )}
+
+        {view === 'dashboard' && user && (
+          <DashboardView user={user} onError={setError} onNavigate={(v) => setView(v as any)} />
         )}
 
         {view === 'briefs' && user && (

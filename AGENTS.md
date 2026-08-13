@@ -223,6 +223,9 @@ Backend available at http://localhost:8000
 ### Doctrine Explorer
 - GET /api/doctrine/map           - Curated doctrine map (31 doctrines over the 70 landmark cases; public, no auth, no LLM)
 
+### Study Dashboard
+- GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), account age in days. Pure SQLite aggregations, zero LLM cost.
+
 ### Other
 - GET /api/health - Health check
 - GET /api/check-update - Check if a newer version is available on GitHub
@@ -280,6 +283,12 @@ Backend available at http://localhost:8000
 - Yellow banner with download link + upgrade instructions shown when a newer version exists
 - Green "up to date" banner when the current version matches the latest release
 - Version constants in `backend/app/main.py` (`APP_VERSION`), `frontend/next.config.js` (`NEXT_PUBLIC_APP_VERSION`), and `frontend/package.json` / `backend/pyproject.toml`
+
+### Phase 8 (Study Dashboard) - COMPLETE
+- `GET /api/stats/me` — per-user study stats from plain SQLite (no LLM): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak via `review_progress`), weak-topics list, account age in days
+- `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, account-age display
+- `ReviewQueueView.tsx` — standalone cross-topic review of the persisted review queue (`GET /api/tutor/review/queue` + `POST /api/tutor/review/mark`); "Got it ✓" drains cards from the queue, "Need to Study ✗" keeps them
+- Caveat: live-session tutor performance (correct/wrong counts) is in-memory only — dashboard tutor stats cover only persisted review marks
 
 ---
 
