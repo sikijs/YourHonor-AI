@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Doctrine, User } from '@/lib/api';
 import { subjectColor } from '@/lib/doctrine';
 
@@ -8,13 +9,29 @@ export default function DoctrineDetail({
   user,
   onBack,
   onBrief,
+  onCompare,
 }: {
   doctrine: Doctrine;
   user: User | null;
   onBack: () => void;
   onBrief: (caseName: string) => void;
+  onCompare: (caseNames: string[]) => void;
 }) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const sorted = [...doctrine.cases].sort((a, b) => a.year - b.year);
+
+  function toggle(name: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  }
+
   return (
     <div>
       <button className="btn btn-outline" onClick={onBack} style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>
@@ -36,9 +53,33 @@ export default function DoctrineDetail({
         <p style={{ margin: 0, lineHeight: 1.6, color: '#444' }}>{doctrine.description}</p>
       </div>
 
+      <div className="card" style={{ background: '#f8f9fa', marginBottom: '1rem', padding: '0.6rem 1rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+          Select two cases to compare them side by side.
+        </span>
+        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--blue-primary)' }}>
+          {selected.size}/2 selected
+        </span>
+        <button
+          className="btn btn-primary"
+          style={{ fontSize: '0.8rem', padding: '0.3rem 0.8rem', marginLeft: 'auto' }}
+          disabled={selected.size !== 2}
+          onClick={() => onCompare(Array.from(selected))}
+        >
+          Compare Selected
+        </button>
+      </div>
+
       {sorted.map((c, idx) => (
         <div key={c.name} className="card" style={{ marginBottom: '0.75rem', borderLeft: '4px solid ' + subjectColor(doctrine.subject) }}>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+            <input
+              type="checkbox"
+              checked={selected.has(c.name)}
+              onChange={() => toggle(c.name)}
+              aria-label={`Select ${c.name} for comparison`}
+              style={{ marginTop: '0.35rem', width: '1rem', height: '1rem', cursor: 'pointer' }}
+            />
             <span style={{
               fontSize: '0.8rem',
               fontWeight: 700,
@@ -76,7 +117,7 @@ export default function DoctrineDetail({
       {!user && (
         <div className="card" style={{ background: '#fff3cd', border: '1px solid #ffc107', marginTop: '0.5rem' }}>
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#856404' }}>
-            Sign in to generate case briefs and save your work.
+            Sign in to generate case briefs, compare cases, and save your work.
           </p>
         </div>
       )}

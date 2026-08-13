@@ -6,6 +6,7 @@ import { TimelineCase } from '@/lib/doctrine';
 import DoctrineCardList from '@/components/DoctrineCardList';
 import DoctrineDetail from '@/components/DoctrineDetail';
 import DoctrineTimeline from '@/components/DoctrineTimeline';
+import CompareView from '@/components/CompareView';
 
 export default function DoctrineExplorerView({
   user,
@@ -21,6 +22,9 @@ export default function DoctrineExplorerView({
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [timeline, setTimeline] = useState(false);
+  const [compareCases, setCompareCases] = useState<string[] | null>(null);
+  const [pickMode, setPickMode] = useState(false);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     api.doctrine
@@ -77,7 +81,35 @@ export default function DoctrineExplorerView({
     }
   }
 
+  function togglePick(name: string) {
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  }
+
+  function enterPickMode() {
+    setPickMode(true);
+    setPicked(new Set());
+    setSelectedId(null);
+    setCompareCases(null);
+  }
+
   function renderBody() {
+    if (compareCases) {
+      return (
+        <CompareView
+          caseNames={compareCases}
+          onError={setError}
+          onBack={() => setCompareCases(null)}
+        />
+      );
+    }
     if (selected) {
       return (
         <DoctrineDetail
@@ -85,7 +117,46 @@ export default function DoctrineExplorerView({
           user={user}
           onBack={() => setSelectedId(null)}
           onBrief={handleBrief}
+          onCompare={(names) => setCompareCases(names)}
         />
+      );
+    }
+    if (pickMode) {
+      return (
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginTop: 0 }}>Compare Any Two Landmark Cases</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+            Select two cases from the full curated library of 70, then compare. Use the search box above to narrow the list.
+          </p>
+          <div style={{ maxHeight: '420px', overflowY: 'auto', border: '1px solid #eee', borderRadius: '6px', padding: '0.5rem' }}>
+            {timelineCases
+              .filter((c) => !search.trim() || c.name.toLowerCase().includes(search.trim().toLowerCase()))
+              .map((c) => (
+                <label key={c.name} style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', padding: '0.4rem 0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={picked.has(c.name)}
+                    onChange={() => togglePick(c.name)}
+                    style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
+                  />
+                  <span>{c.name}</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--gray-text)' }}>{c.year} &middot; {c.citation}</span>
+                </label>
+              ))}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.75rem' }}>
+            <button
+              className="btn btn-primary"
+              disabled={picked.size !== 2}
+              onClick={() => setCompareCases(Array.from(picked))}
+            >
+              Compare ({picked.size}/2)
+            </button>
+            <button className="btn btn-outline" onClick={() => setPickMode(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
       );
     }
     return timeline ? (
@@ -133,10 +204,17 @@ export default function DoctrineExplorerView({
             </button>
             <button
               className={!timeline ? 'btn btn-primary' : 'btn btn-outline'}
-              onClick={() => { setTimeline(false); setSelectedId(null); }}
+              onClick={() => { setTimeline(false); setSelectedId(null); setPickMode(false); }}
               style={{ whiteSpace: 'nowrap' }}
             >
               Cards
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => { enterPickMode(); setTimeline(false); }}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              Compare Cases
             </button>
           </div>
 

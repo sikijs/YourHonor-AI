@@ -5,6 +5,8 @@ export const DOC_TYPE_LABELS: Record<string, string> = {
   case_summary: 'Case Summary',
   statute_summary: 'Statute Summary',
   doctrine_summary: 'Legal Doctrine Summary',
+  bluebook_citations: 'Bluebook Citations',
+  case_comparison: 'Case Comparison',
 };
 
 export function friendlyDocType(docType: string | null | undefined): string {

@@ -24,10 +24,11 @@ import ScratchPad from '@/components/ScratchPad';
 import IngestionBanner from '@/components/IngestionBanner';
 import DoctrineExplorerView from '@/components/DoctrineExplorerView';
 import DashboardView from '@/components/DashboardView';
+import BluebookView from '@/components/BluebookView';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'dashboard' | 'resources' | 'about'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'briefs' | 'summaries' | 'arguments' | 'citations' | 'memoranda' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'bluebook' | 'dashboard' | 'resources' | 'about'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [briefQuery, setBriefQuery] = useState('');
@@ -84,6 +85,7 @@ export default function Home() {
               <a href="#" onClick={() => setView('summaries')} style={view === 'summaries' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Summaries</a>
               <a href="#" onClick={() => setView('arguments')} style={view === 'arguments' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Arguments</a>
               <a href="#" onClick={() => setView('citations')} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
+              <a href="#" onClick={() => setView('bluebook')} style={view === 'bluebook' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Bluebook</a>
               <a href="#" onClick={() => setView('memoranda')} style={view === 'memoranda' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Memoranda</a>
               <a href="#" onClick={() => setView('debate')} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
               <a href="#" onClick={() => setView('issuespotter')} style={view === 'issuespotter' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Issue Spotter</a>
@@ -148,6 +150,10 @@ export default function Home() {
 
         {view === 'citations' && user && (
           <CitationMapView user={user} onError={setError} />
+        )}
+
+        {view === 'bluebook' && user && (
+          <BluebookView user={user} onError={setError} />
         )}
 
         {view === 'memoranda' && user && (

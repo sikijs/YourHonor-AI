@@ -623,6 +623,40 @@ Universal remote control for AI models
 
 ---
 
+## The Bluebook & Citation Management
+
+Website: https://www.legalbluebook.com
+
+### What it does
+
+The Bluebook is the standard citation manual for U.S. legal writing, defining how
+cases, statutes, and constitutional provisions are cited in court filings and law
+review articles.
+
+### Why it matters
+
+Citations are the breadcrumbs of legal argument. A correct citation — right
+reporter, right volume, right pinpoint, right year — lets a reader find the
+authority in seconds and signals rigor. Law students lose points (and credibility)
+on sloppy citations.
+
+### How YourHonor AI helps
+
+The app's Bluebook formatter (Citations → Bluebook) takes raw, sloppy, or
+incomplete citations and reformats them per Bluebook rules — including the rule
+numbers applied, so students learn *why* a citation looks the way it does. The 70
+curated landmark cases format instantly with zero AI cost; everything else is
+handled by AI with a confidence rating. The Doctrine Explorer also compares any
+two landmark cases side by side, showing how later cases overruled, distinguished,
+or applied earlier ones.
+
+```text
+A citation formatter is a great teaching tool: it shows the pattern, and the rule
+references explain the pattern.
+```
+
+---
+
 
 # Final Thoughts
 

@@ -211,6 +211,7 @@ Backend available at http://localhost:8000
 - POST /api/legal/citations        - Generate citation map
 - POST /api/legal/memorandum       - Draft IRAC-style legal memorandum
 - POST /api/legal/glossary         - Define legal term
+- POST /api/legal/bluebook-format  - Reformat raw citations to Bluebook style (local deterministic pass over the 70 landmark cases, then LLM; saves bluebook_citations docs)
 
 ### Debate
 - POST /api/legal/debate           - Analyze both sides of a legal question
@@ -222,6 +223,7 @@ Backend available at http://localhost:8000
 
 ### Doctrine Explorer
 - GET /api/doctrine/map           - Curated doctrine map (31 doctrines over the 70 landmark cases; public, no auth, no LLM)
+- POST /api/doctrine/compare      - Compare two landmark cases (auth required): curated facts table + LLM narrative comparison (similarities/differences/doctrinal relationship/significance/practice note) built from the offline seed opinions; saves case_comparison docs
 
 ### Study Dashboard
 - GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), account age in days. Pure SQLite aggregations, zero LLM cost.
@@ -289,6 +291,11 @@ Backend available at http://localhost:8000
 - `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, account-age display
 - `ReviewQueueView.tsx` — standalone cross-topic review of the persisted review queue (`GET /api/tutor/review/queue` + `POST /api/tutor/review/mark`); "Got it ✓" drains cards from the queue, "Need to Study ✗" keeps them
 - Caveat: live-session tutor performance (correct/wrong counts) is in-memory only — dashboard tutor stats cover only persisted review marks
+
+### Phase 9 (Bluebook Formatter + Case Comparison) - COMPLETE
+- `POST /api/legal/bluebook-format` — two-tier citation formatter: local deterministic pass over the 70 landmark cases (normalized longest-name substring match from `landmark_seed.json`, zero LLM) then LLM (qwen3-14b/Cerebras, structured outputs) with per-entry Bluebook rule numbers (`rules_applied`) and confidence ratings; saves `bluebook_citations` docs; `BluebookView.tsx` nav item with per-entry copy + ActionBar export
+- `POST /api/doctrine/compare` — compare any two of the 70 landmark cases (auth): curated facts table (citation/year/court/date/subjects/holdings from `LANDMARK_CASES` + seed + doctrine map — zero LLM) plus LLM narrative (similarities/differences/doctrinal relationship/significance/exam practice note) built from offline seed opinions (no CourtListener calls); saves `case_comparison` docs
+- `CompareView.tsx` — side-by-side facts table + on-demand "Generate AI Comparison" button; entry points: checkboxes in `DoctrineDetail` (in-doctrine) and a global "Compare Cases" picker over all 70 cases
 
 ---
 

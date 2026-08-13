@@ -231,6 +231,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ query, document_id: documentId }),
       }, signal, 180_000),
+    bluebookFormat: (text: string, signal?: AbortSignal) =>
+      fetchApi<BluebookFormatResponse>('/api/legal/bluebook-format', {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+      }, signal, 180_000),
   },
 
   tutor: {
@@ -320,6 +325,11 @@ export const api = {
 
   doctrine: {
     map: () => fetchApi<DoctrineMapResponse>('/api/doctrine/map'),
+    compare: (caseNames: string[]) =>
+      fetchApi<CaseCompareResponse>('/api/doctrine/compare', {
+        method: 'POST',
+        body: JSON.stringify({ case_names: caseNames }),
+      }, undefined, 180_000),
   },
 
   stats: {
@@ -346,6 +356,33 @@ export interface DoctrineMapResponse {
   version: number;
   updated: string;
   doctrines: Doctrine[];
+}
+
+export interface CompareCaseFacts {
+  name: string;
+  citation: string;
+  year: number;
+  court: string;
+  date_filed: string;
+  subjects: string[];
+  holdings: string[];
+}
+
+export interface CaseComparison {
+  similarities: string[];
+  differences: string[];
+  relationship: string;
+  relationship_type: string;
+  significance: string;
+  practice_note: string;
+}
+
+export interface CaseCompareResponse {
+  case_a: CompareCaseFacts;
+  case_b: CompareCaseFacts;
+  comparison: CaseComparison | null;
+  sources_consulted: string[];
+  disclaimer: string;
 }
 
 export interface IngestionStatus {
@@ -494,6 +531,25 @@ export interface IssueSpotterResponse {
   issues: SpottedIssue[];
   issues_by_area: Record<string, string[]>;
   practice_tips: string;
+  sources: SourceDocument[];
+  sources_consulted: string[];
+  disclaimer: string;
+}
+
+export interface BluebookEntry {
+  raw_input: string;
+  formatted: string;
+  case_name: string | null;
+  authority_type: string;
+  rules_applied: string[];
+  notes: string;
+  confidence: string;
+  from_local: boolean;
+}
+
+export interface BluebookFormatResponse {
+  entries: BluebookEntry[];
+  general_notes: string;
   sources: SourceDocument[];
   sources_consulted: string[];
   disclaimer: string;

@@ -366,6 +366,85 @@ export function debateHtml(result: {
   return html;
 }
 
+export function bluebookHtml(result: {
+  entries: Array<{
+    raw_input: string; formatted: string; case_name?: string | null;
+    authority_type: string; rules_applied: string[]; notes: string;
+    confidence: string; from_local: boolean;
+  }>;
+  general_notes: string;
+  sources_consulted?: string[];
+}): string {
+  let html = `<h2>Bluebook Citations</h2>`;
+  result.entries.forEach((entry, i) => {
+    html += `<div class="section">`;
+    html += `<p><strong>Raw:</strong> ${esc(entry.raw_input)}</p>`;
+    html += `<p><strong>Formatted:</strong> ${esc(entry.formatted)}</p>`;
+    html += `<p><span class="tag" style="background:#e8f4f8;color:#209dd7">${esc(entry.authority_type)}</span>`;
+    html += `<span class="tag" style="background:#f3e8f7;color:#753991">${esc(entry.confidence)} confidence</span>`;
+    if (entry.from_local) html += `<span class="tag" style="background:#e8f5e9;color:#2e7d32">curated landmark match</span>`;
+    html += `</p>`;
+    if (entry.rules_applied?.length) {
+      html += `<div class="field-label">Bluebook Rules Applied</div><div class="field-value">${fmtTags(entry.rules_applied)}</div>`;
+    }
+    if (entry.notes) html += fmtField('Notes', entry.notes);
+    html += `</div>`;
+  });
+  if (result.general_notes) html += fmtField('General Notes', result.general_notes);
+  if (result.sources_consulted?.length) {
+    html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
+  }
+  return html;
+}
+
+export function compareHtml(result: {
+  case_a: {
+    name: string; citation: string; year: number; court: string;
+    date_filed: string; subjects: string[]; holdings: string[];
+  };
+  case_b: {
+    name: string; citation: string; year: number; court: string;
+    date_filed: string; subjects: string[]; holdings: string[];
+  };
+  comparison: {
+    similarities: string[]; differences: string[];
+    relationship: string; relationship_type: string;
+    significance: string; practice_note: string;
+  } | null;
+  sources_consulted?: string[];
+}): string {
+  const factRows = (c: any) => `
+    <tr><td style="width:150px;font-weight:bold">Citation</td><td>${esc(c.citation)}</td></tr>
+    <tr><td style="font-weight:bold">Year</td><td>${esc(String(c.year))}</td></tr>
+    <tr><td style="font-weight:bold">Court</td><td>${esc(c.court)}</td></tr>
+    <tr><td style="font-weight:bold">Decided</td><td>${esc(c.date_filed)}</td></tr>
+    <tr><td style="font-weight:bold">Doctrines</td><td>${esc(c.subjects.join(', '))}</td></tr>
+    <tr><td style="font-weight:bold">Holding</td><td>${c.holdings.map((h: string) => esc(h)).join('<br/>')}</td></tr>`;
+
+  let html = `<h2>Case Comparison: ${esc(result.case_a.name)} vs ${esc(result.case_b.name)}</h2>`;
+  html += `<h3>Quick Facts</h3>`;
+  html += `<table><tr><th style="width:50%">${esc(result.case_a.name)}</th><th style="width:50%">${esc(result.case_b.name)}</th></tr>`;
+  html += `<tr><td style="vertical-align:top">${factRows(result.case_a)}</td><td style="vertical-align:top">${factRows(result.case_b)}</td></tr></table>`;
+
+  if (result.comparison) {
+    const comp = result.comparison;
+    if (comp.similarities?.length) {
+      html += `<h3>Similarities</h3>${fmtList(comp.similarities)}`;
+    }
+    if (comp.differences?.length) {
+      html += `<h3>Differences</h3>${fmtList(comp.differences)}`;
+    }
+    html += `<h3>Doctrinal Relationship</h3>`;
+    html += `<p><span class="badge badge-moderate">${esc(comp.relationship_type)}</span> &mdash; ${esc(comp.relationship)}</p>`;
+    html += fmtField('Significance', comp.significance);
+    html += fmtField('Exam Practice Note', comp.practice_note);
+  }
+  if (result.sources_consulted?.length) {
+    html += `<div class="field-label">Sources Consulted</div><div class="field-value">${fmtList(result.sources_consulted)}</div>`;
+  }
+  return html;
+}
+
 export function resultToPlainText(html: string): string {
   let t = html
     .replace(/&amp;/g, '&')

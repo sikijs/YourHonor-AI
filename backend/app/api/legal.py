@@ -9,6 +9,7 @@ from app.models.document_generator import GenerateDocumentRequest, GenerateDocum
 from app.models.memorandum import MemorandumRequest, MemorandumResponse
 from app.models.legal_glossary import GlossaryRequest, GlossaryResponse
 from app.models.issue_spotter import IssueSpotterRequest, IssueSpotterResponse
+from app.models.bluebook import BluebookFormatRequest, BluebookFormatResponse
 from app.services.auth import decode_token
 from app.services.case_brief import get_case_brief_service
 from app.services.legal_summary import get_legal_summary_service
@@ -19,6 +20,7 @@ from app.services.template_catalog import get_template_catalog
 from app.services.memorandum import get_memorandum_service
 from app.services.legal_glossary import get_glossary_service
 from app.services.issue_spotter import get_issue_spotter_service
+from app.services.bluebook import get_bluebook_service
 
 router = APIRouter(prefix="/api/legal", tags=["legal"])
 
@@ -182,6 +184,20 @@ def lookup_glossary(
             user_id=user_id,
         )
         return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/bluebook-format", response_model=BluebookFormatResponse)
+def format_bluebook_citations(
+    request: BluebookFormatRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    try:
+        service = get_bluebook_service()
+        return service.format_citations(request.text, user_id=user_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
