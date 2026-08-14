@@ -219,7 +219,7 @@ YourHonor AI/
 │   ├── src/
 │   │   ├── app/            # page.tsx (SPA), layout.tsx, globals.css
 │   │   ├── components/     # 33 view components (one per tool + shared UI)
-│   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts
+│   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts, hashRouter.ts
 │   ├── public/             # Static assets (logo, favicon, md files)
 │   ├── next.config.js      # Frontend version constant
 │   └── package.json
@@ -264,7 +264,6 @@ File location: `.env` in the project root. Loaded automatically by docker-compos
 ## Live Editing (No Docker Rebuild)
 
 Edit without rebuilding the Docker image. Frontend hot reloads on save, backend auto-restarts.
-
 **1. Stop the Docker backend** (frees up port 8000):
 ```bash
 docker stop docker-backend-1
@@ -290,6 +289,16 @@ kill $(lsof -ti :3000)   # stop frontend dev server
 kill $(lsof -ti :8000)   # stop local backend
 docker start docker-backend-1  # restart Docker backend
 ```
+
+## URL Routing (Hash-Based)
+
+The app is a single page with no router library. Views are mapped to the URL hash
+(`frontend/src/lib/hashRouter.ts`): `#dashboard`, `#drafting?tab=summary&q=Marbury%20v.%20Madison`, etc.
+
+- Nav clicks and Home cards push a history entry (`location.hash = ...`), so the browser **Back/Forward buttons move between views**; refresh and bookmarks restore the view.
+- Legal Drafting tab switches use `location.replace` (no history noise) but the tab is encoded in the URL, so a shared/refreshed `#drafting?tab=...` link lands on the right tab. The tab state lives in `page.tsx` (`draftTab`) and is passed to `DraftingView` via `initialTab`/`onTabChange`.
+- Public views (`home`, `about`, `doctrines`, `resources`, `auth`) load when signed out; any other hash sends a signed-out visitor to the Sign In view.
+- The `navigate()` alias map in `page.tsx` (`briefs`/`summaries`/`arguments`/`memoranda` → `drafting` + tab) is unchanged — deep links like the Doctrine Explorer "brief this case" now also update the URL.
 
 ## Syncing frontend/public/ When Using Docker
 

@@ -299,6 +299,7 @@ Backend available at http://localhost:8000
 
 ### Phase 10 (Nav Consolidation + Tutor Persistence + Glossary Margin) - COMPLETE
 - Nav 17 → 14 links: Case Briefs/Summaries/Arguments/Memoranda merged into one "Legal Drafting" link backed by `DraftingView.tsx` (tab wrapper over the four existing views, same pattern as `CitationsView.tsx`); Home feature cards 12 → 9 (one "Legal Drafting" card); Doctrine Explorer's "brief this case" deep-link still lands on the Case Brief tab with the case prefilled via the `navigate()` alias map in `page.tsx`
+- Hash-based URL routing (`frontend/src/lib/hashRouter.ts`): every view maps to a URL hash (`#dashboard`, `#drafting?tab=summary&q=...`) via `parseHash`/`viewToHash` + a `hashchange` listener in `page.tsx`, so browser Back/Forward, refresh, and bookmarks navigate between views; Legal Drafting tab switches sync through `location.replace` (no history noise) with the tab owned by `page.tsx` and passed to `DraftingView` via `initialTab`/`onTabChange`; public hashes (`home`/`about`/`doctrines`/`resources`/`auth`) load when signed out, everything else redirects to Sign In
 - Glossary semantic lookup is now margin-based (`SEED_SEMANTIC_MIN=0.35`, `SEED_CONFIDENT_SCORE=0.55`, `SEED_MARGIN=0.10`): serve the top seed entry when it clears 0.55, or when it sits ≥0.35 with a clear gap over the runner-up; ties in the flat score band fall to the LLM
 
 ---

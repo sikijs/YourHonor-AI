@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { api, User } from '@/lib/api';
+import {
+  parseHash,
+  viewToHash,
+  ViewName,
+  DraftingTabName,
+  ParsedHash,
+  PUBLIC_VIEWS,
+  VIEW_NAMES,
+} from '@/lib/hashRouter';
 
 import HomeView from '@/components/HomeView';
 import AuthView from '@/components/AuthView';
@@ -24,35 +33,87 @@ import CitationsView from '@/components/CitationsView';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'documents' | 'chat' | 'citations' | 'generator' | 'tutor' | 'debate' | 'glossary' | 'doctrines' | 'issuespotter' | 'dashboard' | 'resources' | 'about' | 'drafting'>('home');
+  const [view, setView] = useState<ViewName>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [briefQuery, setBriefQuery] = useState('');
-  const [draftTab, setDraftTab] = useState<'brief' | 'summary' | 'arguments' | 'memorandum'>('brief');
+  const [draftTab, setDraftTab] = useState<DraftingTabName>('brief');
+
+  // Apply a parsed hash route to state, gating non-public views on auth.
+  function applyRoute(parsed: ParsedHash, isAuthed: boolean) {
+    if (!isAuthed && parsed.view !== 'auth' && !PUBLIC_VIEWS.includes(parsed.view)) {
+      setView('auth');
+      return;
+    }
+    if (parsed.draftTab) setDraftTab(parsed.draftTab);
+    if (parsed.query) setBriefQuery(parsed.query);
+    setView(parsed.view);
+  }
+
+  // Switch views from the nav links; assigning location.hash pushes a
+  // history entry so Back/Forward walks through the visited views.
+  function goTo(next: ViewName) {
+    setView(next);
+    window.location.hash = viewToHash(next);
+  }
+
+  function handleDraftTabChange(tab: DraftingTabName) {
+    setDraftTab(tab);
+    // location.replace keeps tab switches out of history (no Back noise).
+    window.location.replace(viewToHash('drafting', { draftTab: tab }));
+  }
 
   function navigate(v: string, q?: string) {
     if (v === 'briefs' || v === 'summaries' || v === 'arguments' || v === 'memoranda') {
+      const tab: DraftingTabName = v === 'briefs' ? 'brief' : v === 'summaries' ? 'summary' : v === 'arguments' ? 'arguments' : 'memorandum';
       if (q) setBriefQuery(q);
-      setDraftTab(v === 'briefs' ? 'brief' : v === 'summaries' ? 'summary' : v === 'arguments' ? 'arguments' : 'memorandum');
+      setDraftTab(tab);
       setView('drafting');
+      window.location.hash = viewToHash('drafting', { draftTab: tab, query: q });
       return;
     }
     if (q) setBriefQuery(q);
-    setView(v as any);
+    setView(v as ViewName);
+    if (VIEW_NAMES.includes(v as ViewName)) {
+      window.location.hash = viewToHash(v);
+    }
   }
 
   useEffect(() => {
     checkAuth();
   }, []);
 
+  // Respond to browser Back/Forward and manual hash edits.
+  useEffect(() => {
+    function onHashChange() {
+      const parsed = parseHash(window.location.hash);
+      if (!parsed) {
+        setView('home');
+        return;
+      }
+      applyRoute(parsed, !!user);
+    }
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [user]);
+
   async function checkAuth() {
+    const parsed = parseHash(window.location.hash);
     try {
       const userData = await api.auth.me();
       setUser(userData);
-      setView('home');
+      if (parsed && parsed.view !== 'auth') {
+        applyRoute(parsed, true);
+      } else {
+        setView('home');
+      }
     } catch {
       setUser(null);
-      setView('auth');
+      if (parsed && parsed.view !== 'auth' && PUBLIC_VIEWS.includes(parsed.view)) {
+        applyRoute(parsed, false);
+      } else {
+        setView('auth');
+      }
     } finally {
       setLoading(false);
     }
@@ -62,7 +123,7 @@ export default function Home() {
     try {
       await api.auth.signout();
       setUser(null);
-      setView('auth');
+      goTo('auth');
     } catch (err) {
       setError('Failed to sign out');
     }
@@ -86,28 +147,28 @@ export default function Home() {
         <nav>
           {user ? (
             <>
-              <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
-              <a href="#" onClick={() => setView('dashboard')} style={view === 'dashboard' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Dashboard</a>
-              <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
-              <a href="#" onClick={() => setView('drafting')} style={view === 'drafting' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Legal Drafting</a>
-              <a href="#" onClick={() => setView('citations')} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
-              <a href="#" onClick={() => setView('debate')} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
-              <a href="#" onClick={() => setView('issuespotter')} style={view === 'issuespotter' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Issue Spotter</a>
-              <a href="#" onClick={() => setView('tutor')} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
-              <a href="#" onClick={() => setView('documents')} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
-              <a href="#" onClick={() => setView('glossary')} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
-              <a href="#" onClick={() => setView('doctrines')} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
-              <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
-              <a href="#" onClick={() => setView('chat')} style={view === 'chat' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Chat</a>
-              <a href="#" onClick={handleSignOut}>Sign Out</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('home'); }} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('dashboard'); }} style={view === 'dashboard' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Dashboard</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('about'); }} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('drafting'); }} style={view === 'drafting' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Legal Drafting</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('citations'); }} style={view === 'citations' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Citations</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('debate'); }} style={view === 'debate' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Debate</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('issuespotter'); }} style={view === 'issuespotter' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Issue Spotter</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('tutor'); }} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('documents'); }} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('glossary'); }} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('resources'); }} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('chat'); }} style={view === 'chat' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Chat</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); handleSignOut(); }}>Sign Out</a>
             </>
           ) : (
             <>
-              <a href="#" onClick={() => setView('home')} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
-              <a href="#" onClick={() => setView('about')} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
-              <a href="#" onClick={() => setView('doctrines')} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
-              <a href="#" onClick={() => setView('resources')} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
-              <a href="#" onClick={() => setView('auth')} style={view === 'auth' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Sign In</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('home'); }} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('about'); }} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('resources'); }} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('auth'); }} style={view === 'auth' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Sign In</a>
             </>
           )}
         </nav>
@@ -126,7 +187,7 @@ export default function Home() {
           <AuthView
             onAuthSuccess={(userData) => {
               setUser(userData);
-              setView('home');
+              goTo('home');
             }}
             onError={setError}
           />
@@ -141,7 +202,13 @@ export default function Home() {
         )}
 
         {view === 'drafting' && user && (
-          <DraftingView user={user} onError={setError} initialQuery={draftTab === 'brief' ? briefQuery : undefined} />
+          <DraftingView
+            user={user}
+            onError={setError}
+            initialTab={draftTab}
+            initialQuery={draftTab === 'brief' ? briefQuery : undefined}
+            onTabChange={handleDraftTabChange}
+          />
         )}
 
         {view === 'citations' && user && (

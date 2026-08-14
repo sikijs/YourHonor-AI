@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('react-markdown', () => {
   const MockMarkdown = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
@@ -60,6 +61,7 @@ jest.mock('@/lib/api', () => {
         submitMCAnswer: mockFn,
       },
       templates: { list: mockFn },
+      doctrine: { map: jest.fn() },
       notes: {
         list: mockFn,
         get: mockFn,
@@ -67,7 +69,7 @@ jest.mock('@/lib/api', () => {
         update: mockFn,
         delete: mockFn,
       },
-      stats: { me: mockFn },
+      stats: { me: jest.fn() },
       health: mockFn,
     },
   };
@@ -78,9 +80,21 @@ import Home from '@/app/page';
 const { api } = jest.requireMock('@/lib/api');
 const mockAuthMe = api.auth.me;
 
+const AUTHD_USER = { id: 1, email: 'test@example.com', created_at: '2026-01-01T00:00:00Z' };
+
+const MOCK_STATS = {
+  account_age_days: 3,
+  documents_total: 2,
+  documents_by_type: [{ type: 'case_brief', count: 2 }],
+  notes_total: 1,
+  tutor_review: { total_reviewed: 0, mastered: 0, weak: 0, weak_topics: [] },
+  tutor_sessions: { total_sessions: 0, total_answers: 0, accuracy: 0, per_topic: [] },
+};
+
 describe('Home page', () => {
   beforeEach(() => {
     mockAuthMe.mockReset();
+    window.location.hash = '';
   });
 
   it('shows sign-in view when unauthenticated', async () => {
@@ -94,11 +108,7 @@ describe('Home page', () => {
   });
 
   it('shows navigation when authenticated', async () => {
-    mockAuthMe.mockResolvedValue({
-      id: 1,
-      email: 'test@example.com',
-      created_at: '2026-01-01T00:00:00Z',
-    });
+    mockAuthMe.mockResolvedValue(AUTHD_USER);
 
     render(<Home />);
 
@@ -111,5 +121,64 @@ describe('Home page', () => {
     expect(screen.getByRole('link', { name: 'Legal Drafting' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Citations' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'AI Tutor' })).toBeInTheDocument();
+  });
+
+  it('updates the URL hash when navigating via nav links', async () => {
+    mockAuthMe.mockResolvedValue(AUTHD_USER);
+    api.stats.me.mockResolvedValue(MOCK_STATS);
+    const user = userEvent.setup();
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Sign Out' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('link', { name: 'Dashboard' }));
+
+    await waitFor(() => expect(window.location.hash).toBe('#dashboard'));
+    expect(screen.getByRole('heading', { name: 'Study Dashboard' })).toBeInTheDocument();
+  });
+
+  it('navigates between views via browser hash changes', async () => {
+    mockAuthMe.mockResolvedValue(AUTHD_USER);
+    api.stats.me.mockResolvedValue(MOCK_STATS);
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Sign Out' })).toBeInTheDocument();
+    });
+
+    window.location.hash = '#dashboard';
+    window.dispatchEvent(new Event('hashchange'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Study Dashboard' })).toBeInTheDocument();
+    });
+  });
+
+  it('honors public view hashes when signed out', async () => {
+    mockAuthMe.mockRejectedValue(new Error('Not authenticated'));
+    api.doctrine.map.mockResolvedValue({ version: 1, updated: '2026-01-01', doctrines: [] });
+    window.location.hash = '#doctrines';
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Doctrine Explorer' })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
+  });
+
+  it('sends signed-out users on authed hashes to the Sign In view', async () => {
+    mockAuthMe.mockRejectedValue(new Error('Not authenticated'));
+    window.location.hash = '#tutor';
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
+    });
   });
 });

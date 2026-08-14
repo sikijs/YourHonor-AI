@@ -76,4 +76,18 @@ describe('DraftingView', () => {
     await user.click(screen.getByRole('button', { name: 'Case Brief' }));
     expect(screen.getByText('Case Brief Generator')).toBeInTheDocument();
   });
+
+  it('renders the tab passed as initialTab', () => {
+    render(<DraftingView user={USER} onError={jest.fn()} initialTab="summary" />);
+    expect(screen.getByText('Legal Summary Generator')).toBeInTheDocument();
+    expect(screen.queryByText('Case Brief Generator')).not.toBeInTheDocument();
+  });
+
+  it('fires onTabChange when a tab is selected', async () => {
+    const user = userEvent.setup();
+    const onTabChange = jest.fn();
+    render(<DraftingView user={USER} onError={jest.fn()} onTabChange={onTabChange} />);
+    await user.click(screen.getByRole('button', { name: 'Arguments' }));
+    expect(onTabChange).toHaveBeenCalledWith('arguments');
+  });
 });

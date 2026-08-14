@@ -1,52 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '@/lib/api';
+import type { DraftingTabName } from '@/lib/hashRouter';
 import CaseBriefView from '@/components/CaseBriefView';
 import SummaryView from '@/components/SummaryView';
 import ArgumentsView from '@/components/ArgumentsView';
 import MemorandumView from '@/components/MemorandumView';
 
-type DraftingTab = 'brief' | 'summary' | 'arguments' | 'memorandum';
-
 export default function DraftingView({
   user,
   onError,
+  initialTab = 'brief',
   initialQuery,
+  onTabChange,
 }: {
   user: User;
   onError: (err: string) => void;
+  initialTab?: DraftingTabName;
   initialQuery?: string;
+  onTabChange?: (tab: DraftingTabName) => void;
 }) {
-  const [tab, setTab] = useState<DraftingTab>('brief');
+  const [tab, setTab] = useState<DraftingTabName>(initialTab);
+
+  // Sync when the parent routes in from the URL hash (Back/Forward,
+  // refresh, or a shared #drafting?tab=... link).
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
+
+  function selectTab(next: DraftingTabName) {
+    setTab(next);
+    onTabChange?.(next);
+  }
 
   return (
     <div>
       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
         <button
           className={tab === 'brief' ? 'btn btn-primary' : 'btn btn-outline'}
-          onClick={() => setTab('brief')}
+          onClick={() => selectTab('brief')}
           style={{ fontSize: '0.85rem', padding: '0.35rem 0.9rem' }}
         >
           Case Brief
         </button>
         <button
           className={tab === 'summary' ? 'btn btn-primary' : 'btn btn-outline'}
-          onClick={() => setTab('summary')}
+          onClick={() => selectTab('summary')}
           style={{ fontSize: '0.85rem', padding: '0.35rem 0.9rem' }}
         >
           Summary
         </button>
         <button
           className={tab === 'arguments' ? 'btn btn-primary' : 'btn btn-outline'}
-          onClick={() => setTab('arguments')}
+          onClick={() => selectTab('arguments')}
           style={{ fontSize: '0.85rem', padding: '0.35rem 0.9rem' }}
         >
           Arguments
         </button>
         <button
           className={tab === 'memorandum' ? 'btn btn-primary' : 'btn btn-outline'}
-          onClick={() => setTab('memorandum')}
+          onClick={() => selectTab('memorandum')}
           style={{ fontSize: '0.85rem', padding: '0.35rem 0.9rem' }}
         >
           Memorandum
