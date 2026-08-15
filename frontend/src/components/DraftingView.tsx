@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User } from '@/lib/api';
+import { User, CaseBriefResponse, LegalSummaryResponse, ArgumentExtractionResponse, MemorandumResponse } from '@/lib/api';
 import type { DraftingTabName } from '@/lib/hashRouter';
 import CaseBriefView from '@/components/CaseBriefView';
 import SummaryView from '@/components/SummaryView';
@@ -22,12 +22,23 @@ export default function DraftingView({
   onTabChange?: (tab: DraftingTabName) => void;
 }) {
   const [tab, setTab] = useState<DraftingTabName>(initialTab);
+  const [sharedQuery, setSharedQuery] = useState(initialQuery ?? '');
+  const [results, setResults] = useState<{
+    brief: CaseBriefResponse | null;
+    summary: LegalSummaryResponse | null;
+    arguments: ArgumentExtractionResponse | null;
+    memorandum: MemorandumResponse | null;
+  }>({ brief: null, summary: null, arguments: null, memorandum: null });
 
   // Sync when the parent routes in from the URL hash (Back/Forward,
   // refresh, or a shared #drafting?tab=... link).
   useEffect(() => {
     setTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    if (initialQuery !== undefined) setSharedQuery(initialQuery);
+  }, [initialQuery]);
 
   function selectTab(next: DraftingTabName) {
     setTab(next);
@@ -66,10 +77,46 @@ export default function DraftingView({
           Memorandum
         </button>
       </div>
-      {tab === 'brief' && <CaseBriefView user={user} onError={onError} initialQuery={initialQuery} />}
-      {tab === 'summary' && <SummaryView user={user} onError={onError} />}
-      {tab === 'arguments' && <ArgumentsView user={user} onError={onError} />}
-      {tab === 'memorandum' && <MemorandumView user={user} onError={onError} />}
+      {tab === 'brief' && (
+        <CaseBriefView
+          user={user}
+          onError={onError}
+          query={sharedQuery}
+          onQueryChange={setSharedQuery}
+          sharedResult={results.brief}
+          onSharedResultChange={(r) => setResults((prev) => ({ ...prev, brief: r }))}
+        />
+      )}
+      {tab === 'summary' && (
+        <SummaryView
+          user={user}
+          onError={onError}
+          query={sharedQuery}
+          onQueryChange={setSharedQuery}
+          sharedResult={results.summary}
+          onSharedResultChange={(r) => setResults((prev) => ({ ...prev, summary: r }))}
+        />
+      )}
+      {tab === 'arguments' && (
+        <ArgumentsView
+          user={user}
+          onError={onError}
+          query={sharedQuery}
+          onQueryChange={setSharedQuery}
+          sharedResult={results.arguments}
+          onSharedResultChange={(r) => setResults((prev) => ({ ...prev, arguments: r }))}
+        />
+      )}
+      {tab === 'memorandum' && (
+        <MemorandumView
+          user={user}
+          onError={onError}
+          query={sharedQuery}
+          onQueryChange={setSharedQuery}
+          sharedResult={results.memorandum}
+          onSharedResultChange={(r) => setResults((prev) => ({ ...prev, memorandum: r }))}
+        />
+      )}
     </div>
   );
 }

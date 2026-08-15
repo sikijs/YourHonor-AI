@@ -90,4 +90,97 @@ describe('DraftingView', () => {
     await user.click(screen.getByRole('button', { name: 'Arguments' }));
     expect(onTabChange).toHaveBeenCalledWith('arguments');
   });
+
+  it('carries the case name from Case Brief into the Summary tab', async () => {
+    const user = userEvent.setup();
+    render(<DraftingView user={USER} onError={jest.fn()} />);
+    await user.type(screen.getByPlaceholderText(/Marbury v\. Madison/), 'Marbury v. Madison');
+    await user.click(screen.getByRole('button', { name: 'Summary' }));
+    expect(screen.getByDisplayValue('Marbury v. Madison')).toBeInTheDocument();
+  });
+
+  it('carries an edited query back from Summary to Case Brief', async () => {
+    const user = userEvent.setup();
+    render(<DraftingView user={USER} onError={jest.fn()} />);
+    await user.type(screen.getByPlaceholderText(/Marbury v\. Madison/), 'Roe v. Wade');
+    await user.click(screen.getByRole('button', { name: 'Summary' }));
+    const summaryInput = screen.getByPlaceholderText(/Miranda v\. Arizona/);
+    await user.clear(summaryInput);
+    await user.type(summaryInput, 'Miranda v. Arizona');
+    await user.click(screen.getByRole('button', { name: 'Case Brief' }));
+    expect(screen.getByDisplayValue('Miranda v. Arizona')).toBeInTheDocument();
+  });
+
+  it('carries the query into the Arguments and Memorandum tabs', async () => {
+    const user = userEvent.setup();
+    render(<DraftingView user={USER} onError={jest.fn()} />);
+    await user.type(screen.getByPlaceholderText(/Marbury v\. Madison/), 'Marbury v. Madison');
+    await user.click(screen.getByRole('button', { name: 'Arguments' }));
+    expect(screen.getByDisplayValue('Marbury v. Madison')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Memorandum' }));
+    expect(screen.getByDisplayValue('Marbury v. Madison')).toBeInTheDocument();
+  });
+
+  it('seeds the shared query from a deep link on any tab', async () => {
+    render(<DraftingView user={USER} onError={jest.fn()} initialTab="summary" initialQuery="Roe v. Wade" />);
+    expect(screen.getByDisplayValue('Roe v. Wade')).toBeInTheDocument();
+  });
+
+  it('keeps the generated brief when leaving and returning to the Case Brief tab', async () => {
+    const user = userEvent.setup();
+    api.legal.caseBrief.mockResolvedValue({
+      case_name: 'Miranda v. Arizona',
+      complexity: 'standard',
+      citation: ['384 U.S. 436'],
+      court: 'Supreme Court of the United States',
+      date_filed: '1966-06-13',
+      facts: 'Miranda facts section.',
+      procedural_history: 'Procedural history section.',
+      issues: ['Are custodial statements admissible without warnings?'],
+      holding: 'The prosecution may not use statements from custodial interrogation without prior warnings.',
+      reasoning: 'Reasoning section.',
+      rule_of_law: 'Rule of law section.',
+      concurrence: null,
+      dissent: null,
+      significance: 'Significance section.',
+      sources: [],
+      sources_consulted: [],
+      disclaimer: 'Educational only.',
+    });
+    render(<DraftingView user={USER} onError={jest.fn()} />);
+    await user.type(screen.getByPlaceholderText(/Marbury v\. Madison/), 'Miranda v. Arizona');
+    await user.click(screen.getByRole('button', { name: 'Generate Brief' }));
+    expect(await screen.findByText('Miranda facts section.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Summary' }));
+    expect(screen.queryByText('Miranda facts section.')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Case Brief' }));
+    expect(screen.getByText('Miranda facts section.')).toBeInTheDocument();
+    expect(api.legal.caseBrief).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the generated summary when leaving and returning to the Summary tab', async () => {
+    const user = userEvent.setup();
+    api.legal.summary.mockResolvedValue({
+      title: 'Miranda v. Arizona Summary',
+      summary_type: 'general',
+      complexity: 'standard',
+      overview: 'Miranda overview section.',
+      key_findings: ['Finding one'],
+      legal_principles: ['Principle one'],
+      impact: 'Impact section.',
+      key_points: ['Point one'],
+      sources_consulted: [],
+      sources: [],
+      disclaimer: 'Educational only.',
+    });
+    render(<DraftingView user={USER} onError={jest.fn()} />);
+    await user.click(screen.getByRole('button', { name: 'Summary' }));
+    await user.type(screen.getByPlaceholderText(/Miranda v\. Arizona/), 'Miranda v. Arizona');
+    await user.click(screen.getByRole('button', { name: 'Generate Summary' }));
+    expect(await screen.findByText('Miranda overview section.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Arguments' }));
+    await user.click(screen.getByRole('button', { name: 'Summary' }));
+    expect(screen.getByText('Miranda overview section.')).toBeInTheDocument();
+    expect(api.legal.summary).toHaveBeenCalledTimes(1);
+  });
 });

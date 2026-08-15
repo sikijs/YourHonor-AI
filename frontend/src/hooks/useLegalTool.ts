@@ -27,6 +27,12 @@ export function useLegalTool<T>(
   apiCall: (query: string, documentId: number | undefined, signal: AbortSignal) => Promise<T>,
   onError: (err: string) => void,
   initialQuery: string = '',
+  options?: {
+    sharedQuery?: string;
+    onSharedQueryChange?: (q: string) => void;
+    sharedResult?: T | null;
+    onSharedResultChange?: (r: T | null) => void;
+  },
 ): UseLegalToolResult<T> {
   const [query, setQuery] = useState(initialQuery);
   const [result, setResult] = useState<T | null>(null);
@@ -53,18 +59,44 @@ export function useLegalTool<T>(
     return () => clearInterval(interval);
   }, [loading]);
 
+  const onSharedQueryChange = options?.onSharedQueryChange;
+  const updateQuery = useCallback(
+    (q: string) => {
+      setQuery(q);
+      onSharedQueryChange?.(q);
+    },
+    [onSharedQueryChange],
+  );
+
+  useEffect(() => {
+    if (options?.sharedQuery !== undefined) setQuery(options.sharedQuery);
+  }, [options?.sharedQuery]);
+
+  const onSharedResultChange = options?.onSharedResultChange;
+  const updateResult = useCallback(
+    (r: T | null) => {
+      setResult(r);
+      onSharedResultChange?.(r);
+    },
+    [onSharedResultChange],
+  );
+
+  useEffect(() => {
+    if (options?.sharedResult !== undefined) setResult(options.sharedResult);
+  }, [options?.sharedResult]);
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim() || loading) return;
     cancelRef.current = new AbortController();
     cancellingRef.current = false;
     setLoading(true);
-    setResult(null);
+    updateResult(null);
     setSaved(false);
     onError('');
     try {
       const res = await apiCall(query, selectedDocId, cancelRef.current.signal);
-      setResult(res);
+      updateResult(res);
       setSaved(true);
     } catch (err: any) {
       if (err.name === 'AbortError') {
@@ -75,7 +107,7 @@ export function useLegalTool<T>(
     } finally {
       setLoading(false);
     }
-  }, [query, loading, selectedDocId, apiCall, onError]);
+  }, [query, loading, selectedDocId, apiCall, onError, updateResult]);
 
   const cancel = useCallback(() => {
     cancellingRef.current = true;
@@ -84,8 +116,8 @@ export function useLegalTool<T>(
   }, []);
 
   return {
-    query, setQuery,
-    result, setResult,
+    query, setQuery: updateQuery,
+    result, setResult: updateResult,
     loading,
     saved, setSaved,
     copied, setCopied,

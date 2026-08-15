@@ -150,6 +150,90 @@ describe('DoctrineExplorerView', () => {
     await waitFor(() => expect(screen.queryByText('Consideration')).not.toBeInTheDocument());
   });
 
+  it('matches case names typed with "vs" instead of "v."', async () => {
+    const user = userEvent.setup();
+    renderView();
+    await user.type(await screen.findByPlaceholderText(/Search doctrines/), 'Marbury vs Madison');
+    expect(await screen.findByText('Judicial Review')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Consideration')).not.toBeInTheDocument());
+  });
+
+  it('matches case names typed with "versus"', async () => {
+    const user = userEvent.setup();
+    renderView();
+    await user.type(await screen.findByPlaceholderText(/Search doctrines/), 'Marbury versus Madison');
+    expect(await screen.findByText('Judicial Review')).toBeInTheDocument();
+  });
+
+  it('keeps the vs-search working in the compare picker', async () => {
+    const user = userEvent.setup();
+    renderView();
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    await user.type(await screen.findByPlaceholderText(/Search doctrines/), 'Marbury vs');
+    expect(await screen.findByLabelText(/Marbury v\. Madison/)).toBeInTheDocument();
+  });
+
+  it('scopes the compare picker to the current search instead of the full list', async () => {
+    const user = userEvent.setup();
+    renderView();
+    const searchBox = await screen.findByPlaceholderText(/Search doctrines/);
+    await user.type(searchBox, 'Marbury vs Madison');
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    expect(await screen.findByText('Compare Any Two Landmark Cases')).toBeInTheDocument();
+    expect(searchBox).toHaveValue('Marbury vs Madison');
+    expect(await screen.findByLabelText(/Marbury v\. Madison/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Hamer v\. Sidway/)).not.toBeInTheDocument();
+  });
+
+  it('keeps scoped cases in the picker when the search matches only doctrine text', async () => {
+    const user = userEvent.setup();
+    renderView();
+    const searchBox = await screen.findByPlaceholderText(/Search doctrines/);
+    await user.type(searchBox, 'Constitution');
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    expect(await screen.findByText(/current view \(2 cases\)/)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Marbury v\. Madison/)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Martin v\. Hunter's Lessee/)).toBeInTheDocument();
+  });
+
+  it('expands the scoped picker to the full library and toggles back', async () => {
+    const user = userEvent.setup();
+    renderView();
+    const searchBox = await screen.findByPlaceholderText(/Search doctrines/);
+    await user.type(searchBox, 'Marbury vs Madison');
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    await user.click(await screen.findByRole('button', { name: /Browse all/ }));
+    expect(searchBox).toHaveValue('');
+    expect(await screen.findByLabelText(/Hamer v\. Sidway/)).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: /Back to my filtered cases/ }));
+    expect(searchBox).toHaveValue('Marbury vs Madison');
+    expect(await screen.findByLabelText(/Marbury v\. Madison/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Hamer v\. Sidway/)).not.toBeInTheDocument();
+  });
+
+  it('shows a hint when the scoped picker has fewer than two cases', async () => {
+    const user = userEvent.setup();
+    renderView();
+    const searchBox = await screen.findByPlaceholderText(/Search doctrines/);
+    await user.type(searchBox, 'Hamer');
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    expect(await screen.findByText(/Only 1 case matches this view/)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Hamer v\. Sidway/)).toBeInTheDocument();
+  });
+
+  it('restores the original filters after cancelling an expanded picker', async () => {
+    const user = userEvent.setup();
+    renderView();
+    const searchBox = await screen.findByPlaceholderText(/Search doctrines/);
+    await user.type(searchBox, 'Marbury vs Madison');
+    await user.click(await screen.findByRole('button', { name: 'Compare Cases' }));
+    await user.click(await screen.findByRole('button', { name: /Browse all/ }));
+    await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(await screen.findByText('Judicial Review')).toBeInTheDocument();
+    expect(searchBox).toHaveValue('Marbury vs Madison');
+    await waitFor(() => expect(screen.queryByText('Consideration')).not.toBeInTheDocument());
+  });
+
   it('shows an error message when the map cannot load', async () => {
     api.doctrine.map.mockRejectedValue(new Error('backend unreachable'));
     renderView();

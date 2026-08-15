@@ -8,11 +8,11 @@ import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function SummaryView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function SummaryView({ user, onError, query, onQueryChange, sharedResult, onSharedResultChange }: { user: User; onError: (err: string) => void; query?: string; onQueryChange?: (q: string) => void; sharedResult?: LegalSummaryResponse | null; onSharedResultChange?: (r: LegalSummaryResponse | null) => void }) {
   const [summaryType, setSummaryType] = useState('general');
   const [complexity, setComplexity] = useState('standard');
   const {
-    query, setQuery,
+    query: currentQuery, setQuery,
     result, loading,
     saved, setSaved,
     copied, setCopied,
@@ -21,6 +21,8 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
   } = useLegalTool<LegalSummaryResponse>(
     (q, docId, signal) => api.legal.summary(q, summaryType, docId, signal, complexity),
     onError,
+    undefined,
+    { sharedQuery: query, onSharedQueryChange: onQueryChange, sharedResult, onSharedResultChange },
   );
 
   return (
@@ -36,7 +38,7 @@ export default function SummaryView({ user, onError }: { user: User; onError: (e
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
           <input
             type="text"
-            value={query}
+            value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Miranda v. Arizona, First Amendment, tort law"
             style={{ flex: 1, minWidth: '200px' }}

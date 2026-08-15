@@ -2,11 +2,27 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { User, Doctrine, DoctrineMapResponse, api } from '@/lib/api';
-import { TimelineCase } from '@/lib/doctrine';
+import { TimelineCase, normalizeSearch } from '@/lib/doctrine';
 import DoctrineCardList from '@/components/DoctrineCardList';
 import DoctrineDetail from '@/components/DoctrineDetail';
 import DoctrineTimeline from '@/components/DoctrineTimeline';
 import CompareView from '@/components/CompareView';
+
+function buildTimelineCases(doctrines: Doctrine[]): TimelineCase[] {
+  const byName = new Map<string, TimelineCase>();
+  for (const d of doctrines) {
+    for (const c of d.cases) {
+      const key = c.name.toLowerCase();
+      const existing = byName.get(key);
+      if (existing) {
+        existing.subjects = Array.from(new Set([...existing.subjects, d.subject]));
+      } else {
+        byName.set(key, { ...c, subjects: [d.subject] });
+      }
+    }
+  }
+  return Array.from(byName.values());
+}
 
 export default function DoctrineExplorerView({
   user,
@@ -25,6 +41,8 @@ export default function DoctrineExplorerView({
   const [compareCases, setCompareCases] = useState<string[] | null>(null);
   const [pickMode, setPickMode] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [pickAll, setPickAll] = useState(false);
+  const [savedScope, setSavedScope] = useState({ search: '', subject: '', count: 0 });
 
   useEffect(() => {
     api.doctrine
@@ -41,33 +59,24 @@ export default function DoctrineExplorerView({
 
   const filtered = useMemo(() => {
     if (!data) return [];
-    const q = search.trim().toLowerCase();
+    const q = normalizeSearch(search);
     return data.doctrines.filter((d) => {
       if (subject && d.subject !== subject) return false;
       if (!q) return true;
       return (
-        d.name.toLowerCase().includes(q) ||
-        d.description.toLowerCase().includes(q) ||
-        d.cases.some((c) => c.name.toLowerCase().includes(q))
+        normalizeSearch(d.name).includes(q) ||
+        normalizeSearch(d.description).includes(q) ||
+        d.cases.some((c) => normalizeSearch(c.name).includes(q))
       );
     });
   }, [data, subject, search]);
 
-  const timelineCases = useMemo(() => {
-    const byName = new Map<string, TimelineCase>();
-    for (const d of filtered) {
-      for (const c of d.cases) {
-        const key = c.name.toLowerCase();
-        const existing = byName.get(key);
-        if (existing) {
-          existing.subjects = Array.from(new Set([...existing.subjects, d.subject]));
-        } else {
-          byName.set(key, { ...c, subjects: [d.subject] });
-        }
-      }
-    }
-    return Array.from(byName.values());
-  }, [filtered]);
+  const timelineCases = useMemo(() => buildTimelineCases(filtered), [filtered]);
+
+  const allTimelineCases = useMemo(
+    () => (data ? buildTimelineCases(data.doctrines) : []),
+    [data]
+  );
 
   const selected = selectedId
     ? (data?.doctrines.find((d) => d.id === selectedId) || null)
@@ -98,6 +107,27 @@ export default function DoctrineExplorerView({
     setPicked(new Set());
     setSelectedId(null);
     setCompareCases(null);
+    setPickAll(false);
+    setSavedScope({ search, subject, count: timelineCases.length });
+  }
+
+  function browseAllCases() {
+    setPickAll(true);
+    setSearch('');
+    setSubject('');
+  }
+
+  function backToFiltered() {
+    setPickAll(false);
+    setSearch(savedScope.search);
+    setSubject(savedScope.subject);
+  }
+
+  function cancelPickMode() {
+    setPickMode(false);
+    setPickAll(false);
+    setSearch(savedScope.search);
+    setSubject(savedScope.subject);
   }
 
   function renderBody() {
@@ -122,15 +152,24 @@ export default function DoctrineExplorerView({
       );
     }
     if (pickMode) {
+      const pickList = pickAll ? allTimelineCases : timelineCases;
+      const scoped = !pickAll && timelineCases.length < allTimelineCases.length;
       return (
         <div className="card" style={{ marginBottom: '1rem' }}>
           <h3 style={{ marginTop: 0 }}>Compare Any Two Landmark Cases</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
-            Select two cases from the full curated library of 70, then compare. Use the search box above to narrow the list.
+            {pickAll
+              ? `Browsing the full curated library of ${allTimelineCases.length} cases. Use the search box above to narrow the list.`
+              : `Select two cases from your current view (${timelineCases.length} case${timelineCases.length !== 1 ? 's' : ''}), then compare.`}
           </p>
+          {!pickAll && timelineCases.length < 2 && (
+            <p style={{ fontSize: '0.85rem', color: '#856404', background: '#fff3cd', border: '1px solid #ffc107', padding: '0.5rem 0.75rem', borderRadius: '6px' }}>
+              Only {timelineCases.length} case matches this view — comparison needs two. Browse all {allTimelineCases.length} cases or broaden your search.
+            </p>
+          )}
           <div style={{ maxHeight: '420px', overflowY: 'auto', border: '1px solid #eee', borderRadius: '6px', padding: '0.5rem' }}>
-            {timelineCases
-              .filter((c) => !search.trim() || c.name.toLowerCase().includes(search.trim().toLowerCase()))
+            {pickList
+              .filter((c) => !pickAll || !search.trim() || normalizeSearch(c.name).includes(normalizeSearch(search)))
               .map((c) => (
                 <label key={c.name} style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', padding: '0.4rem 0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
                   <input
@@ -144,7 +183,7 @@ export default function DoctrineExplorerView({
                 </label>
               ))}
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.75rem', flexWrap: 'wrap' }}>
             <button
               className="btn btn-primary"
               disabled={picked.size !== 2}
@@ -152,7 +191,17 @@ export default function DoctrineExplorerView({
             >
               Compare ({picked.size}/2)
             </button>
-            <button className="btn btn-outline" onClick={() => setPickMode(false)}>
+            {pickAll && savedScope.count !== allTimelineCases.length && (
+              <button className="btn btn-outline" onClick={backToFiltered}>
+                &larr; Back to my filtered cases ({savedScope.count})
+              </button>
+            )}
+            {scoped && (
+              <button className="btn btn-outline" onClick={browseAllCases}>
+                Browse all {allTimelineCases.length} cases
+              </button>
+            )}
+            <button className="btn btn-outline" onClick={cancelPickMode}>
               Cancel
             </button>
           </div>

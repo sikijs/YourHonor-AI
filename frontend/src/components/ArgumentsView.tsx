@@ -7,9 +7,9 @@ import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function ArgumentsView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function ArgumentsView({ user, onError, query, onQueryChange, sharedResult, onSharedResultChange }: { user: User; onError: (err: string) => void; query?: string; onQueryChange?: (q: string) => void; sharedResult?: ArgumentExtractionResponse | null; onSharedResultChange?: (r: ArgumentExtractionResponse | null) => void }) {
   const {
-    query, setQuery,
+    query: currentQuery, setQuery,
     result, loading,
     saved, setSaved,
     copied, setCopied,
@@ -18,6 +18,8 @@ export default function ArgumentsView({ user, onError }: { user: User; onError: 
   } = useLegalTool<ArgumentExtractionResponse>(
     (q, docId, signal) => api.legal.arguments(q, docId, signal),
     onError,
+    undefined,
+    { sharedQuery: query, onSharedQueryChange: onQueryChange, sharedResult, onSharedResultChange },
   );
 
   return (
@@ -33,7 +35,7 @@ export default function ArgumentsView({ user, onError }: { user: User; onError: 
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <input
             type="text"
-            value={query}
+            value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Miranda v. Arizona"
             style={{ flex: 1 }}

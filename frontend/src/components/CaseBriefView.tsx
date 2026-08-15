@@ -8,10 +8,10 @@ import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function CaseBriefView({ user, onError, initialQuery }: { user: User; onError: (err: string) => void; initialQuery?: string }) {
+export default function CaseBriefView({ user, onError, query, onQueryChange, sharedResult, onSharedResultChange }: { user: User; onError: (err: string) => void; query?: string; onQueryChange?: (q: string) => void; sharedResult?: CaseBriefResponse | null; onSharedResultChange?: (r: CaseBriefResponse | null) => void }) {
   const [complexity, setComplexity] = useState('standard');
   const {
-    query, setQuery,
+    query: currentQuery, setQuery,
     result, loading,
     saved, setSaved,
     copied, setCopied,
@@ -20,7 +20,8 @@ export default function CaseBriefView({ user, onError, initialQuery }: { user: U
   } = useLegalTool<CaseBriefResponse>(
     (q, docId, signal) => api.legal.caseBrief(q, docId, signal, complexity),
     onError,
-    initialQuery,
+    undefined,
+    { sharedQuery: query, onSharedQueryChange: onQueryChange, sharedResult, onSharedResultChange },
   );
 
   return (
@@ -36,7 +37,7 @@ export default function CaseBriefView({ user, onError, initialQuery }: { user: U
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <input
             type="text"
-            value={query}
+            value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Marbury v. Madison, 5 U.S. 137"
             style={{ flex: 1 }}

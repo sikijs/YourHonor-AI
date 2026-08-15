@@ -34,3 +34,13 @@ export const TIMELINE_ERAS: TimelineEra[] = [
 export function subjectColor(subject: string): string {
   return SUBJECT_COLORS[subject] || SUBJECT_FALLBACK;
 }
+
+/** Normalize search text so "vs"/"vs."/"versus" match "v." in case names. */
+export function normalizeSearch(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/(^|\s)(vs\.?|versus)(\s|$)/g, ' v ')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}

@@ -36,7 +36,7 @@ export default function Home() {
   const [view, setView] = useState<ViewName>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [briefQuery, setBriefQuery] = useState('');
+  const [draftQuery, setBriefQuery] = useState('');
   const [draftTab, setDraftTab] = useState<DraftingTabName>('brief');
 
   // Apply a parsed hash route to state, gating non-public views on auth.
@@ -206,7 +206,7 @@ export default function Home() {
             user={user}
             onError={setError}
             initialTab={draftTab}
-            initialQuery={draftTab === 'brief' ? briefQuery : undefined}
+            initialQuery={draftQuery}
             onTabChange={handleDraftTabChange}
           />
         )}

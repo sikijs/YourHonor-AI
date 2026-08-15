@@ -7,9 +7,9 @@ import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
 
-export default function MemorandumView({ user, onError }: { user: User; onError: (err: string) => void }) {
+export default function MemorandumView({ user, onError, query, onQueryChange, sharedResult, onSharedResultChange }: { user: User; onError: (err: string) => void; query?: string; onQueryChange?: (q: string) => void; sharedResult?: MemorandumResponse | null; onSharedResultChange?: (r: MemorandumResponse | null) => void }) {
   const {
-    query, setQuery,
+    query: currentQuery, setQuery,
     result, loading,
     saved, setSaved,
     copied, setCopied,
@@ -18,6 +18,8 @@ export default function MemorandumView({ user, onError }: { user: User; onError:
   } = useLegalTool<MemorandumResponse>(
     (q, docId, signal) => api.legal.memorandum(q, docId, signal),
     onError,
+    undefined,
+    { sharedQuery: query, onSharedQueryChange: onQueryChange, sharedResult, onSharedResultChange },
   );
 
   return (
@@ -32,7 +34,7 @@ export default function MemorandumView({ user, onError }: { user: User; onError:
       <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <textarea
-            value={query}
+            value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Is a clickwrap agreement enforceable under contract law? Analyze the requirements for offer, acceptance, and consideration."
             style={{ flex: 1, minWidth: '300px', minHeight: '80px', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: 'inherit', resize: 'vertical' }}
