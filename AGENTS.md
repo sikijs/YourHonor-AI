@@ -226,7 +226,8 @@ Backend available at http://localhost:8000
 - POST /api/doctrine/compare      - Compare two landmark cases (auth required): curated facts table + LLM narrative comparison (similarities/differences/doctrinal relationship/significance/practice note) built from the offline seed opinions; saves case_comparison docs
 
 ### Study Dashboard
-- GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), completed live tutor sessions (sessions/answers/accuracy per topic), account age in days. Pure SQLite aggregations, zero LLM cost.
+- GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), completed live tutor sessions (sessions/answers/accuracy per topic), skills & competencies (6 buckets mapped from doc types/uploads/tutor activity), work portfolio (last 6 documents). Pure SQLite aggregations, zero LLM cost.
+- GET /api/dashboard/today - Daily study-plan picks for the Dashboard's "Today's Legal Practice" section (auth required): Case of the Day + Citation Drill (both from the 70 landmark cases; the drill's Bluebook answer comes from the local deterministic pass in `bluebook.py`), Term of the Day (glossary_seed.json), Question of the Day (160 tutor cards — question text only, curated answers never leave the backend), Issue-Spotting Prompt, and a Suggested Focus topic from the user's weak review cards. All picks are deterministic (seeded by day-of-year), zero LLM, zero Qdrant.
 
 ### Other
 - GET /api/health - Health check
@@ -287,8 +288,8 @@ Backend available at http://localhost:8000
 - Version constants in `backend/app/main.py` (`APP_VERSION`), `frontend/next.config.js` (`NEXT_PUBLIC_APP_VERSION`), and `frontend/package.json` / `backend/pyproject.toml`
 
 ### Phase 8 (Study Dashboard) - COMPLETE
-- `GET /api/stats/me` — per-user study stats from plain SQLite (no LLM): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak via `review_progress`), weak-topics list, completed live-session stats (sessions/answers/accuracy per topic via `tutor_sessions`), account age in days
-- `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, live tutor session accuracy panel, account-age display
+- `GET /api/stats/me` — per-user study stats from plain SQLite (no LLM): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak via `review_progress`), weak-topics list, completed live-session stats (sessions/answers/accuracy per topic via `tutor_sessions`)
+- `DashboardView.tsx` — authenticated nav item + Home feature card: overview stat cards, documents-by-type progress bars (`friendlyDocType` labels shared via `src/lib/docTypes.ts`), tutor review progress with weakest-topics list, live tutor session accuracy panel
 - `ReviewQueueView.tsx` — standalone cross-topic review of the persisted review queue (`GET /api/tutor/review/queue` + `POST /api/tutor/review/mark`); "Got it ✓" drains cards from the queue, "Need to Study ✗" keeps them
 - Persistence: completed curriculum/dynamic sessions and MC quizzes write one `tutor_sessions` row each (mode, correct/wrong counts, total questions); abandoned mid-session progress stays in-memory and is not included in dashboard stats
 
@@ -301,6 +302,14 @@ Backend available at http://localhost:8000
 - Nav 17 → 14 links: Case Briefs/Summaries/Arguments/Memoranda merged into one "Legal Drafting" link backed by `DraftingView.tsx` (tab wrapper over the four existing views, same pattern as `CitationsView.tsx`); Home feature cards 12 → 9 (one "Legal Drafting" card); Doctrine Explorer's "brief this case" deep-link still lands on the Case Brief tab with the case prefilled via the `navigate()` alias map in `page.tsx`
 - Hash-based URL routing (`frontend/src/lib/hashRouter.ts`): every view maps to a URL hash (`#dashboard`, `#drafting?tab=summary&q=...`) via `parseHash`/`viewToHash` + a `hashchange` listener in `page.tsx`, so browser Back/Forward, refresh, and bookmarks navigate between views; Legal Drafting tab switches sync through `location.replace` (no history noise) with the tab owned by `page.tsx` and passed to `DraftingView` via `initialTab`/`onTabChange`; public hashes (`home`/`about`/`doctrines`/`resources`/`auth`) load when signed out, everything else redirects to Sign In
 - Glossary semantic lookup is now margin-based (`SEED_SEMANTIC_MIN=0.35`, `SEED_CONFIDENT_SCORE=0.55`, `SEED_MARGIN=0.10`): serve the top seed entry when it clears 0.55, or when it sits ≥0.35 with a clear gap over the runner-up; ties in the flat score band fall to the LLM
+
+### Phase 11 (Dashboard v2: Today's Legal Practice Hub) - COMPLETE
+- `GET /api/dashboard/today` (`app/api/dashboard.py` + `app/services/dashboard.py`) — deterministic daily study picks seeded by day-of-year from the app's curated libraries: Case of the Day (landmark_seed.json, 70), Citation Drill (raw citation + Bluebook-correct answer via the public `format_landmark_case()` wrapper over the local deterministic pass in `bluebook.py` — zero LLM), Term of the Day (glossary_seed.json, 123), Question of the Day (160 tutor cards; question text only — curated answers never leave the backend), Issue-Spotting Prompt, and Suggested Focus (weakest review topic). Zero LLM, zero Qdrant, instant
+- Account Age stat card removed from the dashboard (vanity metric — measured existence, not activity); `account_age_days` dropped from the stats model/service/tests
+- `/api/stats/me` extended with `skills` (6 competency buckets — Legal Research incl. PDF uploads, Legal Drafting, Citation Skills, Case Analysis, Issue Spotting, Doctrine Knowledge — mapped from saved-document doc_types + tutor/review activity) and `portfolio` (last 6 documents by updated_at with doc_type badges)
+- `TodayPracticePanel.tsx` — "Today's Legal Practice" cards with deep links: "Brief this case"/"Summarize" prefill Legal Drafting via the `navigate()` alias, "Reveal answer" for the Citation Drill, Glossary/Tutor/Issue Spotter links, and a Suggested Focus banner that opens the topic-filtered review queue
+- `DashboardView.tsx` additions: Skills & Competencies progress bars with "Where to focus" hint, Your Work Portfolio list with relative dates, Quick Actions row (New Case Brief / Cite-Check Text / Issue Spotter / Compare Cases / Tutor Practice)
+- Version stays at v1.4.0 (bump deferred)
 
 ---
 

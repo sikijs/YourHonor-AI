@@ -11,6 +11,47 @@ and not included.
 from app import db
 from app.services.tutor_data import TOPICS
 
+# Saved-document doc_types per practical skill, so the dashboard can show
+# "what am I good at" instead of raw document counts. Documents uploaded as
+# PDFs (file_type set) count toward Legal Research.
+SKILLS = [
+    {
+        "skill_id": "research",
+        "name": "Legal Research",
+        "description": "Case summaries, statute analyses, and uploaded materials",
+        "doc_types": {"case_summary", "general_summary", "statute_summary", "doctrine_summary", "legal_summary"},
+        "counts_uploads": True,
+    },
+    {
+        "skill_id": "drafting",
+        "name": "Legal Drafting",
+        "description": "Case briefs, memoranda, arguments, and generated documents",
+        "doc_types": {"case_brief", "memorandum", "argument_analysis", "generated_document"},
+        "counts_uploads": False,
+    },
+    {
+        "skill_id": "citation",
+        "name": "Citation Skills",
+        "description": "Citation maps and Bluebook formatting",
+        "doc_types": {"citation_map", "bluebook_citations"},
+        "counts_uploads": False,
+    },
+    {
+        "skill_id": "analysis",
+        "name": "Case Analysis",
+        "description": "Case comparisons and debate analyses",
+        "doc_types": {"case_comparison", "debate"},
+        "counts_uploads": False,
+    },
+    {
+        "skill_id": "issue_spotting",
+        "name": "Issue Spotting",
+        "description": "Issue-spotter analyses and tutor practice saves",
+        "doc_types": {"issue_spotter", "other"},
+        "counts_uploads": False,
+    },
+]
+
 
 def get_user_stats(user_id: int) -> dict:
     conn = db.get_db()
@@ -64,14 +105,21 @@ def get_user_stats(user_id: int) -> dict:
             (user_id,),
         ).fetchall()
 
-        age_row = conn.execute(
+        doc_rows = conn.execute(
+            "SELECT doc_type, file_type FROM documents WHERE user_id = ?",
+            (user_id,),
+        ).fetchall()
+
+        portfolio = conn.execute(
             """
-            SELECT CAST(MAX(0, julianday('now') - julianday(created_at)) AS INTEGER) AS age_days
-            FROM users
-            WHERE id = ?
+            SELECT id, title, doc_type, updated_at
+            FROM documents
+            WHERE user_id = ?
+            ORDER BY updated_at DESC, id DESC
+            LIMIT 6
             """,
             (user_id,),
-        ).fetchone()
+        ).fetchall()
     finally:
         conn.close()
 
@@ -80,8 +128,46 @@ def get_user_stats(user_id: int) -> dict:
 
     session_answers = sum(r["correct"] + r["wrong"] for r in session_rows)
 
+    # Skill counts come from per-document rows so uploads can be separated
+    # cleanly: a document with a file_type is source material (research), and
+    # its doc_type label is not double-counted into another skill.
+    doc_type_counts: dict[str, int] = {}
+    uploaded_count = 0
+    for r in doc_rows:
+        if r["file_type"]:
+            uploaded_count += 1
+        else:
+            key = r["doc_type"] or ""
+            doc_type_counts[key] = doc_type_counts.get(key, 0) + 1
+
+    skill_counts: dict[str, int] = {}
+    for skill in SKILLS:
+        count = sum(doc_type_counts.get(dt, 0) for dt in skill["doc_types"])
+        if skill["counts_uploads"]:
+            count += uploaded_count
+        skill_counts[skill["skill_id"]] = count
+    # Doctrine Knowledge is measured by tutor activity (answers + review marks).
+    skill_counts["doctrine"] = session_answers + mastered + weak
+
+    skills = [
+        {
+            "skill_id": skill["skill_id"],
+            "name": skill["name"],
+            "description": skill["description"],
+            "count": skill_counts[skill["skill_id"]],
+        }
+        for skill in SKILLS
+    ]
+    skills.append(
+        {
+            "skill_id": "doctrine",
+            "name": "Doctrine Knowledge",
+            "description": "Tutor answers and review-mastery marks",
+            "count": skill_counts["doctrine"],
+        }
+    )
+
     return {
-        "account_age_days": age_row["age_days"] if age_row else 0,
         "documents_total": sum(r["count"] for r in by_type),
         "documents_by_type": [
             {"doc_type": r["doc_type"], "count": r["count"]} for r in by_type
@@ -116,4 +202,14 @@ def get_user_stats(user_id: int) -> dict:
                 for r in session_rows
             ],
         },
+        "skills": skills,
+        "portfolio": [
+            {
+                "id": r["id"],
+                "title": r["title"],
+                "doc_type": r["doc_type"],
+                "updated_at": r["updated_at"],
+            }
+            for r in portfolio
+        ],
     }

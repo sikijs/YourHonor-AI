@@ -123,6 +123,19 @@ def _match_local(raw: str) -> Optional[dict]:
     return best[1] if best else None
 
 
+def format_landmark_case(case_name: str) -> Optional[BluebookEntry]:
+    """Public wrapper around the local deterministic Bluebook pass.
+
+    Returns the correctly formatted Bluebook citation for one of the 70
+    landmark cases (zero LLM) — used by the dashboard's Citation Drill of the
+    Day — or None if the case is not in the local library.
+    """
+    for case in LOCAL_CASES.values():
+        if case["name"] == case_name:
+            return _local_entry(case["name"], case)
+    return None
+
+
 def _to_markdown(entries: list[BluebookEntry], general_notes: str) -> str:
     parts = ["# Bluebook Citations", ""]
     for i, entry in enumerate(entries, 1):

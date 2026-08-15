@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -35,10 +37,25 @@ class TutorSessionStats(BaseModel):
     per_topic: list[TutorSessionTopic] = []
 
 
+class SkillStat(BaseModel):
+    skill_id: str
+    name: str
+    description: str
+    count: int
+
+
+class PortfolioItem(BaseModel):
+    id: int
+    title: str
+    doc_type: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
 class StatsResponse(BaseModel):
-    account_age_days: int
     documents_total: int
     documents_by_type: list[DocTypeCount] = []
     notes_total: int
     tutor_review: TutorReviewStats
     tutor_sessions: TutorSessionStats = Field(default_factory=TutorSessionStats)
+    skills: list[SkillStat] = []
+    portfolio: list[PortfolioItem] = []

@@ -45,6 +45,19 @@ def _insert_session(user_id, topic_id, mode, correct, wrong, total):
         conn.close()
 
 
+def _insert_doc_with_file(user_id, title, doc_type, file_type="pdf"):
+    conn = db.get_db()
+    try:
+        conn.execute(
+            "INSERT INTO documents (user_id, title, content, doc_type, file_type) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, title, "# body", doc_type, file_type),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def test_stats_requires_auth(client):
     resp = client.get("/api/stats/me")
     assert resp.status_code == 401
@@ -54,7 +67,6 @@ def test_stats_empty_state(client, auth_headers):
     resp = client.get("/api/stats/me", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    assert data["account_age_days"] == 0
     assert data["documents_total"] == 0
     assert data["documents_by_type"] == []
     assert data["notes_total"] == 0
@@ -70,6 +82,15 @@ def test_stats_empty_state(client, auth_headers):
         "accuracy": 0,
         "per_topic": [],
     }
+    assert data["skills"] == [
+        {"skill_id": "research", "name": "Legal Research", "description": "Case summaries, statute analyses, and uploaded materials", "count": 0},
+        {"skill_id": "drafting", "name": "Legal Drafting", "description": "Case briefs, memoranda, arguments, and generated documents", "count": 0},
+        {"skill_id": "citation", "name": "Citation Skills", "description": "Citation maps and Bluebook formatting", "count": 0},
+        {"skill_id": "analysis", "name": "Case Analysis", "description": "Case comparisons and debate analyses", "count": 0},
+        {"skill_id": "issue_spotting", "name": "Issue Spotting", "description": "Issue-spotter analyses and tutor practice saves", "count": 0},
+        {"skill_id": "doctrine", "name": "Doctrine Knowledge", "description": "Tutor answers and review-mastery marks", "count": 0},
+    ]
+    assert data["portfolio"] == []
 
 
 def test_stats_documents_breakdown(client, auth_headers):
@@ -141,22 +162,6 @@ def test_stats_tutor_sessions(client, auth_headers):
     ]
 
 
-def test_stats_account_age_days(client, auth_headers):
-    user_id = _user_id()
-    conn = db.get_db()
-    try:
-        conn.execute(
-            "UPDATE users SET created_at = datetime('now', '-5 days') WHERE id = ?",
-            (user_id,),
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    resp = client.get("/api/stats/me", headers=auth_headers)
-    assert resp.json()["account_age_days"] == 5
-
-
 def test_stats_ignores_other_users(client, auth_headers):
     _create_document(client, auth_headers, "Mine", "case_summary")
     _mark_review(client, auth_headers, "Q1", "contracts", False)
@@ -184,3 +189,57 @@ def test_stats_ignores_other_users(client, auth_headers):
     assert data["tutor_review"]["weak"] == 1
     assert data["tutor_sessions"]["total_sessions"] == 1
     assert data["tutor_sessions"]["per_topic"][0]["topic_id"] == "contracts"
+
+
+def _skill_count(data, skill_id):
+    return next(s["count"] for s in data["skills"] if s["skill_id"] == skill_id)
+
+
+def test_stats_skills_mapping(client, auth_headers):
+    _create_document(client, auth_headers, "Brief", "case_brief")
+    _create_document(client, auth_headers, "Memo", "memorandum")
+    _create_document(client, auth_headers, "Summary", "case_summary")
+    _create_document(client, auth_headers, "Generated", "generated_document")
+    _create_document(client, auth_headers, "CitMap", "citation_map")
+    _create_document(client, auth_headers, "Bluebook", "bluebook_citations")
+    _create_document(client, auth_headers, "Compare", "case_comparison")
+    _create_document(client, auth_headers, "Debate", "debate")
+    _create_document(client, auth_headers, "Spotter", "issue_spotter")
+    _create_document(client, auth_headers, "Practice", "other")
+    _mark_review(client, auth_headers, "Q1", "contracts", True)
+    _insert_session(_user_id(), "contracts", "curriculum", 6, 4, 10)
+
+    resp = client.get("/api/stats/me", headers=auth_headers)
+    data = resp.json()
+    assert _skill_count(data, "research") == 1
+    assert _skill_count(data, "drafting") == 3
+    assert _skill_count(data, "citation") == 2
+    assert _skill_count(data, "analysis") == 2
+    assert _skill_count(data, "issue_spotting") == 2
+    # 10 session answers + 1 review mark = 11 doctrine activities.
+    assert _skill_count(data, "doctrine") == 11
+
+
+def test_stats_skills_uploads_count_as_research(client, auth_headers):
+    _insert_doc_with_file(_user_id(), "Uploaded Brief", "case_brief", "pdf")
+    _insert_doc_with_file(_user_id(), "Uploaded Doc", None, "pdf")
+
+    resp = client.get("/api/stats/me", headers=auth_headers)
+    data = resp.json()
+    assert _skill_count(data, "research") == 2
+    assert _skill_count(data, "drafting") == 0
+
+
+def test_stats_portfolio_lists_most_recent(client, auth_headers):
+    for i in range(8):
+        _create_document(client, auth_headers, f"Doc {i}", "case_summary")
+
+    resp = client.get("/api/stats/me", headers=auth_headers)
+    portfolio = resp.json()["portfolio"]
+    assert len(portfolio) == 6
+    assert portfolio[0]["title"] == "Doc 7"
+    assert portfolio[-1]["title"] == "Doc 2"
+    for item in portfolio:
+        assert item["id"]
+        assert item["doc_type"] == "case_summary"
+        assert item["updated_at"]

@@ -70,6 +70,7 @@ jest.mock('@/lib/api', () => {
         delete: mockFn,
       },
       stats: { me: jest.fn() },
+      dashboard: { today: jest.fn() },
       health: mockFn,
     },
   };
@@ -83,12 +84,22 @@ const mockAuthMe = api.auth.me;
 const AUTHD_USER = { id: 1, email: 'test@example.com', created_at: '2026-01-01T00:00:00Z' };
 
 const MOCK_STATS = {
-  account_age_days: 3,
   documents_total: 2,
-  documents_by_type: [{ type: 'case_brief', count: 2 }],
+  documents_by_type: [{ doc_type: 'case_brief', count: 2 }],
   notes_total: 1,
   tutor_review: { total_reviewed: 0, mastered: 0, weak: 0, weak_topics: [] },
   tutor_sessions: { total_sessions: 0, total_answers: 0, accuracy: 0, per_topic: [] },
+  skills: [],
+  portfolio: [],
+};
+
+const MOCK_TODAY = {
+  case_of_the_day: { case_name: 'Marbury v. Madison', citation: '5 U.S. 137', year: 1803, date_filed: null },
+  citation_drill: { raw: '5 U.S. 137', formatted: 'Marbury v. Madison, 5 U.S. 137 (1803)', case_name: 'Marbury v. Madison', year: 1803, rules_applied: [], notes: '' },
+  term_of_the_day: { term: 'actus reus', definition: 'The physical act of a crime.', related_terms: [] },
+  question_of_the_day: { question: 'What is consideration?', topic_id: 'contracts', topic_name: 'Contracts', difficulty: 2 },
+  issue_prompt_of_the_day: { prompt: 'Spot the issues.', case_name: 'Marbury v. Madison' },
+  suggested_focus: null,
 };
 
 describe('Home page', () => {
@@ -126,6 +137,7 @@ describe('Home page', () => {
   it('updates the URL hash when navigating via nav links', async () => {
     mockAuthMe.mockResolvedValue(AUTHD_USER);
     api.stats.me.mockResolvedValue(MOCK_STATS);
+    api.dashboard.today.mockResolvedValue(MOCK_TODAY);
     const user = userEvent.setup();
 
     render(<Home />);
@@ -143,6 +155,7 @@ describe('Home page', () => {
   it('navigates between views via browser hash changes', async () => {
     mockAuthMe.mockResolvedValue(AUTHD_USER);
     api.stats.me.mockResolvedValue(MOCK_STATS);
+    api.dashboard.today.mockResolvedValue(MOCK_TODAY);
 
     render(<Home />);
 

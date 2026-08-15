@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, api, UserStats } from '@/lib/api';
+import { User, api, UserStats, DashboardToday } from '@/lib/api';
 import { friendlyDocType } from '@/lib/docTypes';
 import ReviewQueueView from '@/components/ReviewQueueView';
+import TodayPracticePanel from '@/components/TodayPracticePanel';
 
 export default function DashboardView({
   user,
@@ -12,9 +13,10 @@ export default function DashboardView({
 }: {
   user: User;
   onError: (err: string) => void;
-  onNavigate: (view: string) => void;
+  onNavigate: (view: string, q?: string) => void;
 }) {
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [today, setToday] = useState<DashboardToday | null>(null);
   const [loading, setLoading] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewTopic, setReviewTopic] = useState<string | null>(null);
@@ -23,8 +25,9 @@ export default function DashboardView({
 
   async function loadStats() {
     try {
-      const data = await api.stats.me();
-      setStats(data);
+      const [statsData, todayData] = await Promise.all([api.stats.me(), api.dashboard.today()]);
+      setStats(statsData);
+      setToday(todayData);
     } catch (err: any) {
       onError(err.message);
     } finally {
@@ -82,9 +85,31 @@ export default function DashboardView({
   const sessions = stats.tutor_sessions;
   const sessionsPct = Math.round(sessions.accuracy * 100);
 
+  const maxSkill = Math.max(...stats.skills.map((s) => s.count), 1);
+  const weakestSkill = stats.skills.length > 0
+    ? stats.skills.reduce((a, b) => (b.count < a.count ? b : a))
+    : null;
+
+  function relativeDate(iso: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso + 'Z');
+    const now = new Date();
+    const days = Math.floor((now.getTime() - d.getTime()) / 86400000);
+    if (days <= 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days} days ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
   return (
     <div>
       <h2 style={{ color: 'var(--dark-navy)', margin: '0 0 1rem 0' }}>Study Dashboard</h2>
+
+      <TodayPracticePanel
+        today={today}
+        onNavigate={onNavigate}
+        onOpenReview={(topicId) => { setReviewTopic(topicId ?? null); setReviewOpen(true); }}
+      />
 
       <div className="dashboard-overview">
         <div className="card stat-card">
@@ -106,15 +131,6 @@ export default function DashboardView({
           <p className="stat-label">Tutor Sessions</p>
           <p className="stat-value">{sessions.total_sessions}</p>
           <p className="stat-sub">completed live sessions</p>
-        </div>
-        <div className="card stat-card">
-          <p className="stat-label">Account Age</p>
-          <p className="stat-value">{stats.account_age_days < 1 ? 'New' : stats.account_age_days}</p>
-          <p className="stat-sub">
-            {stats.account_age_days < 1
-              ? 'account — welcome!'
-              : `day${stats.account_age_days === 1 ? '' : 's'} on YourHonor AI`}
-          </p>
         </div>
       </div>
 
@@ -230,6 +246,72 @@ export default function DashboardView({
               </div>
             </>
           )}
+        </div>
+      <div className="card" style={{ padding: '1.25rem 1.5rem' }}>
+          <h3 style={{ color: 'var(--dark-navy)', margin: '0 0 1rem 0', fontSize: '1.05rem' }}>Skills &amp; Competencies</h3>
+          {stats.skills.every((s) => s.count === 0) ? (
+            <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+              Your skills build as you work. Save a document, finish a tutor session, or format a citation to get started.
+            </p>
+          ) : (
+            <>
+              {stats.skills.map((s) => (
+                <div key={s.skill_id} style={{ marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--dark-navy)' }} title={s.description}>{s.name}</span>
+                    <span style={{ color: 'var(--gray-text)' }}>{s.count}</span>
+                  </div>
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{ width: `${Math.round((s.count / maxSkill) * 100)}%`, background: 'var(--purple-secondary)' }} />
+                  </div>
+                </div>
+              ))}
+              {weakestSkill && weakestSkill.count > 0 && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                  Where to focus: <strong style={{ color: 'var(--dark-navy)' }}>{weakestSkill.name}</strong>
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="card" style={{ padding: '1.25rem 1.5rem', marginTop: '1rem' }}>
+        <h3 style={{ color: 'var(--dark-navy)', margin: '0 0 0.75rem 0', fontSize: '1.05rem' }}>Your Work Portfolio</h3>
+        {stats.portfolio.length === 0 ? (
+          <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+            No work product yet. Draft a case brief, generate a memorandum, or format citations to build your portfolio.
+          </p>
+        ) : (
+          <>
+            {stats.portfolio.map((item) => (
+              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #eee', gap: '1rem' }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ margin: 0, fontWeight: 600, color: 'var(--dark-navy)', fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</p>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                    {friendlyDocType(item.doc_type)} · {relativeDate(item.updated_at)}
+                  </p>
+                </div>
+                <button className="btn btn-outline" onClick={() => onNavigate('documents')} style={{ whiteSpace: 'nowrap', padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}>
+                  Open
+                </button>
+              </div>
+            ))}
+            <button className="btn btn-outline" onClick={() => onNavigate('documents')} style={{ marginTop: '0.75rem' }}>
+              View all documents
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className="card" style={{ padding: '1rem 1.5rem', marginTop: '1rem', background: '#f8f9fa' }}>
+        <h3 style={{ color: 'var(--dark-navy)', margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Quick Actions</h3>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" onClick={() => onNavigate('briefs')}>New Case Brief</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('citations')}>Cite-Check Text</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('issuespotter')}>Issue Spotter</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('doctrines')}>Compare Cases</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('tutor')}>Tutor Practice</button>
         </div>
       </div>
 

@@ -335,6 +335,10 @@ export const api = {
   stats: {
     me: () => fetchApi<UserStats>('/api/stats/me'),
   },
+
+  dashboard: {
+    today: () => fetchApi<DashboardToday>('/api/dashboard/today'),
+  },
 };
 
 export interface DoctrineCaseNode {
@@ -655,13 +659,65 @@ export interface TutorSessionStats {
   per_topic: TutorSessionTopic[];
 }
 
+export interface SkillStat {
+  skill_id: string;
+  name: string;
+  description: string;
+  count: number;
+}
+
+export interface PortfolioItem {
+  id: number;
+  title: string;
+  doc_type: string | null;
+  updated_at: string | null;
+}
+
 export interface UserStats {
-  account_age_days: number;
   documents_total: number;
   documents_by_type: DocTypeCount[];
   notes_total: number;
   tutor_review: TutorReviewStats;
   tutor_sessions: TutorSessionStats;
+  skills: SkillStat[];
+  portfolio: PortfolioItem[];
+}
+
+export interface DashboardToday {
+  case_of_the_day: {
+    case_name: string;
+    citation: string;
+    year: number | null;
+    date_filed: string | null;
+  };
+  citation_drill: {
+    raw: string;
+    formatted: string;
+    case_name: string;
+    year: number | null;
+    rules_applied: string[];
+    notes: string;
+  };
+  term_of_the_day: {
+    term: string;
+    definition: string;
+    related_terms: string[];
+  };
+  question_of_the_day: {
+    question: string;
+    topic_id: string;
+    topic_name: string;
+    difficulty: number;
+  };
+  issue_prompt_of_the_day: {
+    prompt: string;
+    case_name: string;
+  };
+  suggested_focus: {
+    topic_id: string;
+    topic_name: string;
+    weak_count: number;
+  } | null;
 }
 
 export interface GlossaryResponse {
