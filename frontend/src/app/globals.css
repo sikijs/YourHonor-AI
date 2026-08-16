@@ -398,6 +398,42 @@ h1, h2, h3 {
   color: var(--gray-text);
 }
 
+/* Icon chips — 44px tinted circles holding 22px inline SVG icons */
+.icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  margin: 0 0 0.6rem 0;
+  flex-shrink: 0;
+}
+
+.icon-chip--center {
+  margin: 0 auto 0.6rem auto;
+}
+
+.icon-chip--blue {
+  background: #e8f4fb;
+  color: var(--blue-primary);
+}
+
+.icon-chip--purple {
+  background: #f3e8ff;
+  color: var(--purple-secondary);
+}
+
+.icon-chip--yellow {
+  background: #fff8dc;
+  color: #b8860b;
+}
+
+.icon-chip--navy {
+  background: #eef1f7;
+  color: var(--dark-navy);
+}
+
 .progress-track {
   height: 8px;
   border-radius: 4px;

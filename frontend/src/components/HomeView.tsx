@@ -4,6 +4,17 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { User, api } from '@/lib/api';
 import { markdownComponents } from '@/components/markdownComponents';
+import {
+  IconPen,
+  IconChartBar,
+  IconLink,
+  IconScales,
+  IconBook,
+  IconCap,
+  IconLandmark,
+  IconFolder,
+  IconBookOpen,
+} from '@/components/icons';
 
 type NavigateFn = (view: string) => void;
 
@@ -203,38 +214,47 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
       <div className="features-wrapper">
       <div className="features">
         <div className="card feature-card" onClick={() => onNavigate(user ? 'drafting' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconPen /></div>
           <h3>Legal Drafting</h3>
           <p>Generate case briefs, legal summaries, argument analysis, and IRAC memoranda</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'dashboard' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--navy icon-chip--center"><IconChartBar /></div>
           <h3>Study Dashboard</h3>
           <p>Track your documents, notes, and review queue in one overview</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'citations' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconLink /></div>
           <h3>Citation Maps</h3>
           <p>Map cited authorities, statutes, and constitutional provisions — and reformat raw citations to Bluebook style</p>
         </div>
                 <div className="card feature-card" onClick={() => onNavigate(user ? 'debate' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+                  <div className="icon-chip icon-chip--blue icon-chip--center"><IconScales /></div>
                   <h3>Debate Analysis</h3>
                   <p>Generate structured pro/con arguments and counter-rebuttals for any legal position</p>
                 </div>
                 <div className="card feature-card" onClick={() => onNavigate(user ? 'glossary' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+                  <div className="icon-chip icon-chip--blue icon-chip--center"><IconBook /></div>
                   <h3>Legal Glossary</h3>
                   <p>Look up legal terms with definitions, etymologies, and usage examples</p>
                 </div>
                 <div className="card feature-card" onClick={() => onNavigate(user ? 'tutor' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--purple icon-chip--center"><IconCap /></div>
           <h3>AI Tutor</h3>
           <p>Learn legal concepts through Socratic dialogue with adaptive AI tutoring</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate('doctrines')} style={{ cursor: 'pointer' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconLandmark /></div>
           <h3>Doctrine Explorer</h3>
           <p>Browse 70 landmark cases across 30+ doctrines with an interactive timeline</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'documents' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconFolder /></div>
           <h3>Document Management</h3>
           <p>Create new legal documents from templates and manage your saved documents</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'resources' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconBookOpen /></div>
           <h3>Resources</h3>
           <p>Explore legal tech tools, AI fundamentals, and curated learning materials</p>
         </div>

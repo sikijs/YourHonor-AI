@@ -5,6 +5,16 @@ import { User, api, UserStats, DashboardToday } from '@/lib/api';
 import { friendlyDocType } from '@/lib/docTypes';
 import ReviewQueueView from '@/components/ReviewQueueView';
 import TodayPracticePanel from '@/components/TodayPracticePanel';
+import {
+  IconFile,
+  IconPencil,
+  IconRefresh,
+  IconChat,
+  IconFilePlus,
+  IconCheckCircle,
+  IconSearch,
+  IconColumns,
+} from '@/components/icons';
 
 export default function DashboardView({
   user,
@@ -113,21 +123,25 @@ export default function DashboardView({
 
       <div className="dashboard-overview">
         <div className="card stat-card">
+          <div className="icon-chip icon-chip--navy icon-chip--center"><IconFile /></div>
           <p className="stat-label">Documents</p>
           <p className="stat-value">{stats.documents_total}</p>
           <p className="stat-sub">saved and uploaded</p>
         </div>
         <div className="card stat-card">
+          <div className="icon-chip icon-chip--navy icon-chip--center"><IconPencil /></div>
           <p className="stat-label">Notes</p>
           <p className="stat-value">{stats.notes_total}</p>
           <p className="stat-sub">in your scratch pad</p>
         </div>
         <div className="card stat-card">
+          <div className="icon-chip icon-chip--navy icon-chip--center"><IconRefresh /></div>
           <p className="stat-label">Review Queue</p>
           <p className="stat-value">{review.weak}</p>
           <p className="stat-sub">cards to restudy</p>
         </div>
         <div className="card stat-card">
+          <div className="icon-chip icon-chip--navy icon-chip--center"><IconChat /></div>
           <p className="stat-label">Tutor Sessions</p>
           <p className="stat-value">{sessions.total_sessions}</p>
           <p className="stat-sub">completed live sessions</p>
@@ -307,11 +321,11 @@ export default function DashboardView({
       <div className="card" style={{ padding: '1rem 1.5rem', marginTop: '1rem', background: '#f8f9fa' }}>
         <h3 style={{ color: 'var(--dark-navy)', margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Quick Actions</h3>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={() => onNavigate('briefs')}>New Case Brief</button>
-          <button className="btn btn-outline" onClick={() => onNavigate('citations')}>Cite-Check Text</button>
-          <button className="btn btn-outline" onClick={() => onNavigate('issuespotter')}>Issue Spotter</button>
-          <button className="btn btn-outline" onClick={() => onNavigate('doctrines')}>Compare Cases</button>
-          <button className="btn btn-outline" onClick={() => onNavigate('tutor')}>Tutor Practice</button>
+          <button className="btn btn-primary" onClick={() => onNavigate('briefs')}><IconFilePlus size={16} /> New Case Brief</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('citations')}><IconCheckCircle size={16} /> Cite-Check Text</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('issuespotter')}><IconSearch size={16} /> Issue Spotter</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('doctrines')}><IconColumns size={16} /> Compare Cases</button>
+          <button className="btn btn-outline" onClick={() => onNavigate('tutor')}><IconChat size={16} /> Tutor Practice</button>
         </div>
       </div>
 

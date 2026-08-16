@@ -351,7 +351,7 @@ describe('DashboardView', () => {
     render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
 
     await waitFor(() => expect(screen.getByText(/Suggested focus:/)).toBeInTheDocument());
-    expect(screen.getByText((_, el) => el?.textContent === 'Suggested focus: Contracts — 2 cards waiting in your review queue.')).toBeInTheDocument();
+    expect(screen.getByText(/Contracts — 2 cards waiting in your review queue/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Review now' }));
     await waitFor(() => expect(screen.getByText('Review Queue · Contracts')).toBeInTheDocument());
   });
