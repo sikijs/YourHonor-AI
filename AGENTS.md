@@ -196,6 +196,7 @@ Backend available at http://localhost:8000
 ### Chat
 - GET /api/chat/greeting - Get AI greeting
 - POST /api/chat/message - Send chat message with optional conversation history and get AI response
+- Chat source fallback (when RAG retrieves <3 docs): CourtListener opinion search first (up to 3 results, canonical slugged opinion URLs from the API's `absolute_url`), plus up to 3 DuckDuckGo web results (up to 5 when CourtListener finds nothing). Web sources are labeled by their real site name (Britannica, Wikipedia, ...) in the Sources panel, with links pointing at the site itself; CourtListener/seed/RAG sources link to CourtListener.
 
 ### Tutor
 - GET  /api/tutor/topics             - List available topics with question counts

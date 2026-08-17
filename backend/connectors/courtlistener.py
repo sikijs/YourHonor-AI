@@ -28,7 +28,7 @@ def opinion_url(opinion_id: Optional[int]) -> Optional[str]:
 
 def cluster_url(cluster_id: Optional[int]) -> Optional[str]:
     if cluster_id:
-        return f"https://www.courtlistener.com/opinion/{cluster_id}/"
+        return f"https://www.courtlistener.com/cluster/{cluster_id}/"
     return None
 
 _cache: dict[str, dict] = {}
@@ -193,6 +193,7 @@ def search_opinions(
             "snippet": result.get("syllabus", "") or result.get("snippet", ""),
             "score": result.get("score", 0),
             "source": "courtlistener",
+            "url": f"https://www.courtlistener.com{result['absolute_url']}" if result.get("absolute_url") else None,
         })
     return results
 

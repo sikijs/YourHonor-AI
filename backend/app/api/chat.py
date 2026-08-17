@@ -33,11 +33,13 @@ class SourceInfo(BaseModel):
     title: str
     source: str
     relevance_score: float
+    url: Optional[str] = None
 
 
 class ChatMessageResponse(BaseModel):
     response: str
     sources: list[SourceInfo]
+    source_docs: list[dict] = []
     retrieval_count: int
     suggested_tool: Optional[str] = None
     suggested_name: Optional[str] = None

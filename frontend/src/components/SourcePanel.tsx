@@ -24,7 +24,8 @@ export default function SourcePanel({ sources, sourcesConsulted }: {
       {hasSources && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: hasConsulted ? '0.75rem' : 0 }}>
           {sources.map((s, i) => {
-            const badge = getBadge(s.source_type);
+            const badge = getBadge(s.source_type, s.url);
+            const isCourtListener = ['courtlistener', 'courtlistener_ingested', 'seed'].includes(s.source_type) || (s.url && s.url.includes('courtlistener.com'));
             return (
               <div key={i} style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -34,7 +35,7 @@ export default function SourcePanel({ sources, sourcesConsulted }: {
                   </span>
                   {s.url && (
                     <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--blue-primary)', textDecoration: 'none' }}>
-                      View on CourtListener ↗
+                      {isCourtListener ? 'View on CourtListener ↗' : `View on ${badge.label} ↗`}
                     </a>
                   )}
                 </div>

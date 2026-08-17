@@ -7,11 +7,42 @@ from bs4 import BeautifulSoup
 
 from .template_catalog import get_template_catalog
 from app.services.llm_errors import friendly_llm_error, CREDITS_MESSAGE
-from app.models.source import from_rag_results, from_web_search
+from app.models.source import SourceDocument, from_rag_results, from_web_search, from_courtlistener_case
 
 logger = logging.getLogger(__name__)
 
 MODEL = "openrouter/qwen/qwen3-14b"
+
+
+def _normalize_web_url(href: str) -> str:
+    """Turn a DuckDuckGo Lite URL cell into an absolute https URL.
+
+    DDG Lite shows the destination as scheme-less visible text (e.g.
+    "en.wikipedia.org/wiki/X") or as its own redirect link
+    ("//duckduckgo.com/l/?uddg=..."). A scheme-less string is a relative
+    URL in a browser and would open the app itself, so it must be
+    absolutized here.
+    """
+    href = href.strip()
+    if not href:
+        return ""
+    href = href.split()[0]
+    if href.startswith("//duckduckgo.com/l/"):
+        try:
+            import base64
+            from urllib.parse import parse_qs, urlparse
+            params = parse_qs(urlparse("https:" + href).query)
+            target = base64.urlsafe_b64decode(params.get("uddg", [""])[0]).decode("utf-8", "ignore")
+            if target.startswith(("http://", "https://")):
+                return target
+        except Exception:
+            pass
+        return "https:" + href
+    if href.startswith("//"):
+        return "https:" + href
+    if not href.startswith(("http://", "https://")):
+        return "https://" + href
+    return href
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 
 TOOL_REGISTRY = {
@@ -137,7 +168,7 @@ class ChatService:
                         if i + 2 < len(result_rows):
                             url_tds = result_rows[i + 2].find_all("td")
                             if len(url_tds) >= 2:
-                                href = url_tds[1].get_text(separator=" ", strip=True)
+                                href = _normalize_web_url(url_tds[1].get_text(separator=" ", strip=True))
                         if title:
                             results.append({
                                 "title": title,
@@ -152,6 +183,72 @@ class ChatService:
         except Exception as e:
             logger.warning(f"DuckDuckGo search failed: {e}")
             return []
+
+    def _courtlistener_search(self, query: str, max_results: int = 5) -> list[dict]:
+        """Search CourtListener for primary legal sources (works anonymously).
+
+        Returns the raw search result dicts (case_name, citation, court,
+        date_filed, cluster_id, opinion_id, snippet, score), or an empty
+        list when the search fails or returns no real cases.
+        """
+        try:
+            from connectors.courtlistener import search_opinions
+            results = search_opinions(query, page_size=max_results)
+        except Exception as e:
+            logger.warning(f"CourtListener search failed: {e}")
+            return []
+        return [r for r in results if r.get("source") != "courtlistener_error" and r.get("case_name")]
+
+    @staticmethod
+    def _courtlistener_context_block(results: list[dict]) -> list[dict]:
+        """Convert CourtListener search results into retrieved-doc shaped dicts."""
+        docs = []
+        for r in results:
+            parts = [f"Case: {r['case_name']}"]
+            if r.get("citation"):
+                parts.append(f"Citation: {', '.join(r['citation'])}")
+            if r.get("court"):
+                parts.append(f"Court: {r['court']}")
+            if r.get("date_filed"):
+                parts.append(f"Date: {r['date_filed']}")
+            if r.get("snippet"):
+                parts.append(f"Syllabus: {r['snippet'][:2000]}")
+            docs.append({
+                "title": r["case_name"],
+                "content": "\n".join(parts),
+                "source": "courtlistener",
+                "score": float(r.get("score") or 0.0),
+            })
+        return docs
+
+    def _fallback_sources(self, query: str, retrieved_docs: list[dict]) -> list[dict]:
+        """Supplement thin RAG retrievals with primary legal sources.
+
+        CourtListener search results are preferred over generic web pages
+        (Wikipedia, Britannica, ...), but a few web results are kept too —
+        they are often informative for general legal questions. DuckDuckGo
+        supplies up to 5 results only when CourtListener finds nothing.
+        """
+        cl_results = self._courtlistener_search(query, max_results=3)
+        sources: list[SourceDocument] = []
+        if cl_results:
+            retrieved_docs.extend(self._courtlistener_context_block(cl_results))
+            for r in cl_results:
+                for s in from_courtlistener_case(r):
+                    s.relevance_score = float(r.get("score") or 0.0)
+                    sources.append(s)
+            web_results = self._web_search(query, max_results=3)
+        else:
+            web_results = self._web_search(query, max_results=5)
+        for r in web_results:
+            retrieved_docs.append({
+                "title": r["title"],
+                "content": f"{r['body']}\n\n(source: web — {r['href']})",
+                "source": "web",
+                "score": 0.0,
+            })
+        sources = sources + from_web_search(web_results)
+        return sources
 
     def _build_system_prompt(self, context: list[dict] | None = None) -> str:
         catalog = get_template_catalog()
@@ -211,13 +308,10 @@ class ChatService:
         ]
 
         if len(retrieved_docs) < 3:
-            web_results = self._web_search(user_message)
-            for r in web_results:
-                retrieved_docs.append({"title": r["title"], "content": f"{r['body']}\n\n(source: web — {r['href']})", "source": "web", "score": 0.0})
-            web_sources = from_web_search(web_results)
-            for ws in web_sources:
-                sources.append(ws)
-                sources_flat.append({"title": ws.title, "source": ws.source_type, "relevance_score": ws.relevance_score or 0.0, "url": ws.url})
+            fallback_sources = self._fallback_sources(user_message, retrieved_docs)
+            for s in fallback_sources:
+                sources.append(s)
+                sources_flat.append({"title": s.title, "source": s.source_type, "relevance_score": s.relevance_score or 0.0, "url": s.url})
 
         suggestion = self._suggest_tool(user_message)
 
@@ -268,26 +362,17 @@ class ChatService:
             for s in source_docs
         ]
 
-        web_results = []
+        fallback_sources: list[SourceDocument] = []
         if len(retrieved_docs) < 3:
-            web_results = self._web_search(user_message)
-            if web_results:
-                for r in web_results:
-                    retrieved_docs.append({
-                        "title": r["title"],
-                        "content": f"{r['body']}\n\n(source: web — {r['href']})",
-                        "source": "web",
-                        "score": 0.0,
-                    })
-                web_sources = from_web_search(web_results)
-                for ws in web_sources:
-                    source_docs.append(ws)
-                    sources.append({
-                        "title": ws.title,
-                        "source": ws.source_type,
-                        "relevance_score": ws.relevance_score or 0.0,
-                        "url": ws.url,
-                    })
+            fallback_sources = self._fallback_sources(user_message, retrieved_docs)
+            for s in fallback_sources:
+                source_docs.append(s)
+                sources.append({
+                    "title": s.title,
+                    "source": s.source_type,
+                    "relevance_score": s.relevance_score or 0.0,
+                    "url": s.url,
+                })
 
         suggestion = self._suggest_tool(user_message)
 

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from urllib.parse import quote
 
 
 class SourceDocument(BaseModel):
@@ -12,11 +13,13 @@ class SourceDocument(BaseModel):
     relevance_score: Optional[float] = None
 
 
-def build_source_url(opinion_id: Optional[int], cluster_id: Optional[int]) -> Optional[str]:
+def build_source_url(opinion_id: Optional[int], cluster_id: Optional[int], title: Optional[str] = None) -> Optional[str]:
     if opinion_id:
         return f"https://www.courtlistener.com/opinion/{opinion_id}/"
     if cluster_id:
-        return f"https://www.courtlistener.com/opinion/{cluster_id}/"
+        return f"https://www.courtlistener.com/cluster/{cluster_id}/"
+    if title:
+        return f"https://www.courtlistener.com/?q={quote(title)}"
     return None
 
 
@@ -31,7 +34,7 @@ def from_rag_result(result: dict) -> Optional[SourceDocument]:
     return SourceDocument(
         title=title,
         source_type=result.get("source", "rag"),
-        url=build_source_url(opinion_id, cluster_id),
+        url=build_source_url(opinion_id, cluster_id, title),
         citation=citation_str,
         court=result.get("court"),
         date_filed=result.get("date_filed"),
@@ -58,10 +61,13 @@ def from_courtlistener_case(data: dict) -> list[SourceDocument]:
     citation_str = ", ".join(citation_list) if isinstance(citation_list, list) else str(citation_list) if citation_list else None
     if not title:
         return []
+    url = data.get("url")
+    if not url or not url.startswith(("http://", "https://")):
+        url = build_source_url(opinion_id, cluster_id, title)
     return [SourceDocument(
         title=title,
         source_type="courtlistener",
-        url=build_source_url(opinion_id, cluster_id),
+        url=url,
         citation=citation_str,
         court=data.get("court"),
         date_filed=data.get("date_filed"),
@@ -88,6 +94,6 @@ def from_web_search(results: list[dict]) -> list[SourceDocument]:
                 title=title,
                 source_type="web",
                 url=r.get("href"),
-                relevance_score=r.get("relevance_score", 0.0),
+                relevance_score=r.get("relevance_score"),
             ))
     return sources

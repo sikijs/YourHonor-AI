@@ -19,6 +19,7 @@ def test_chat_message_returns_response(client, auth_headers):
     data = resp.json()
     assert "response" in data
     assert "sources" in data
+    assert "source_docs" in data
     assert "retrieval_count" in data
 
 
@@ -91,3 +92,64 @@ def test_web_search_http_error_returns_empty_list():
     with patch("httpx.Client.post", side_effect=Exception("Connection error")):
         results = service._web_search("test")
     assert results == []
+
+
+def _stream_meta(service, message):
+    import json
+    from unittest.mock import MagicMock
+    service.retrieval_service = MagicMock()
+    service.retrieval_service.retrieve.return_value = []
+    gen = service.generate_response_stream(message)
+    return json.loads(next(gen).split("data: ", 1)[1])
+
+
+def test_fallback_includes_courtlistener_and_web():
+    import json
+    from unittest.mock import MagicMock, patch
+    from app.services.chat import ChatService
+
+    service = ChatService()
+    cl_results = [{
+        "case_name": "Rasul v. Bush",
+        "court": "scotus",
+        "court_id": "scotus",
+        "date_filed": "2004-06-28",
+        "cluster_id": 12345,
+        "opinion_id": None,
+        "citation": ["542 U.S. 466"],
+        "snippet": "Detainees may challenge their detention via habeas corpus.",
+        "score": 12.5,
+        "source": "courtlistener",
+        "url": "https://www.courtlistener.com/opinion/12345/rasul-v-bush/",
+    }]
+    with patch.object(service, "_courtlistener_search", return_value=cl_results) as mock_cl, \
+         patch.object(service, "_web_search", return_value=[{"title": "Britannica", "href": "https://www.britannica.com/x", "body": "y"}]) as mock_web:
+        meta = _stream_meta(service, "habeas corpus")
+
+    mock_cl.assert_called_once()
+    mock_web.assert_called_once()
+    docs = meta["source_docs"]
+    assert docs[0]["source_type"] == "courtlistener"
+    assert docs[0]["url"] == "https://www.courtlistener.com/opinion/12345/rasul-v-bush/"
+    assert docs[0]["title"] == "Rasul v. Bush"
+    assert docs[0]["relevance_score"] == 12.5
+    assert docs[1]["source_type"] == "web"
+    assert docs[1]["url"] == "https://www.britannica.com/x"
+    assert docs[1]["relevance_score"] is None
+    assert meta["retrieval_count"] == 2
+
+
+def test_fallback_uses_web_when_courtlistener_empty():
+    import json
+    from unittest.mock import MagicMock, patch
+    from app.services.chat import ChatService
+
+    service = ChatService()
+    with patch.object(service, "_courtlistener_search", return_value=[]), \
+         patch.object(service, "_web_search", return_value=[{"title": "Wikipedia", "href": "https://en.wikipedia.org/wiki/X", "body": "abc"}]):
+        meta = _stream_meta(service, "general question")
+
+    docs = meta["source_docs"]
+    assert docs and docs[0]["source_type"] == "web"
+    assert docs[0]["url"] == "https://en.wikipedia.org/wiki/X"
+    assert docs[0]["relevance_score"] is None
