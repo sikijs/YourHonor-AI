@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DashboardToday } from '@/lib/api';
+import { api, DashboardToday, IssueAnswer, QuestionAnswer } from '@/lib/api';
 import {
   IconGavel,
   IconLink,
@@ -25,7 +25,18 @@ export default function TodayPracticePanel({
   onNavigate: NavigateFn;
   onOpenReview: (topicId?: string) => void;
 }) {
-  const [revealed, setRevealed] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [hintShown, setHintShown] = useState(false);
+  const [answerShown, setAnswerShown] = useState(false);
+  const [answerData, setAnswerData] = useState<QuestionAnswer | null>(null);
+  const [answerLoading, setAnswerLoading] = useState(false);
+  const [answerError, setAnswerError] = useState(false);
+
+  const [issueHintShown, setIssueHintShown] = useState(false);
+  const [issueShown, setIssueShown] = useState(false);
+  const [issueData, setIssueData] = useState<IssueAnswer | null>(null);
+  const [issueLoading, setIssueLoading] = useState(false);
+  const [issueError, setIssueError] = useState(false);
 
   if (!today) return null;
 
@@ -35,6 +46,51 @@ export default function TodayPracticePanel({
   const question = today.question_of_the_day;
   const prompt = today.issue_prompt_of_the_day;
   const focus = today.suggested_focus;
+  const correctIndex = drill.options.findIndex((o) => o.is_correct);
+
+  const loadAnswer = async () => {
+    setAnswerLoading(true);
+    setAnswerError(false);
+    try {
+      setAnswerData(await api.dashboard.todayAnswer());
+    } catch {
+      setAnswerError(true);
+    } finally {
+      setAnswerLoading(false);
+    }
+  };
+
+  const showHint = async () => {
+    if (!answerData) await loadAnswer();
+    if (!answerError) setHintShown(true);
+  };
+
+  const revealAnswer = async () => {
+    if (!answerData) await loadAnswer();
+    if (!answerError) setAnswerShown(true);
+  };
+
+  const loadIssueAnswer = async () => {
+    setIssueLoading(true);
+    setIssueError(false);
+    try {
+      setIssueData(await api.dashboard.todayIssueAnswer());
+    } catch {
+      setIssueError(true);
+    } finally {
+      setIssueLoading(false);
+    }
+  };
+
+  const showIssueHint = async () => {
+    if (!issueData) await loadIssueAnswer();
+    if (!issueError) setIssueHintShown(true);
+  };
+
+  const revealIssue = async () => {
+    if (!issueData) await loadIssueAnswer();
+    if (!issueError) setIssueShown(true);
+  };
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
@@ -52,9 +108,14 @@ export default function TodayPracticePanel({
           <p style={{ fontWeight: 700, color: 'var(--dark-navy)', margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>
             {caseDay.case_name}
           </p>
-          <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+          <p style={{ margin: '0 0 0.35rem 0', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
             {caseDay.citation}{caseDay.year ? ` (${caseDay.year})` : ''}
           </p>
+          {caseDay.case_summary && (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+              {caseDay.case_summary}
+            </p>
+          )}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={() => onNavigate('briefs', caseDay.case_name)}>
               Brief this case
@@ -63,45 +124,6 @@ export default function TodayPracticePanel({
               Summarize
             </button>
           </div>
-        </div>
-
-        <div className="card" style={{ padding: '1.25rem 1.5rem', borderTop: '3px solid var(--blue-primary)' }}>
-          <div className="icon-chip icon-chip--blue"><IconLink /></div>
-          <p className="stat-label" style={{ margin: '0 0 0.4rem 0' }}>Citation Drill</p>
-          <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', color: 'var(--dark-navy)' }}>
-            Format this citation in Bluebook style:
-          </p>
-          <p style={{
-            margin: '0 0 0.75rem 0', fontFamily: 'monospace', fontSize: '0.9rem',
-            background: '#f0f4f8', padding: '0.4rem 0.6rem', borderRadius: '6px',
-          }}>
-            {drill.raw}
-          </p>
-          {revealed ? (
-            <div style={{ marginBottom: '0.75rem' }}>
-              <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', color: '#1b7f3a', fontWeight: 600 }}>
-                Correct answer:
-              </p>
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--dark-navy)' }}>
-                {drill.formatted}
-              </p>
-              {drill.rules_applied.length > 0 && (
-                <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.8rem', color: 'var(--gray-text)' }}>
-                  {drill.rules_applied.join(' · ')}
-                </p>
-              )}
-              {drill.notes && (
-                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>{drill.notes}</p>
-              )}
-            </div>
-          ) : (
-            <button className="btn btn-outline" onClick={() => setRevealed(true)} style={{ marginBottom: '0.75rem' }}>
-              Reveal answer
-            </button>
-          )}
-          <button className="btn btn-outline" onClick={() => onNavigate('citations')}>
-            Format more citations &rarr;
-          </button>
         </div>
 
         <div className="card" style={{ padding: '1.25rem 1.5rem', borderTop: '3px solid var(--purple-secondary)' }}>
@@ -127,8 +149,94 @@ export default function TodayPracticePanel({
           <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: 'var(--gray-text)' }}>
             {question.topic_name} · difficulty {question.difficulty}/5
           </p>
+          {hintShown && answerData && (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+              Hint: {answerData.hint}
+            </p>
+          )}
+          {answerShown && answerData ? (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
+              {answerData.answer}
+            </p>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {!hintShown && (
+                <button className="btn btn-outline" onClick={showHint} disabled={answerLoading}>
+                  Show hint
+                </button>
+              )}
+              <button className="btn btn-outline" onClick={revealAnswer} disabled={answerLoading}>
+                {answerLoading ? 'Loading…' : 'Reveal answer'}
+              </button>
+            </div>
+          )}
+          {answerError && (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: '#8b0000' }}>
+              Couldn&apos;t load the answer — try again.
+            </p>
+          )}
           <button className="btn btn-secondary" onClick={() => onNavigate('tutor')}>
             Practice in the AI Tutor
+          </button>
+        </div>
+
+        <div className="card" style={{ padding: '1.25rem 1.5rem', borderTop: '3px solid var(--blue-primary)' }}>
+          <div className="icon-chip icon-chip--blue"><IconLink /></div>
+          <p className="stat-label" style={{ margin: '0 0 0.4rem 0' }}>Citation Drill</p>
+          <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', color: 'var(--dark-navy)' }}>
+            Which of these is the correct Bluebook citation for
+          </p>
+          <p style={{
+            margin: '0 0 0.75rem 0', fontFamily: 'monospace', fontSize: '0.9rem',
+            background: '#f0f4f8', padding: '0.4rem 0.6rem', borderRadius: '6px',
+          }}>
+            {drill.raw}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
+            {drill.options.map((option, i) => {
+              const answered = selected !== null;
+              const isPicked = selected === i;
+              const showCorrect = answered && option.is_correct;
+              const showWrong = answered && isPicked && !option.is_correct;
+              return (
+                <button
+                  key={`${option.text}-${i}`}
+                  className="btn"
+                  disabled={answered}
+                  onClick={() => setSelected(i)}
+                  style={{
+                    textAlign: 'left',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.4,
+                    justifyContent: 'flex-start',
+                    borderColor: showCorrect ? '#2e8b57' : showWrong ? '#c0392b' : undefined,
+                    background: showCorrect ? '#e8f5ee' : showWrong ? '#fdecea' : undefined,
+                    color: showCorrect ? '#1b5e20' : showWrong ? '#8b0000' : undefined,
+                  }}
+                >
+                  {option.text}
+                  {showCorrect && ' ✓'}
+                  {showWrong && ' ✗'}
+                </button>
+              );
+            })}
+          </div>
+          {selected !== null && (
+            <div style={{ marginBottom: '0.75rem', fontSize: '0.85rem', lineHeight: 1.5 }}>
+              <p style={{ margin: '0 0 0.4rem 0', color: selected === correctIndex ? '#1b7f3a' : '#8b0000', fontWeight: 600 }}>
+                {selected === correctIndex ? 'Correct!' : 'Not quite — try again tomorrow or study the rules below.'}
+              </p>
+              {drill.options[selected].is_correct ? (
+                <p style={{ margin: 0, color: 'var(--gray-text)' }}>{drill.options[selected].rule_note}</p>
+              ) : (
+                <p style={{ margin: 0, color: 'var(--gray-text)' }}>
+                  <em>{drill.options[selected].text}</em> — {drill.options[selected].rule_note}
+                </p>
+              )}
+            </div>
+          )}
+          <button className="btn btn-outline" onClick={() => onNavigate('citations')}>
+            Format more citations &rarr;
           </button>
         </div>
 
@@ -138,6 +246,42 @@ export default function TodayPracticePanel({
           <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
             {prompt.prompt}
           </p>
+          {issueHintShown && issueData && (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+              <strong>Hint:</strong> this case is about <strong>{issueData.subject}</strong> — specifically
+              the <strong>{issueData.doctrine_name}</strong> doctrine. {issueData.doctrine_description}{' '}
+              Look for who sued whom, what each side wanted, and which law or right is at stake.
+            </p>
+          )}
+          {issueShown && issueData ? (
+            <div style={{ margin: '0 0 0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
+                <strong>The court&apos;s issue:</strong> {issueData.issue || issueData.holding}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
+                <strong>The court&apos;s holding (in plain English):</strong> {issueData.plain_holding || issueData.holding}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+                Your sentence is the <em>question</em>; the holding is the court&apos;s <em>answer</em> to it.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {!issueHintShown && (
+                <button className="btn btn-outline" onClick={showIssueHint} disabled={issueLoading}>
+                  Show subject hint
+                </button>
+              )}
+              <button className="btn btn-outline" onClick={revealIssue} disabled={issueLoading}>
+                {issueLoading ? 'Loading…' : "Reveal the court's issue"}
+              </button>
+            </div>
+          )}
+          {issueError && (
+            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: '#8b0000' }}>
+              Couldn&apos;t load the issue — try again.
+            </p>
+          )}
           <button className="btn btn-outline" onClick={() => onNavigate('issuespotter')}>
             Try the Issue Spotter
           </button>

@@ -8,6 +8,8 @@ jest.mock('@/lib/api', () => ({
     },
     dashboard: {
       today: jest.fn(),
+      todayAnswer: jest.fn(),
+      todayIssueAnswer: jest.fn(),
     },
     tutor: {
       reviewQueue: jest.fn(),
@@ -21,6 +23,8 @@ import DashboardView from '@/components/DashboardView';
 const { api } = jest.requireMock('@/lib/api');
 const mockStatsMe = api.stats.me;
 const mockToday = api.dashboard.today;
+const mockTodayAnswer = api.dashboard.todayAnswer;
+const mockTodayIssueAnswer = api.dashboard.todayIssueAnswer;
 const mockReviewQueue = api.tutor.reviewQueue;
 const mockMarkReview = api.tutor.markReview;
 
@@ -32,14 +36,19 @@ const TODAY = {
     citation: '5 U.S. 137',
     year: 1803,
     date_filed: '1803-02-24',
+    case_summary: 'Marbury never got his judicial commission, so he sued to force the government to hand it over.',
   },
   citation_drill: {
     raw: '5 U.S. 137',
     formatted: 'Marbury v. Madison, 5 U.S. 137 (1803)',
     case_name: 'Marbury v. Madison',
     year: 1803,
-    rules_applied: ['Rule 10 (case citation)', 'Rule 10.2.1 (case names)'],
-    notes: 'Matched to a curated landmark-case library.',
+    options: [
+      { text: 'Marbury v. Madison, 5 U.S. 137', is_correct: false, rule_note: 'Wrong — the decision year is required (Rule 10.6).' },
+      { text: 'Marbury v. Madison, 5 U.S. 137 (1803)', is_correct: true, rule_note: 'Correct — full case name, "v." (Rule 10.2.1), reporter periods (Rule 10.3), year (Rule 10.6).' },
+      { text: 'Marbury vs. Madison, 5 U.S. 137 (1803)', is_correct: false, rule_note: 'Wrong — party names use "v.", never "vs." (Rule 10.2.1).' },
+      { text: 'Marbury v. Madison, 5 US 137 (1803)', is_correct: false, rule_note: 'Wrong — reporter abbreviations keep periods (Rule 10.3).' },
+    ],
   },
   term_of_the_day: {
     term: 'actus reus',
@@ -85,12 +94,12 @@ const FULL_STATS = {
     ],
   },
   skills: [
-    { skill_id: 'research', name: 'Legal Research', description: '', count: 3 },
-    { skill_id: 'drafting', name: 'Legal Drafting', description: '', count: 5 },
-    { skill_id: 'citation', name: 'Citation Skills', description: '', count: 2 },
-    { skill_id: 'analysis', name: 'Case Analysis', description: '', count: 1 },
-    { skill_id: 'issue_spotting', name: 'Issue Spotting', description: '', count: 1 },
-    { skill_id: 'doctrine', name: 'Doctrine Knowledge', description: '', count: 11 },
+    { skill_id: 'research', name: 'Legal Research', description: 'Case summaries, statute analyses, and uploaded materials', count: 3 },
+    { skill_id: 'drafting', name: 'Legal Drafting', description: 'Case briefs, memoranda, arguments, and generated documents', count: 5 },
+    { skill_id: 'citation', name: 'Citation Skills', description: 'Citation maps and Bluebook formatting', count: 2 },
+    { skill_id: 'analysis', name: 'Case Analysis', description: 'Case comparisons and debate analyses', count: 1 },
+    { skill_id: 'issue_spotting', name: 'Issue Spotting', description: 'Issue-spotter analyses and tutor practice saves', count: 1 },
+    { skill_id: 'doctrine', name: 'Doctrine Knowledge', description: 'Tutor answers and review-mastery marks', count: 11 },
   ],
   portfolio: [
     { id: 3, title: 'Memo: Negligence', doc_type: 'memorandum', updated_at: '2026-08-10 12:00:00' },
@@ -134,6 +143,23 @@ describe('DashboardView', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockToday.mockResolvedValue(TODAY);
+    mockTodayAnswer.mockResolvedValue({
+      question: 'What is consideration in contract law?',
+      topic_id: 'contracts',
+      topic_name: 'Contracts',
+      difficulty: 2,
+      hint: 'Think about bargained-for exchange.',
+      answer: 'Consideration is a bargained-for exchange of legal value.',
+    });
+    mockTodayIssueAnswer.mockResolvedValue({
+      case_name: 'Marbury v. Madison',
+      subject: 'Constitutional Law',
+      doctrine_name: 'Judicial Review',
+      doctrine_description: 'The power of courts to review laws passed by Congress against the Constitution and declare them invalid.',
+      issue: 'Does Marbury have a right to his judicial commission, and can the Supreme Court order the government to deliver it?',
+      plain_holding: 'Yes and no: the Supreme Court can review laws passed by Congress and strike them down if they conflict with the Constitution. But the part of the Judiciary Act that let Marbury sue directly in the Supreme Court was unconstitutional.',
+      holding: 'The Supreme Court has the power to review acts of Congress and declare them unconstitutional.',
+    });
   });
 
   it('renders overview stat cards', async () => {
@@ -309,6 +335,7 @@ describe('DashboardView', () => {
     await waitFor(() => expect(screen.getByText("Today's Legal Practice")).toBeInTheDocument());
     expect(screen.getByText('Case of the Day')).toBeInTheDocument();
     expect(screen.getByText('Marbury v. Madison')).toBeInTheDocument();
+    expect(screen.getByText(/Marbury never got his judicial commission/)).toBeInTheDocument();
     expect(screen.getByText('Citation Drill')).toBeInTheDocument();
     expect(screen.getByText('Term of the Day')).toBeInTheDocument();
     expect(screen.getByText('actus reus')).toBeInTheDocument();
@@ -317,17 +344,99 @@ describe('DashboardView', () => {
     expect(screen.getByText('Issue-Spotting Prompt')).toBeInTheDocument();
   });
 
-  it('reveals the Bluebook answer for the citation drill', async () => {
+  it('scores the citation drill quiz on a correct answer', async () => {
     mockStatsMe.mockResolvedValue(FULL_STATS);
     const user = userEvent.setup();
 
     render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
 
     await waitFor(() => expect(screen.getByText('Citation Drill')).toBeInTheDocument());
-    expect(screen.queryByText('Marbury v. Madison, 5 U.S. 137 (1803)')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Correct!/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Marbury v. Madison, 5 U.S. 137 (1803)' }));
+    expect(screen.getByText('Correct!')).toBeInTheDocument();
+    expect(screen.getByText(/Rule 10.2.1/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Marbury vs. Madison, 5 U.S. 137 (1803)' })).toBeDisabled();
+  });
+
+  it('scores the citation drill quiz on a wrong answer', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Citation Drill')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Marbury vs. Madison, 5 U.S. 137 (1803)' }));
+    expect(screen.getByText(/Not quite/)).toBeInTheDocument();
+    expect(screen.getByText(/never "vs\."/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Marbury v. Madison, 5 U.S. 137 (1803) ✓' })).toBeInTheDocument();
+  });
+
+  it('reveals hint and answer for the Question of the Day', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Question of the Day')).toBeInTheDocument());
+    expect(mockTodayAnswer).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Consideration is a bargained-for exchange/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show hint' }));
+    expect(screen.getByText(/Hint: Think about bargained-for exchange/)).toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: 'Reveal answer' }));
-    expect(screen.getByText('Marbury v. Madison, 5 U.S. 137 (1803)')).toBeInTheDocument();
-    expect(screen.getByText('Rule 10 (case citation) · Rule 10.2.1 (case names)')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Consideration is a bargained-for exchange of legal value.')).toBeInTheDocument());
+    expect(mockTodayAnswer).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Reveal answer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Practice in the AI Tutor' })).toBeInTheDocument();
+  });
+
+  it('shows an error message when the answer fetch fails', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    mockTodayAnswer.mockRejectedValue(new Error('network'));
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Question of the Day')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Reveal answer' }));
+    await waitFor(() => expect(screen.getByText(/Couldn't load the answer/)).toBeInTheDocument());
+  });
+
+  it('reveals subject hint and court issue for the Issue-Spotting Prompt', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Issue-Spotting Prompt')).toBeInTheDocument());
+    expect(mockTodayIssueAnswer).not.toHaveBeenCalled();
+    expect(screen.queryByText(/The court's issue/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show subject hint' }));
+    expect(screen.getByText('Constitutional Law')).toBeInTheDocument();
+    expect(screen.getByText('Judicial Review')).toBeInTheDocument();
+    expect(screen.getByText(/power of courts to review laws passed by Congress/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: "Reveal the court's issue" }));
+    await waitFor(() => expect(screen.getByText(/Does Marbury have a right to his judicial commission/)).toBeInTheDocument());
+    expect(screen.getByText(/The court's holding \(in plain English\)/)).toBeInTheDocument();
+    expect(screen.getByText(/strike them down if they conflict with the Constitution/)).toBeInTheDocument();
+    expect(mockTodayIssueAnswer).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: "Reveal the court's issue" })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Try the Issue Spotter' })).toBeInTheDocument();
+  });
+
+  it('shows an error message when the issue fetch fails', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    mockTodayIssueAnswer.mockRejectedValue(new Error('network'));
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Issue-Spotting Prompt')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: "Reveal the court's issue" }));
+    await waitFor(() => expect(screen.getByText(/Couldn't load the issue/)).toBeInTheDocument());
   });
 
   it('deep-links the Case of the Day into Legal Drafting', async () => {
@@ -356,15 +465,22 @@ describe('DashboardView', () => {
     await waitFor(() => expect(screen.getByText('Review Queue · Contracts')).toBeInTheDocument());
   });
 
-  it('renders the skills panel with a focus hint', async () => {
+  it('renders the skills panel with descriptions, levels, and an actionable focus', async () => {
     mockStatsMe.mockResolvedValue(FULL_STATS);
+    const onNavigate = jest.fn();
+    const user = userEvent.setup();
 
-    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={onNavigate} />);
 
     await waitFor(() => expect(screen.getByText('Skills & Competencies')).toBeInTheDocument());
     expect(screen.getByText('Legal Drafting')).toBeInTheDocument();
     expect(screen.getByText('Doctrine Knowledge')).toBeInTheDocument();
+    expect(screen.getByText('Case briefs, memoranda, arguments, and generated documents')).toBeInTheDocument();
+    expect(screen.getByText('Practicing')).toBeInTheDocument();
     expect(screen.getByText((_, el) => el?.textContent === 'Where to focus: Case Analysis')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Compare cases →' }));
+    expect(onNavigate).toHaveBeenCalledWith('doctrines');
   });
 
   it('renders the work portfolio with type badges', async () => {

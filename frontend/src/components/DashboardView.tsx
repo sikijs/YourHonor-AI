@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, api, UserStats, DashboardToday } from '@/lib/api';
 import { friendlyDocType } from '@/lib/docTypes';
+import { skillLevel, SKILL_PRACTICE } from '@/lib/skills';
 import ReviewQueueView from '@/components/ReviewQueueView';
 import TodayPracticePanel from '@/components/TodayPracticePanel';
 import {
@@ -269,21 +270,38 @@ export default function DashboardView({
             </p>
           ) : (
             <>
-              {stats.skills.map((s) => (
-                <div key={s.skill_id} style={{ marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--dark-navy)' }} title={s.description}>{s.name}</span>
-                    <span style={{ color: 'var(--gray-text)' }}>{s.count}</span>
+              {stats.skills.map((s) => {
+                const level = skillLevel(s.count);
+                return (
+                  <div key={s.skill_id} style={{ marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '0.85rem', marginBottom: '0.1rem' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--dark-navy)' }}>{s.name}</span>
+                      <span style={{ color: 'var(--gray-text)' }}>
+                        {s.count} · <span style={{ color: level.color, fontWeight: 600 }}>{level.label}</span>
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.75rem', color: 'var(--gray-text)' }}>{s.description}</p>
+                    <div className="progress-track">
+                      <div className="progress-fill" style={{ width: `${Math.round((s.count / maxSkill) * 100)}%`, background: 'var(--purple-secondary)' }} />
+                    </div>
                   </div>
-                  <div className="progress-track">
-                    <div className="progress-fill" style={{ width: `${Math.round((s.count / maxSkill) * 100)}%`, background: 'var(--purple-secondary)' }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {weakestSkill && weakestSkill.count > 0 && (
-                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: 'var(--gray-text)' }}>
-                  Where to focus: <strong style={{ color: 'var(--dark-navy)' }}>{weakestSkill.name}</strong>
-                </p>
+                <div style={{ margin: '0.5rem 0 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                    Where to focus: <strong style={{ color: 'var(--dark-navy)' }}>{weakestSkill.name}</strong>
+                  </p>
+                  {SKILL_PRACTICE[weakestSkill.skill_id] && (
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => onNavigate(SKILL_PRACTICE[weakestSkill.skill_id].view)}
+                      style={{ padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}
+                    >
+                      {SKILL_PRACTICE[weakestSkill.skill_id].label} &rarr;
+                    </button>
+                  )}
+                </div>
               )}
             </>
           )}

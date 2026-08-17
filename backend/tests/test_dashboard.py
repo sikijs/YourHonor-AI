@@ -16,15 +16,79 @@ def test_today_requires_auth(client):
     assert resp.status_code == 401
 
 
+def test_today_answer_requires_auth(client):
+    resp = client.get("/api/dashboard/today/answer")
+    assert resp.status_code == 401
+
+
+def test_today_issue_answer_requires_auth(client):
+    resp = client.get("/api/dashboard/today/issue-answer")
+    assert resp.status_code == 401
+
+
+def test_today_answer_matches_today_question(client, auth_headers):
+    today = client.get("/api/dashboard/today", headers=auth_headers).json()
+    card = today["question_of_the_day"]
+
+    resp = client.get("/api/dashboard/today/answer", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["question"] == card["question"]
+    assert data["topic_id"] == card["topic_id"]
+    assert data["topic_name"] == card["topic_name"]
+    assert data["difficulty"] == card["difficulty"]
+    assert data["hint"]
+    assert data["answer"]
+
+
+def test_today_answer_is_deterministic_same_day(client, auth_headers):
+    first = client.get("/api/dashboard/today/answer", headers=auth_headers).json()
+    second = client.get("/api/dashboard/today/answer", headers=auth_headers).json()
+    assert first == second
+
+
+def test_today_issue_answer_matches_today_case(client, auth_headers):
+    today = client.get("/api/dashboard/today", headers=auth_headers).json()
+    case = today["case_of_the_day"]
+
+    resp = client.get("/api/dashboard/today/issue-answer", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["case_name"] == case["case_name"]
+    assert data["subject"]
+    assert data["doctrine_name"]
+    assert data["doctrine_description"]
+    assert data["issue"]
+    assert data["plain_holding"]
+    assert data["holding"]
+
+
+def test_today_issue_answer_is_deterministic_same_day(client, auth_headers):
+    first = client.get("/api/dashboard/today/issue-answer", headers=auth_headers).json()
+    second = client.get("/api/dashboard/today/issue-answer", headers=auth_headers).json()
+    assert first == second
+
+
 def test_today_shape(client, auth_headers):
     resp = client.get("/api/dashboard/today", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
     assert data["case_of_the_day"]["case_name"]
     assert data["case_of_the_day"]["citation"]
-    assert data["citation_drill"]["raw"]
-    assert data["citation_drill"]["formatted"]
-    assert data["citation_drill"]["case_name"] == data["case_of_the_day"]["case_name"]
+    assert data["case_of_the_day"]["case_summary"]
+    drill = data["citation_drill"]
+    assert drill["raw"]
+    assert drill["formatted"]
+    assert drill["case_name"] == data["case_of_the_day"]["case_name"]
+    options = drill["options"]
+    assert 3 <= len(options) <= 4
+    assert len({o["text"] for o in options}) == len(options)
+    correct = [o for o in options if o["is_correct"]]
+    assert len(correct) == 1
+    assert correct[0]["text"] == drill["formatted"]
+    for option in options:
+        assert option["text"]
+        assert option["rule_note"]
     assert data["term_of_the_day"]["term"]
     assert data["term_of_the_day"]["definition"]
     assert data["question_of_the_day"]["question"]
@@ -32,6 +96,22 @@ def test_today_shape(client, auth_headers):
     assert data["question_of_the_day"]["topic_name"]
     assert data["issue_prompt_of_the_day"]["prompt"]
     assert data["suggested_focus"] is None
+
+
+def test_drill_distractors_never_equal_correct():
+    options = dashboard_service._build_distractors("Marbury v. Madison", "5 U.S. 137", 1803)
+    assert len(options) == 5
+    for option in options:
+        assert not option.is_correct
+        assert option.text != "Marbury v. Madison, 5 U.S. 137 (1803)"
+        assert option.rule_note
+
+
+def test_drill_distractors_without_v_separator():
+    options = dashboard_service._build_distractors("Slaughter-House Cases", "83 U.S. 36", 1873)
+    assert len(options) == 2
+    for option in options:
+        assert " v. " not in option.text
 
 
 def test_today_is_deterministic_same_day(client, auth_headers):

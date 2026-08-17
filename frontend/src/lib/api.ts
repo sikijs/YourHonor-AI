@@ -338,6 +338,8 @@ export const api = {
 
   dashboard: {
     today: () => fetchApi<DashboardToday>('/api/dashboard/today'),
+    todayAnswer: () => fetchApi<QuestionAnswer>('/api/dashboard/today/answer'),
+    todayIssueAnswer: () => fetchApi<IssueAnswer>('/api/dashboard/today/issue-answer'),
   },
 };
 
@@ -689,14 +691,18 @@ export interface DashboardToday {
     citation: string;
     year: number | null;
     date_filed: string | null;
+    case_summary: string;
   };
   citation_drill: {
     raw: string;
     formatted: string;
     case_name: string;
     year: number | null;
-    rules_applied: string[];
-    notes: string;
+    options: {
+      text: string;
+      is_correct: boolean;
+      rule_note: string;
+    }[];
   };
   term_of_the_day: {
     term: string;
@@ -718,6 +724,25 @@ export interface DashboardToday {
     topic_name: string;
     weak_count: number;
   } | null;
+}
+
+export interface QuestionAnswer {
+  question: string;
+  topic_id: string;
+  topic_name: string;
+  difficulty: number;
+  hint: string;
+  answer: string;
+}
+
+export interface IssueAnswer {
+  case_name: string;
+  subject: string;
+  doctrine_name: string;
+  doctrine_description: string;
+  issue: string;
+  plain_holding: string;
+  holding: string;
 }
 
 export interface GlossaryResponse {

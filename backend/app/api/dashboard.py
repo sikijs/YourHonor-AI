@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException
 from typing import Optional
 
-from app.models.dashboard import DashboardTodayResponse
+from app.models.dashboard import DashboardTodayResponse, IssueAnswerResponse, QuestionAnswerResponse
 from app.services import dashboard as dashboard_service
 from app.services.auth import decode_token
 
@@ -24,5 +24,21 @@ def get_current_user_id(access_token: Optional[str] = Cookie(None)) -> int:
 def get_today(user_id: int = Depends(get_current_user_id)):
     try:
         return dashboard_service.get_today(user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/today/answer", response_model=QuestionAnswerResponse)
+def get_today_answer(user_id: int = Depends(get_current_user_id)):
+    try:
+        return dashboard_service.get_today_answer()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/today/issue-answer", response_model=IssueAnswerResponse)
+def get_today_issue_answer(user_id: int = Depends(get_current_user_id)):
+    try:
+        return dashboard_service.get_today_issue_answer()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")

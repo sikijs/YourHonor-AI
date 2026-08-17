@@ -8,6 +8,13 @@ class CaseOfTheDay(BaseModel):
     citation: str
     year: Optional[int] = None
     date_filed: Optional[str] = None
+    case_summary: str = ""
+
+
+class CitationDrillOption(BaseModel):
+    text: str
+    is_correct: bool
+    rule_note: str
 
 
 class CitationDrill(BaseModel):
@@ -15,8 +22,7 @@ class CitationDrill(BaseModel):
     formatted: str
     case_name: str
     year: Optional[int] = None
-    rules_applied: list[str] = []
-    notes: str = ""
+    options: list[CitationDrillOption] = []
 
 
 class TermOfTheDay(BaseModel):
@@ -32,9 +38,28 @@ class QuestionOfTheDay(BaseModel):
     difficulty: int
 
 
+class QuestionAnswerResponse(BaseModel):
+    question: str
+    topic_id: str
+    topic_name: str
+    difficulty: int
+    hint: str
+    answer: str
+
+
 class IssuePromptOfTheDay(BaseModel):
     prompt: str
     case_name: str
+
+
+class IssueAnswerResponse(BaseModel):
+    case_name: str
+    subject: str
+    doctrine_name: str
+    doctrine_description: str = ""
+    issue: str = ""
+    plain_holding: str = ""
+    holding: str = ""
 
 
 class SuggestedFocus(BaseModel):
