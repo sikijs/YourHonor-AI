@@ -162,7 +162,7 @@ The family tree of the law. Give it a case, and it maps every authority the opin
 ### Debate
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
 
-### Doctrine Explorer
+### Case Law Atlas
 A visual map of landmark US law. Browse **31 doctrines** across **70 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
 
 ### Issue Spotter

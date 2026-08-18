@@ -217,7 +217,7 @@ export default function DoctrineExplorerView({
 
   return (
     <div>
-      <h2>Doctrine Explorer</h2>
+      <h2>Case Law Atlas</h2>
       <p style={{ color: 'var(--blue-primary)', fontSize: '0.95rem', marginBottom: '0.5rem' }}>
         Explore the landmark cases that define American law, organized by legal doctrine. Each doctrine card links to its cases — and every case can generate a full case brief.
       </p>

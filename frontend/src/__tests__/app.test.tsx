@@ -190,7 +190,7 @@ describe('Home page', () => {
     render(<Home />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Doctrine Explorer' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Case Law Atlas' })).toBeInTheDocument();
     });
     expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
   });

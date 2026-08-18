@@ -245,7 +245,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         </div>
         <div className="card feature-card" onClick={() => onNavigate('doctrines')} style={{ cursor: 'pointer' }}>
           <div className="icon-chip icon-chip--blue icon-chip--center"><IconLandmark /></div>
-          <h3>Doctrine Explorer</h3>
+          <h3>Case Law Atlas</h3>
           <p>Browse 70 landmark cases across 30+ doctrines with an interactive timeline</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'documents' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>

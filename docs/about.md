@@ -99,7 +99,7 @@ Uncover the legal issues a court would examine in any scenario — from
 jurisdiction and procedure to damages — with precedent-backed analysis
 grounded in landmark case law.
 
-### 🧭 Doctrine Explorer
+### 🧭 Case Law Atlas
 
 Browse **70 landmark cases** across **30+ doctrines** with an interactive
 timeline and subject filters, compare any two cases side by side, and
@@ -178,7 +178,7 @@ ethical responsibility, clear reasoning, and effective communication.
 
 ## 🆕 What's New in v1.4.0
 
-- **Doctrine Explorer** — browse 31 doctrines across 70 landmark cases
+- **Case Law Atlas** — browse 31 doctrines across 70 landmark cases
   with an interactive timeline, subject filters, and one-click case brief
   generation from any case node.
 - **Expanded Resources** — new *Understanding AI in Law* explainers on

@@ -222,7 +222,7 @@ Backend available at http://localhost:8000
 - POST /api/rag/ingest            - Ingest a document
 - GET  /api/rag/collection/stats?collection=legal_documents - Get collection statistics (optional whitelisted collection name; default `legal_documents`, also `tutor_curriculum`, `glossary_seed`)
 
-### Doctrine Explorer
+### Case Law Atlas
 - GET /api/doctrine/map           - Curated doctrine map (31 doctrines over the 70 landmark cases; public, no auth, no LLM)
 - POST /api/doctrine/compare      - Compare two landmark cases (auth required): curated facts table + LLM narrative comparison (similarities/differences/doctrinal relationship/significance/practice note) built from the offline seed opinions; saves case_comparison docs
 
@@ -277,7 +277,7 @@ Backend available at http://localhost:8000
 - AI tutor features — Socratic dialogue across 8 topics, 160+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student)
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
-- Doctrine Explorer — curated doctrine map (`backend/app/data/doctrine_map.json`, 31 doctrines covering all 70 landmark cases) with card/timeline views, subject filters, and one-click case brief generation from any doctrine node; served via GET /api/doctrine/map (public, no LLM)
+- Case Law Atlas — curated doctrine map (`backend/app/data/doctrine_map.json`, 31 doctrines covering all 70 landmark cases) with card/timeline views, subject filters, and one-click case brief generation from any doctrine node; served via GET /api/doctrine/map (public, no LLM)
 
 ### Phase 6 (Error Handling) - COMPLETE
 - `app/services/llm_errors.py` — Detects OpenRouter payment/credit errors and returns a user-friendly message: *"Your OpenRouter credits are exhausted. Add funds at openrouter.ai/settings/credits to continue."* instead of raw API errors
@@ -309,9 +309,9 @@ Backend available at http://localhost:8000
 ### Phase 11 (Dashboard v2: Today's Legal Practice Hub) - COMPLETE
 - `GET /api/dashboard/today` (`app/api/dashboard.py` + `app/services/dashboard.py`) — deterministic daily study picks seeded by day-of-year from the app's curated libraries: Case of the Day (landmark_seed.json, 70, with a plain-English summary from the doctrine map's curated `plain_holding`), Citation Drill (raw citation + Bluebook-correct answer via the public `format_landmark_case()` wrapper over the local deterministic pass in `bluebook.py` — zero LLM), Term of the Day (glossary_seed.json, 123), Question of the Day (160 tutor cards; question text only — the curated hint + answer ship only on explicit request via `GET /api/dashboard/today/answer`, which shares the same deterministic pick through one helper so the two endpoints can never drift), Issue-Spotting Prompt (concrete one-sentence scaffold for the day's case; the plain-language doctrine hint + the court's curated issue and plain-English holding ship only on explicit request via `GET /api/dashboard/today/issue-answer`, which shares the same day-seeded case pick as the Case of the Day), and Suggested Focus (weakest review topic). Zero LLM, zero Qdrant, instant
 - Account Age stat card removed from the dashboard (vanity metric — measured existence, not activity); `account_age_days` dropped from the stats model/service/tests
-- `/api/stats/me` extended with `skills` (6 competency buckets — Legal Research incl. PDF uploads, Legal Drafting, Citation Skills, Case Analysis, Issue Spotting, Doctrine Knowledge — mapped from saved-document doc_types + tutor/review activity) and `portfolio` (last 6 documents by updated_at with doc_type badges)
+- `/api/stats/me` extended with `skills` (6 competency buckets — Legal Research & Summaries incl. PDF uploads, Legal Drafting, Citation Skills, Case Analysis, Issue Spotting, Tutor Practice — mapped from saved-document doc_types + tutor activity; Tutor Practice counts completed tutor sessions only, 1 point each, so units match 1 point per saved document; review-card marks are surfaced in the tutor review panel instead, since individual marks are cheap one-click actions that would dwarf the document-based skills) and `portfolio` (last 6 documents by updated_at with doc_type badges)
 - `TodayPracticePanel.tsx` — "Today's Legal Practice" cards with deep links: "Brief this case"/"Summarize" prefill Legal Drafting via the `navigate()` alias, "Reveal answer" for the Citation Drill, Glossary/Tutor/Issue Spotter links, and a Suggested Focus banner that opens the topic-filtered review queue
-- `DashboardView.tsx` additions: Skills & Competencies progress bars with "Where to focus" hint, Your Work Portfolio list with relative dates, Quick Actions row (New Case Brief / Cite-Check Text / Issue Spotter / Compare Cases / Tutor Practice)
+- `DashboardView.tsx` additions: Skills & Competencies progress bars (absolute scale via `skillBarPercent` in `lib/skills.ts` — full bar = 10 activities, matching the top "Practicing" level band, so no skill pins at 100% just because it's the strongest) with "Where to focus" hint, Your Work Portfolio list with relative dates, Quick Actions row (New Case Brief / Cite-Check Text / Issue Spotter / Compare Cases / Tutor Practice)
 - Version stays at v1.4.0 (bump deferred)
 
 ---

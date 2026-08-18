@@ -157,7 +157,7 @@ export default function Home() {
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('tutor'); }} style={view === 'tutor' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>AI Tutor</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('documents'); }} style={view === 'documents' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>My Documents</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('glossary'); }} style={view === 'glossary' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Glossary</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Case Law Atlas</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('resources'); }} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('chat'); }} style={view === 'chat' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Chat</a>
               <a href="#" onClick={(e) => { e.preventDefault(); handleSignOut(); }}>Sign Out</a>
@@ -166,7 +166,7 @@ export default function Home() {
             <>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('home'); }} style={view === 'home' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Home</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('about'); }} style={view === 'about' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>About</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Doctrines</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); goTo('doctrines'); }} style={view === 'doctrines' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Case Law Atlas</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('resources'); }} style={view === 'resources' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Resources</a>
               <a href="#" onClick={(e) => { e.preventDefault(); goTo('auth'); }} style={view === 'auth' ? { color: 'var(--accent-yellow)', fontWeight: 600 } : {}}>Sign In</a>
             </>
