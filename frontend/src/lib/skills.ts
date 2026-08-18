@@ -8,6 +8,16 @@ export interface SkillLevel {
   color: string;
 }
 
+// Progress bars are absolute, not relative to the strongest skill: a full
+// bar means SKILL_BAR_MAX (10) activities in that area, which lines up with
+// the top "Practicing" level band (>9). No skill pins at 100% just because
+// another skill has fewer activities.
+export const SKILL_BAR_MAX = 10;
+
+export function skillBarPercent(count: number): number {
+  return Math.min(100, Math.round((count / SKILL_BAR_MAX) * 100));
+}
+
 export function skillLevel(count: number): SkillLevel {
   if (count <= 0) return { label: 'Not started', color: 'var(--gray-text)' };
   if (count <= 3) return { label: 'Getting started', color: 'var(--blue-primary)' };

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, api, UserStats, DashboardToday } from '@/lib/api';
 import { friendlyDocType } from '@/lib/docTypes';
-import { skillLevel, SKILL_PRACTICE } from '@/lib/skills';
+import { skillBarPercent, skillLevel, SKILL_PRACTICE } from '@/lib/skills';
 import ReviewQueueView from '@/components/ReviewQueueView';
 import TodayPracticePanel from '@/components/TodayPracticePanel';
 import {
@@ -96,7 +96,6 @@ export default function DashboardView({
   const sessions = stats.tutor_sessions;
   const sessionsPct = Math.round(sessions.accuracy * 100);
 
-  const maxSkill = Math.max(...stats.skills.map((s) => s.count), 1);
   const weakestSkill = stats.skills.length > 0
     ? stats.skills.reduce((a, b) => (b.count < a.count ? b : a))
     : null;
@@ -282,7 +281,7 @@ export default function DashboardView({
                     </div>
                     <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.75rem', color: 'var(--gray-text)' }}>{s.description}</p>
                     <div className="progress-track">
-                      <div className="progress-fill" style={{ width: `${Math.round((s.count / maxSkill) * 100)}%`, background: 'var(--purple-secondary)' }} />
+                      <div className="progress-fill" style={{ width: `${skillBarPercent(s.count)}%`, background: 'var(--purple-secondary)' }} />
                     </div>
                   </div>
                 );

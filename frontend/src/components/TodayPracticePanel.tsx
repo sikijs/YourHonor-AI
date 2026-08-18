@@ -60,12 +60,20 @@ export default function TodayPracticePanel({
     }
   };
 
-  const showHint = async () => {
+  const toggleHint = async () => {
+    if (hintShown) {
+      setHintShown(false);
+      return;
+    }
     if (!answerData) await loadAnswer();
     if (!answerError) setHintShown(true);
   };
 
-  const revealAnswer = async () => {
+  const toggleAnswer = async () => {
+    if (answerShown) {
+      setAnswerShown(false);
+      return;
+    }
     if (!answerData) await loadAnswer();
     if (!answerError) setAnswerShown(true);
   };
@@ -82,12 +90,20 @@ export default function TodayPracticePanel({
     }
   };
 
-  const showIssueHint = async () => {
+  const toggleIssueHint = async () => {
+    if (issueHintShown) {
+      setIssueHintShown(false);
+      return;
+    }
     if (!issueData) await loadIssueAnswer();
     if (!issueError) setIssueHintShown(true);
   };
 
-  const revealIssue = async () => {
+  const toggleIssue = async () => {
+    if (issueShown) {
+      setIssueShown(false);
+      return;
+    }
     if (!issueData) await loadIssueAnswer();
     if (!issueError) setIssueShown(true);
   };
@@ -150,26 +166,23 @@ export default function TodayPracticePanel({
             {question.topic_name} · difficulty {question.difficulty}/5
           </p>
           {hintShown && answerData && (
-            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--gray-text)', lineHeight: 1.5 }}>
               Hint: {answerData.hint}
             </p>
           )}
-          {answerShown && answerData ? (
-            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
+          {answerShown && answerData && (
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
               {answerData.answer}
             </p>
-          ) : (
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-              {!hintShown && (
-                <button className="btn btn-outline" onClick={showHint} disabled={answerLoading}>
-                  Show hint
-                </button>
-              )}
-              <button className="btn btn-outline" onClick={revealAnswer} disabled={answerLoading}>
-                {answerLoading ? 'Loading…' : 'Reveal answer'}
-              </button>
-            </div>
           )}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <button className="btn btn-outline" onClick={toggleHint} disabled={answerLoading}>
+              {hintShown ? 'Hide hint' : 'Show hint'}
+            </button>
+            <button className="btn btn-outline" onClick={toggleAnswer} disabled={answerLoading}>
+              {answerLoading ? 'Loading…' : answerShown ? 'Hide answer' : 'Reveal answer'}
+            </button>
+          </div>
           {answerError && (
             <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: '#8b0000' }}>
               Couldn&apos;t load the answer — try again.
@@ -247,13 +260,13 @@ export default function TodayPracticePanel({
             {prompt.prompt}
           </p>
           {issueHintShown && issueData && (
-            <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--gray-text)', lineHeight: 1.5 }}>
               <strong>Hint:</strong> this case is about <strong>{issueData.subject}</strong> — specifically
               the <strong>{issueData.doctrine_name}</strong> doctrine. {issueData.doctrine_description}{' '}
               Look for who sued whom, what each side wanted, and which law or right is at stake.
             </p>
           )}
-          {issueShown && issueData ? (
+          {issueShown && issueData && (
             <div style={{ margin: '0 0 0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--dark-navy)', lineHeight: 1.5, background: '#f0f4f8', padding: '0.5rem 0.6rem', borderRadius: '6px' }}>
                 <strong>The court&apos;s issue:</strong> {issueData.issue || issueData.holding}
@@ -265,18 +278,15 @@ export default function TodayPracticePanel({
                 Your sentence is the <em>question</em>; the holding is the court&apos;s <em>answer</em> to it.
               </p>
             </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-              {!issueHintShown && (
-                <button className="btn btn-outline" onClick={showIssueHint} disabled={issueLoading}>
-                  Show subject hint
-                </button>
-              )}
-              <button className="btn btn-outline" onClick={revealIssue} disabled={issueLoading}>
-                {issueLoading ? 'Loading…' : "Reveal the court's issue"}
-              </button>
-            </div>
           )}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <button className="btn btn-outline" onClick={toggleIssueHint} disabled={issueLoading}>
+              {issueHintShown ? 'Hide subject hint' : 'Show subject hint'}
+            </button>
+            <button className="btn btn-outline" onClick={toggleIssue} disabled={issueLoading}>
+              {issueLoading ? 'Loading…' : issueShown ? "Hide the court's issue" : "Reveal the court's issue"}
+            </button>
+          </div>
           {issueError && (
             <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: '#8b0000' }}>
               Couldn&apos;t load the issue — try again.

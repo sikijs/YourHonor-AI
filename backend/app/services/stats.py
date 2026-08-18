@@ -17,7 +17,7 @@ from app.services.tutor_data import TOPICS
 SKILLS = [
     {
         "skill_id": "research",
-        "name": "Legal Research",
+        "name": "Legal Research & Summaries",
         "description": "Case summaries, statute analyses, and uploaded materials",
         "doc_types": {"case_summary", "general_summary", "statute_summary", "doctrine_summary", "legal_summary"},
         "counts_uploads": True,
@@ -146,8 +146,11 @@ def get_user_stats(user_id: int) -> dict:
         if skill["counts_uploads"]:
             count += uploaded_count
         skill_counts[skill["skill_id"]] = count
-    # Doctrine Knowledge is measured by tutor activity (answers + review marks).
-    skill_counts["doctrine"] = session_answers + mastered + weak
+    # Tutor Practice is measured per completed session (1 session = 1 point,
+    # matching 1 saved document = 1 point). Review-card marks are surfaced in
+    # the tutor review panel instead — individual marks are cheap one-click
+    # actions that would dwarf the document-based skills.
+    skill_counts["doctrine"] = sum(r["sessions"] for r in session_rows)
 
     skills = [
         {
@@ -161,8 +164,8 @@ def get_user_stats(user_id: int) -> dict:
     skills.append(
         {
             "skill_id": "doctrine",
-            "name": "Doctrine Knowledge",
-            "description": "Tutor answers and review-mastery marks",
+            "name": "Tutor Practice",
+            "description": "Completed tutor sessions",
             "count": skill_counts["doctrine"],
         }
     )

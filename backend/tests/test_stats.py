@@ -83,12 +83,12 @@ def test_stats_empty_state(client, auth_headers):
         "per_topic": [],
     }
     assert data["skills"] == [
-        {"skill_id": "research", "name": "Legal Research", "description": "Case summaries, statute analyses, and uploaded materials", "count": 0},
+        {"skill_id": "research", "name": "Legal Research & Summaries", "description": "Case summaries, statute analyses, and uploaded materials", "count": 0},
         {"skill_id": "drafting", "name": "Legal Drafting", "description": "Case briefs, memoranda, arguments, and generated documents", "count": 0},
         {"skill_id": "citation", "name": "Citation Skills", "description": "Citation maps and Bluebook formatting", "count": 0},
         {"skill_id": "analysis", "name": "Case Analysis", "description": "Case comparisons and debate analyses", "count": 0},
         {"skill_id": "issue_spotting", "name": "Issue Spotting", "description": "Issue-spotter analyses and tutor practice saves", "count": 0},
-        {"skill_id": "doctrine", "name": "Doctrine Knowledge", "description": "Tutor answers and review-mastery marks", "count": 0},
+        {"skill_id": "doctrine", "name": "Tutor Practice", "description": "Completed tutor sessions", "count": 0},
     ]
     assert data["portfolio"] == []
 
@@ -216,8 +216,9 @@ def test_stats_skills_mapping(client, auth_headers):
     assert _skill_count(data, "citation") == 2
     assert _skill_count(data, "analysis") == 2
     assert _skill_count(data, "issue_spotting") == 2
-    # 10 session answers + 1 review mark = 11 doctrine activities.
-    assert _skill_count(data, "doctrine") == 11
+    # 1 completed session = 1 tutor-practice activity (review marks do not
+    # count toward the skill — they are surfaced in the review panel).
+    assert _skill_count(data, "doctrine") == 1
 
 
 def test_stats_skills_uploads_count_as_research(client, auth_headers):

@@ -94,12 +94,12 @@ const FULL_STATS = {
     ],
   },
   skills: [
-    { skill_id: 'research', name: 'Legal Research', description: 'Case summaries, statute analyses, and uploaded materials', count: 3 },
+    { skill_id: 'research', name: 'Legal Research & Summaries', description: 'Case summaries, statute analyses, and uploaded materials', count: 3 },
     { skill_id: 'drafting', name: 'Legal Drafting', description: 'Case briefs, memoranda, arguments, and generated documents', count: 5 },
     { skill_id: 'citation', name: 'Citation Skills', description: 'Citation maps and Bluebook formatting', count: 2 },
     { skill_id: 'analysis', name: 'Case Analysis', description: 'Case comparisons and debate analyses', count: 1 },
     { skill_id: 'issue_spotting', name: 'Issue Spotting', description: 'Issue-spotter analyses and tutor practice saves', count: 1 },
-    { skill_id: 'doctrine', name: 'Doctrine Knowledge', description: 'Tutor answers and review-mastery marks', count: 11 },
+    { skill_id: 'doctrine', name: 'Tutor Practice', description: 'Completed tutor sessions', count: 2 },
   ],
   portfolio: [
     { id: 3, title: 'Memo: Negligence', doc_type: 'memorandum', updated_at: '2026-08-10 12:00:00' },
@@ -124,12 +124,12 @@ const EMPTY_STATS = {
     per_topic: [],
   },
   skills: [
-    { skill_id: 'research', name: 'Legal Research', description: '', count: 0 },
+    { skill_id: 'research', name: 'Legal Research & Summaries', description: '', count: 0 },
     { skill_id: 'drafting', name: 'Legal Drafting', description: '', count: 0 },
     { skill_id: 'citation', name: 'Citation Skills', description: '', count: 0 },
     { skill_id: 'analysis', name: 'Case Analysis', description: '', count: 0 },
     { skill_id: 'issue_spotting', name: 'Issue Spotting', description: '', count: 0 },
-    { skill_id: 'doctrine', name: 'Doctrine Knowledge', description: '', count: 0 },
+    { skill_id: 'doctrine', name: 'Tutor Practice', description: '', count: 0 },
   ],
   portfolio: [],
 };
@@ -387,8 +387,32 @@ describe('DashboardView', () => {
     await user.click(screen.getByRole('button', { name: 'Reveal answer' }));
     await waitFor(() => expect(screen.getByText('Consideration is a bargained-for exchange of legal value.')).toBeInTheDocument());
     expect(mockTodayAnswer).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('button', { name: 'Reveal answer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Hide answer' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Practice in the AI Tutor' })).toBeInTheDocument();
+  });
+
+  it('collapses the revealed hint and answer for the Question of the Day', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Question of the Day')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Show hint' }));
+    await user.click(screen.getByRole('button', { name: 'Reveal answer' }));
+    await waitFor(() => expect(screen.getByText('Consideration is a bargained-for exchange of legal value.')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'Hide answer' }));
+    expect(screen.queryByText('Consideration is a bargained-for exchange of legal value.')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reveal answer' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Hide hint' }));
+    expect(screen.queryByText(/Hint: Think about bargained-for exchange/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show hint' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Reveal answer' }));
+    await waitFor(() => expect(screen.getByText('Consideration is a bargained-for exchange of legal value.')).toBeInTheDocument());
+    expect(mockTodayAnswer).toHaveBeenCalledTimes(1);
   });
 
   it('shows an error message when the answer fetch fails', async () => {
@@ -423,8 +447,32 @@ describe('DashboardView', () => {
     expect(screen.getByText(/The court's holding \(in plain English\)/)).toBeInTheDocument();
     expect(screen.getByText(/strike them down if they conflict with the Constitution/)).toBeInTheDocument();
     expect(mockTodayIssueAnswer).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('button', { name: "Reveal the court's issue" })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "Hide the court's issue" })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Try the Issue Spotter' })).toBeInTheDocument();
+  });
+
+  it('collapses the revealed subject hint and court issue', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const user = userEvent.setup();
+
+    render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Issue-Spotting Prompt')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Show subject hint' }));
+    await user.click(screen.getByRole('button', { name: "Reveal the court's issue" }));
+    await waitFor(() => expect(screen.getByText(/Does Marbury have a right to his judicial commission/)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: "Hide the court's issue" }));
+    expect(screen.queryByText(/Does Marbury have a right to his judicial commission/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "Reveal the court's issue" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Hide subject hint' }));
+    expect(screen.queryByText('Judicial Review')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show subject hint' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: "Reveal the court's issue" }));
+    await waitFor(() => expect(screen.getByText(/Does Marbury have a right to his judicial commission/)).toBeInTheDocument());
+    expect(mockTodayIssueAnswer).toHaveBeenCalledTimes(1);
   });
 
   it('shows an error message when the issue fetch fails', async () => {
@@ -474,13 +522,31 @@ describe('DashboardView', () => {
 
     await waitFor(() => expect(screen.getByText('Skills & Competencies')).toBeInTheDocument());
     expect(screen.getByText('Legal Drafting')).toBeInTheDocument();
-    expect(screen.getByText('Doctrine Knowledge')).toBeInTheDocument();
+    expect(screen.getByText('Legal Research & Summaries')).toBeInTheDocument();
+    expect(screen.getByText('Completed tutor sessions')).toBeInTheDocument();
     expect(screen.getByText('Case briefs, memoranda, arguments, and generated documents')).toBeInTheDocument();
-    expect(screen.getByText('Practicing')).toBeInTheDocument();
+    expect(screen.getByText('Developing')).toBeInTheDocument();
     expect(screen.getByText((_, el) => el?.textContent === 'Where to focus: Case Analysis')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Compare cases →' }));
     expect(onNavigate).toHaveBeenCalledWith('doctrines');
+  });
+
+  it('scales skill bars absolutely so no skill is full below ten activities', async () => {
+    mockStatsMe.mockResolvedValue(FULL_STATS);
+    const { container } = render(<DashboardView user={USER} onError={jest.fn()} onNavigate={jest.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Skills & Competencies')).toBeInTheDocument());
+
+    const skillsCard = Array.from(container.querySelectorAll('.card')).find((c) =>
+      c.textContent?.includes('Skills & Competencies'),
+    ) as HTMLElement;
+    const widths = Array.from(skillsCard.querySelectorAll('.progress-fill')).map((el) =>
+      (el as HTMLElement).style.width,
+    );
+    expect(widths).not.toContain('100%');
+    expect(widths).toContain('50%');
+    expect(widths).toContain('20%');
   });
 
   it('renders the work portfolio with type badges', async () => {
