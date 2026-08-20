@@ -21,7 +21,7 @@ describe('IngestionBanner', () => {
   it('shows progress while landmark ingestion is running', async () => {
     api.rag.ingestionStatus.mockResolvedValue({
       running: true,
-      total: 70,
+      total: 85,
       done: 34,
       failed: 0,
       current: 'Mapp v. Ohio',
@@ -30,15 +30,15 @@ describe('IngestionBanner', () => {
     render(<IngestionBanner />);
 
     expect(await screen.findByText(/Loading landmark cases/)).toBeInTheDocument();
-    expect(screen.getByText(/34 of 70/)).toBeInTheDocument();
+    expect(screen.getByText(/34 of 85/)).toBeInTheDocument();
     expect(screen.getByText(/Mapp v. Ohio/)).toBeInTheDocument();
   });
 
   it('renders nothing once ingestion has finished', async () => {
     api.rag.ingestionStatus.mockResolvedValue({
       running: false,
-      total: 70,
-      done: 70,
+      total: 85,
+      done: 85,
       failed: 0,
       current: '',
     });
@@ -62,7 +62,7 @@ describe('IngestionBanner', () => {
     const user = userEvent.setup();
     api.rag.ingestionStatus.mockResolvedValue({
       running: true,
-      total: 70,
+      total: 85,
       done: 10,
       failed: 0,
       current: 'Terry v. Ohio',

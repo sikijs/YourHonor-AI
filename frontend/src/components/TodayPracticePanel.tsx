@@ -14,7 +14,7 @@ import {
 type NavigateFn = (view: string, q?: string) => void;
 
 // "Today's Legal Practice" — deterministic daily study content seeded by the
-// backend from the app's curated libraries (70 landmark cases, 160 tutor
+// backend from the app's curated libraries (85 landmark cases, 240 tutor
 // cards, 123 glossary terms). Zero LLM cost; picks change every day.
 export default function TodayPracticePanel({
   today,

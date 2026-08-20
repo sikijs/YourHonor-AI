@@ -156,7 +156,7 @@ describe('BluebookView', () => {
     await waitFor(() => expect(screen.getByText('curated match')).toBeInTheDocument());
 
     await userEvent.hover(screen.getByText('curated match'));
-    expect(await screen.findByText(/70 landmark cases in the offline library/)).toBeInTheDocument();
+    expect(await screen.findByText(/85 landmark cases in the offline library/)).toBeInTheDocument();
   });
 
   it('shows an explanatory tooltip when hovering the confidence badge', async () => {

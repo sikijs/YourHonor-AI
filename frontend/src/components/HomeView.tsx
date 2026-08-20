@@ -23,6 +23,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
   const [input, setInput] = useState('');
   const [chatOpen, setChatOpen] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
+  const [atlasCounts, setAtlasCounts] = useState<{ doctrines: number; cases: number } | null>(null);
   const cancelRef = useRef<AbortController | null>(null);
   const greetingLoaded = useRef(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -45,6 +46,17 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
 
   useEffect(() => {
     return () => cancelRef.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    api.doctrine
+      .map()
+      .then((map) => {
+        const cases = new Set<string>();
+        map.doctrines.forEach((d) => d.cases.forEach((c) => cases.add(c.name)));
+        setAtlasCounts({ doctrines: map.doctrines.length, cases: cases.size });
+      })
+      .catch(() => setAtlasCounts(null));
   }, []);
 
   async function loadGreeting() {
@@ -246,7 +258,7 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
         <div className="card feature-card" onClick={() => onNavigate('doctrines')} style={{ cursor: 'pointer' }}>
           <div className="icon-chip icon-chip--blue icon-chip--center"><IconLandmark /></div>
           <h3>Case Law Atlas</h3>
-          <p>Browse 70 landmark cases across 30+ doctrines with an interactive timeline</p>
+          <p>{atlasCounts ? `Browse ${atlasCounts.cases} landmark cases across ${atlasCounts.doctrines} doctrines with an interactive timeline` : 'Browse landmark cases across doctrines with an interactive timeline'}</p>
         </div>
         <div className="card feature-card" onClick={() => onNavigate(user ? 'documents' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
           <div className="icon-chip icon-chip--blue icon-chip--center"><IconFolder /></div>

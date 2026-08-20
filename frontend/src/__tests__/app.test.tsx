@@ -61,7 +61,7 @@ jest.mock('@/lib/api', () => {
         submitMCAnswer: mockFn,
       },
       templates: { list: mockFn },
-      doctrine: { map: jest.fn() },
+      doctrine: { map: jest.fn().mockResolvedValue({ doctrines: [] }) },
       notes: {
         list: mockFn,
         get: mockFn,

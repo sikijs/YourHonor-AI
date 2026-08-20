@@ -67,7 +67,7 @@ const CONFIDENCE_TIP =
   'How sure the formatter is that this citation is correct. High = reliable. Medium or low means the input was incomplete or ambiguous — read the note below the citation for what is missing.';
 
 const CURATED_TIP =
-  'This citation matched one of the 70 landmark cases in the offline library, so it was formatted from its official reporter citation and year — instantly and at no AI cost. No badge means the citation was formatted by AI.';
+  'This citation matched one of the 85 landmark cases in the offline library, so it was formatted from its official reporter citation and year — instantly and at no AI cost. No badge means the citation was formatted by AI.';
 
 export default function BluebookView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const [text, setText] = useState('');
@@ -119,7 +119,7 @@ export default function BluebookView({ user, onError }: { user: User; onError: (
         Paste raw, sloppy, or incomplete citations and get them reformatted to Bluebook style — the standard citation system for U.S. legal writing. Case names, reporter abbreviations, pin cites, and parenthetical years are normalized per the Bluebook rules.
       </p>
       <p style={{ color: 'var(--gray-text)' }}>
-        Enter one citation per line (separate multiple citations on one line with semicolons). Citations matching the 70 curated landmark cases are formatted instantly with no AI cost.
+        Enter one citation per line (separate multiple citations on one line with semicolons). Citations matching the 85 curated landmark cases are formatted instantly with no AI cost.
       </p>
       <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
         <textarea
