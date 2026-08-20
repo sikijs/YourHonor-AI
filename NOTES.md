@@ -1,6 +1,6 @@
 # Notes
 
-> **Version 1.4.0**
+> **Version 1.5.0**
 
 Quick reference for managing YourHonor AI.
 
@@ -97,12 +97,12 @@ CourtListener (courtlistener.com) is a free, public database of real US court op
 4. **Fetch the opinion** — with the matched case's opinion ID, the app downloads the full opinion from `/opinions/{id}/`. Opinions arrive in several formats; the app tries plain text first, then HTML variants (tags stripped), then Harvard XML — whichever yields readable text wins
 5. **Store for next time** — metadata + full text are written into the SQLite cache, so the same case is never downloaded twice. Two smaller in-memory caches (HTTP responses and opinion text, both ~5 minutes) cover repeat lookups within a session
 
-**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 70 landmark cases are pre-ingested carefully — all 70 ship pre-seeded in the Docker image (`landmark_seed.json`), so boot needs no network at all; runtime fetching is only a fallback for cases CourtListener cannot resolve.
+**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 85 landmark cases are pre-ingested carefully — all 85 ship pre-seeded in the Docker image (`landmark_seed.json`), so boot needs no network at all; runtime fetching is only a fallback for cases CourtListener cannot resolve.
 
 **Where it shows up in the app:**
 - **Case Briefs** — the main consumer: library miss → CourtListener fetch → AI brief written from the real opinion text
 - **Memoranda** — searches CourtListener for reference materials to ground the memo
-- **Landmark pre-ingestion** — on startup the app embeds all 70 famous cases (all 70 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
+- **Landmark pre-ingestion** — on startup the app embeds all 85 famous cases (all 85 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
 
 **Small variations by tool:**
 - **Chat** keeps a conversation history (last 10 messages), so step 4 also includes what you and the AI said earlier
@@ -116,7 +116,7 @@ CourtListener (courtlistener.com) is a free, public database of real US court op
 **Where things live:**
 
 - **SQLite** (`backend/app/data/yourhonor.db`) — accounts, saved documents, citation cache. Recreated fresh each time the container starts
-- **Qdrant** (`data/qdrant_storage/`) — embedded text: 70 landmark cases, the tutor's question cards, glossary definitions, your uploaded PDFs
+- **Qdrant** (`data/qdrant_storage/`) — embedded text: 85 landmark cases, the tutor's question cards, glossary definitions, your uploaded PDFs
 - **Templates** (`templates/` + `catalog.json`) — the 24 document templates used by Generate Document
 - **The frontend is pre-built** — the React app is compiled into static files that FastAPI serves directly, so the whole app runs as one server (plus one Qdrant container)
 
@@ -128,7 +128,7 @@ The app stores things in two places, and they do *different* jobs. If you need t
 |---|---|---|
 | **Kind of database** | Relational (SQL) — data sits in tables of rows and columns | Vector — data sits in "points", each a list of numbers plus attached metadata |
 | **What it stores** | `users` (email, password hash), `documents` (saved briefs, memos, notes), `opinions_cache` (CourtListener results, with a `qdrant_ingested` flag tracking whether the case was already embedded), `review_progress` (AI Tutor progress) | Embedded *chunks* of legal text: each case opinion is cut into ~512-token pieces (with 128-token overlap so context isn't lost at the seams), and each chunk is embedded into a 384-number vector by the all-MiniLM-L6-v2 model, stored together with a payload of metadata — title, source, chunk index, citation, court, date filed, doc type |
-| **How it's stored** | One single file on disk (`yourhonor.db`) — every row in a table | A separate database container (`data/qdrant_storage/`) holding three collections: `legal_documents` (~3,500 chunks from 70 landmark cases + user uploads), `tutor_curriculum` (160 study cards), `glossary_seed` (123 glossary terms) |
+| **How it's stored** | One single file on disk (`yourhonor.db`) — every row in a table | A separate database container (`data/qdrant_storage/`) holding three collections: `legal_documents` (~2,200 chunks from 85 landmark cases + user uploads), `tutor_curriculum` (240 study cards), `glossary_seed` (123 glossary terms) |
 | **How it's indexed** | Primary keys and unique constraints (B-tree indexes) on the exact-value columns: user id, email, document id, cache query key | HNSW (approximate nearest-neighbour) index over the 384-dimension vectors, plus keyword payload indexes on `title` and `source` so filtered lookups don't scan everything |
 | **How it's retrieved** | SQL queries with `WHERE` clauses — exact equality: "find the row where `query_key = 'miranda v arizona'`" | The query itself is embedded into a vector, then Qdrant finds the vectors closest to it by cosine similarity, returning only hits above a score threshold (e.g. top 10, score ≥ 0.5) |
 | **Example question it answers** | "Does user 3 own document 12?" — precise, requires an exact match | "Which chunks talk about *this* legal concept?" — fuzzy, matches by meaning, so synonyms and paraphrases work |
@@ -145,7 +145,7 @@ Like texting a tutor. Type any legal question and the AI answers conversationall
 
 ### Legal Drafting
 Four drafting tools under one roof (tabs: **Case Brief, Summary, Arguments, Memorandum**):
-- **Case Briefs** — the "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (70 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**.
+- **Case Briefs** — the "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (85 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**.
 - **Summaries** — a condensed overview of any legal topic, in four flavours — pick one from the dropdown, and the output adapts:
   - **General** — a balanced overview of anything (overview, key findings, legal principles, impact, key points)
   - **Case Summary** — parties, procedural posture, issue, holding, reasoning, disposition
@@ -163,13 +163,13 @@ The family tree of the law. Give it a case, and it maps every authority the opin
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
 
 ### Case Law Atlas
-A visual map of landmark US law. Browse **31 doctrines** across **70 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
+A visual map of landmark US law. Browse **35 doctrines** across **85 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
 
 ### Issue Spotter
 Exam practice. Paste a fact pattern — a story full of legal problems — and it identifies **every issue** in it. Each issue gets the full treatment: **Issue, Rule, Application, Conclusion, Missing Information, and Relevant Authorities**, and results are grouped by legal area (e.g. Fourth Amendment, Contracts, Torts) with an overview and tips for writing the exam answer. It's deliberately thorough: in law school exams, missing an issue costs more than over-identifying one. **Use it for** drilling exam-style fact patterns.
 
 ### AI Tutor
-Socratic dialogue. Pick one of 8 subjects (160+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
+Socratic dialogue. Pick one of 12 subjects (240+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
 
 ### Study Dashboard
 Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, **live tutor session accuracy** (completed sessions, answers, and % correct per topic), and your account age. **Use it for** checking overall progress without digging through every tool.
@@ -418,7 +418,7 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Docker Desktop opens but containers won't start / engine stuck at "Docker is starting" | Docker Desktop update or Mac restart left the engine in a bad state | Wait for the whale icon to stop animating; if stuck, quit & relaunch Docker Desktop. Verify with `docker info`. Reinstall from docker.com if it persists |
 | Port 8000 already in use | Another app or Docker container is using it | `lsof -i :8000` → find the PID → `kill -9 <PID>`. Or let the app auto-pick another port |
 | Container exits immediately on start | Port conflict or database initialization failed | `docker compose logs backend` to see the exact error |
-| App won't load on port 8000 after restarting your Mac or Docker Desktop | Containers were stopped when Docker shut down (they don't survive a reboot on their own) | Open Docker Desktop and wait for it to finish starting — since v1.4.0 both services have `restart: unless-stopped` and will come back automatically. If they don't: `docker ps -a` to check, then `docker compose up -d` |
+| App won't load on port 8000 after restarting your Mac or Docker Desktop | Containers were stopped when Docker shut down (they don't survive a reboot on their own) | Open Docker Desktop and wait for it to finish starting — since v1.5.0 both services have `restart: unless-stopped` and will come back automatically. If they don't: `docker ps -a` to check, then `docker compose up -d` |
 | Containers show `Exited (255)` after a reboot | Normal — exit 255 is just "stopped by Docker Desktop shutdown", not a crash | Start the app again (`docker compose up -d`); confirm nothing crashed by viewing `docker compose logs backend` |
 | Backend container shows `health: starting` for up to a minute after start | Normal — startup includes RAG collection checks and landmark pre-ingestion; the health check has a 60s start period | Wait ~30-60s, then refresh. `curl localhost:8000/api/health` returns 200 once ready |
 | "No module named X" error after code changes | Docker image is stale (built before your changes) | Rebuild: `docker compose up -d --build` |
@@ -427,7 +427,7 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Signed out after restarting the app | JWT secret is auto-generated and changes every boot | Normal — just sign in again. Your saved documents are still there |
 | Scripts won't run on Mac (quarantine warning) | macOS blocks unsigned `.command` files from the internet | Run: `xattr -dr com.apple.quarantine /path/to/YourHonor-AI-main` then try again |
 | Qdrant connection refused on startup | Qdrant is slower to start than the backend | Normal — the health check retries up to 5 times over 60 seconds. Wait a moment and refresh |
-| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 70 landmark cases is still running (all 70 ship pre-seeded in the image; only rare cases may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
+| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 85 landmark cases is still running (all 85 ship pre-seeded in the image; only rare cases may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
 | Case Brief returns "No case information found" | Library miss + no CourtListener token configured | Add `COURTLISTENER_TOKEN` to `.env` (free at courtlistener.com), then restart. Without it the app can only search metadata, not download full opinions |
 | Case Brief has metadata but thin/no opinion detail | "Set COURTLISTENER_TOKEN for full opinion text" — token missing | Same fix: add the token and restart. The full opinion text is only downloadable with a token |
 | CourtListener lookups failing (401) | Token invalid or expired | Log in at courtlistener.com and regenerate the token, update `.env`, restart |
@@ -442,7 +442,7 @@ Run these checks in order when you want to confirm the app is healthy:
 
 **1. Health endpoint** — open `http://localhost:8000/api/health` in your browser. Should return:
 ```json
-{"status":"healthy","version":"1.4.0"}
+{"status":"healthy","version":"1.5.0"}
 ```
 
 **2. Containers running** — run `docker ps`. Should show 2 containers:

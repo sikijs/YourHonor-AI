@@ -101,7 +101,7 @@ grounded in landmark case law.
 
 ### 🧭 Case Law Atlas
 
-Browse **70 landmark cases** across **30+ doctrines** with an interactive
+Browse **85 landmark cases** across **35 doctrines** with an interactive
 timeline and subject filters, compare any two cases side by side, and
 generate case briefs directly from doctrine nodes.
 
@@ -176,19 +176,21 @@ ethical responsibility, clear reasoning, and effective communication.
 
 ------------------------------------------------------------------------
 
-## 🆕 What's New in v1.4.0
+## 🆕 What's New in v1.5.0
 
-- **Case Law Atlas** — browse 31 doctrines across 70 landmark cases
-  with an interactive timeline, subject filters, and one-click case brief
-  generation from any case node.
-- **Expanded Resources** — new *Understanding AI in Law* explainers on
-  **Predictive Analytics** and **Legal Reasoning Graphs**, covering how
-  each is used in the legal system and its limitations.
-- **Scanned PDF support** — uploaded scanned documents are now read with
-  OCR (tesseract) when no embedded text is found.
-- **More reliable landmark library** — the Penn Central opinion now always
-  resolves to its full text, and update checks are cached so the app
-  doesn't hit the GitHub API on every page load.
+- **Expanded landmark library** — the Case Law Atlas grew from 70 to
+  **85 landmark cases** across **35 doctrines**: new *Wills, Trusts &
+  Estates*, *Agency & Partnership*, *Professional Responsibility*, and
+  *Criminal Trial Rights* doctrine pages, plus digital-privacy cases
+  (Riley, Jones, Carpenter) added to Search & Seizure. Every case ships
+  with its full opinion text, so briefs, Bluebook formatting, comparisons,
+  and the daily practice hub all work offline of CourtListener.
+- **Bigger AI Tutor** — the curriculum grew from 8 to **12 topics** and
+  from 160 to **240 curated questions** (new subjects: Criminal Procedure,
+  Professional Responsibility, Wills & Trusts, Agency).
+- **Data-driven Case Law Atlas card** — the Home page card now reads its
+  case and doctrine counts from the live doctrine map instead of
+  hardcoded numbers.
 
 ------------------------------------------------------------------------
 
