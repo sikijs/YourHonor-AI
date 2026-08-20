@@ -15,6 +15,12 @@ COPY backend/pyproject.toml ./
 
 RUN uv sync
 
+# Pre-download the embedding model at build time so fresh containers can start
+# ingesting immediately instead of stalling ~1-2 minutes on the first boot
+# while the model downloads from HuggingFace. The cache (~/.cache/huggingface)
+# becomes part of this image layer.
+RUN .venv/bin/python3 -c "from langchain_huggingface import HuggingFaceEmbeddings; HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')"
+
 COPY backend/ .
 COPY catalog.json ./
 COPY templates ./templates

@@ -7,7 +7,7 @@ both paths, input splitting, auth, error handling, and document saving.
 import json
 from unittest.mock import MagicMock, patch
 
-from app.services.bluebook import LOCAL_CASES, _normalize
+from app.services.bluebook import LOCAL_CASES, _local_entry, _normalize
 
 
 def _mock_llm(content: str):
@@ -66,6 +66,32 @@ def test_local_hit_covers_all_landmark_cases(client, auth_headers):
 
 def test_normalize_matches_punctuation_variants():
     assert _normalize("Miranda v. Arizona") == _normalize("miranda vs arizona,")
+
+
+def test_local_entries_never_duplicate_the_year():
+    """Citations that already carry a year parenthetical must not get a second one.
+
+    Regression: state/regional reporter citations like "69 P.2d 136 (Idaho
+    1937)" were formatted as "... (Idaho 1937) (1937)".
+    """
+    for case in LOCAL_CASES.values():
+        entry = _local_entry("ignored", case)
+        assert entry.formatted.count(str(case["year"])) == 1, (
+            f"year duplicated for {case['name']}: {entry.formatted}"
+        )
+
+
+def test_local_paren_citations_format_with_single_year(client, auth_headers):
+    """Gorton and Hamer (both with year parentheticals) must not show a double year."""
+    with patch("app.services.bluebook.completion") as mock_completion:
+        resp = client.post("/api/legal/bluebook-format", headers=auth_headers, json={
+            "text": "gorton v doty\nhamer v sidway",
+        })
+    assert resp.status_code == 200
+    mock_completion.assert_not_called()
+    entries = resp.json()["entries"]
+    assert entries[0]["formatted"] == "Gorton v. Doty, 69 P.2d 136 (Idaho 1937)"
+    assert entries[1]["formatted"] == "Hamer v. Sidway, 27 N.E. 256 (N.Y. 1891)"
 
 
 def test_llm_path_for_unknown_citation(client, auth_headers):

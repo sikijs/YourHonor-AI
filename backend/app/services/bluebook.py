@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -91,7 +92,16 @@ LOCAL_CASES: dict[str, dict] = _load_local_cases()
 def _local_entry(raw: str, case: dict) -> BluebookEntry:
     citation = case["citation"].strip()
     year = case["year"]
-    formatted = f"{case['name']}, {citation} ({year})"
+    # State/regional reporter citations already carry the decision year inside
+    # their parenthetical (e.g. "69 P.2d 136 (Idaho 1937)"). Appending another
+    # ({year}) would produce a double year, so only add the year when the
+    # citation has none.
+    already_has_year = bool(re.search(r"\([^)]*\d{4}[^)]*\)", citation))
+    formatted = (
+        f"{case['name']}, {citation}"
+        if already_has_year
+        else f"{case['name']}, {citation} ({year})"
+    )
     return BluebookEntry(
         raw_input=raw.strip(),
         formatted=formatted,
