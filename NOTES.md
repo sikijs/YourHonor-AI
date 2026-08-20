@@ -490,6 +490,12 @@ The Qdrant vector DB will be automatically rebuilt and landmark cases re-ingeste
 
 Run all commands from `~/YourHonor AI/` unless noted.
 
+> **Note:** pushing to `main` automatically triggers the `Publish Docker Image`
+> workflow (`.github/workflows/publish-image.yml`), which builds the frontend,
+> extracts the version from `APP_VERSION`, and publishes both `:latest` and
+> `:vX.Y.Z` to ghcr.io. Steps 2–5 below are only needed for a manual release
+> (e.g. CI unavailable).
+
 **1. Make your code changes and commit them**
 ```bash
 git add <files>
