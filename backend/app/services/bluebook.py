@@ -67,7 +67,7 @@ def _normalize(text: str) -> str:
 
 
 def _load_local_cases() -> dict[str, dict]:
-    """Load the 70 landmark cases: normalized name -> {name, citation, year}."""
+    """Load the 85 landmark cases: normalized name -> {name, citation, year}."""
     if not SEED_PATH.exists():
         return {}
     with open(SEED_PATH, encoding="utf-8") as f:
@@ -126,7 +126,7 @@ def _match_local(raw: str) -> Optional[dict]:
 def format_landmark_case(case_name: str) -> Optional[BluebookEntry]:
     """Public wrapper around the local deterministic Bluebook pass.
 
-    Returns the correctly formatted Bluebook citation for one of the 70
+    Returns the correctly formatted Bluebook citation for one of the 85
     landmark cases (zero LLM) — used by the dashboard's Citation Drill of the
     Day — or None if the case is not in the local library.
     """

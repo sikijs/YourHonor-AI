@@ -10,7 +10,7 @@ from pathlib import Path
 from app.api import auth, documents, chat, rag, legal, templates, tutor, debate, about, notes, doctrine, export, stats, dashboard
 from app.services.document import file_storage
 
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.5.0"
 
 app = FastAPI(title="YourHonor AI", description="Legal AI Education Platform")
 
@@ -47,7 +47,7 @@ def pre_ingest_landmark_cases():
 def _run_startup_tasks():
     import logging
     logger = logging.getLogger(__name__)
-    # Tutor curriculum first: it is small (160 cards) and makes the AI
+    # Tutor curriculum first: it is small (240 cards) and makes the AI
     # Tutor usable as soon as the embedding model finishes loading, instead
     # of waiting behind landmark-case ingestion (24 cases with a 12s delay
     # between them on a cold boot).

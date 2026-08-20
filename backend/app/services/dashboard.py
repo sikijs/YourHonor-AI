@@ -1,7 +1,7 @@
 """Daily study-plan picks for the Dashboard's "Today's Legal Practice" section.
 
 Everything here is deterministic and offline: content is seeded by the day of
-the year into the app's curated libraries (70 landmark cases, 160 tutor cards,
+the year into the app's curated libraries (85 landmark cases, 240 tutor cards,
 123 glossary terms), so the endpoint is instant, free, and never calls an LLM.
 The only per-user data is the suggested-focus topic from the review queue.
 """
@@ -58,7 +58,7 @@ def _load_glossary() -> list[dict]:
 
 
 def _flat_questions() -> list[dict]:
-    """Flatten the topic question lists into one list of cards (160 total).
+    """Flatten the topic question lists into one list of cards (240 total).
 
     Only the question text, topic, and difficulty are exposed — the curated
     card answers are hidden reference material and never leave the backend.
@@ -113,7 +113,7 @@ def _issue_prompt(case: dict) -> IssuePromptOfTheDay:
 def _case_doctrine_entries() -> dict[str, dict]:
     """Map each landmark case to its curated doctrine context.
 
-    Built from the doctrine map (31 doctrines, 70 cases) so the issue card can
+    Built from the doctrine map (35 doctrines, 85 cases) so the issue card can
     offer a plain-language subject hint and the court's own issue and holding —
     zero LLM. First entry wins for the two cases that appear in more than one
     doctrine.

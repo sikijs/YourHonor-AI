@@ -1,6 +1,6 @@
 [project]
 name = "yourhonor-backend"
-version = "1.4.0"
+version = "1.5.0"
 description = "YourHonor AI Backend"
 requires-python = ">=3.12"
 dependencies = [

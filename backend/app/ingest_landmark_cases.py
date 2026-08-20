@@ -20,7 +20,7 @@ INGESTION_PROGRESS = {
     "current": "",
 }
 
-# 70 landmark cases covering the standard 1L curriculum plus the deep
+# 85 landmark cases covering the standard 1L curriculum plus the deep
 # constitutional-law threads used by the Doctrine Explorer. The names here
 # MUST match the "name" keys in landmark_seed.json exactly — _get_or_fetch
 # matches seeds by lowercase name, so mismatches silently fall back to a
@@ -104,6 +104,26 @@ LANDMARK_CASES = [
     {"name": "Lemon v. Kurtzman", "citation": "403 U.S. 602", "year": 1971},
     {"name": "Central Hudson Gas & Electric Corp. v. Public Service Commission", "citation": "447 U.S. 557", "year": 1980},
     {"name": "Buckley v. Valeo", "citation": "424 U.S. 1", "year": 1976},
+    # Criminal Procedure — digital privacy (3)
+    {"name": "Riley v. California", "citation": "573 U.S. 373", "year": 2014},
+    {"name": "United States v. Jones", "citation": "565 U.S. 400", "year": 2012},
+    {"name": "Carpenter v. United States", "citation": "585 U.S. 296", "year": 2018},
+    # Criminal Procedure — trial rights (2)
+    {"name": "Crawford v. Washington", "citation": "541 U.S. 36", "year": 2004},
+    {"name": "Blakely v. Washington", "citation": "542 U.S. 296", "year": 2004},
+    # Wills, Trusts & Estates (4)
+    {"name": "Lucas v. Hamm", "citation": "56 Cal. 2d 583", "year": 1961},
+    {"name": "Shapira v. Union National Bank", "citation": "315 N.E.2d 825 (Ohio Ct. Com. Pl. 1974)", "year": 1974},
+    {"name": "Matter of Totten", "citation": "71 N.E. 748 (N.Y. 1904)", "year": 1904},
+    {"name": "Farkas v. Williams", "citation": "125 N.E.2d 600 (Ill. 1955)", "year": 1955},
+    # Agency & Partnership (4)
+    {"name": "Gorton v. Doty", "citation": "69 P.2d 136 (Idaho 1937)", "year": 1937},
+    {"name": "Gay Jenson Farms Co. v. Cargill, Inc.", "citation": "309 N.W.2d 285 (Minn. 1981)", "year": 1981},
+    {"name": "Lind v. Schenley Industries", "citation": "278 F.2d 79 (3d Cir. 1960)", "year": 1960},
+    {"name": "Meinhard v. Salmon", "citation": "249 N.Y. 458", "year": 1928},
+    # Professional Responsibility (2)
+    {"name": "In re Ryder", "citation": "263 F. Supp. 360 (E.D. Va. 1967)", "year": 1967},
+    {"name": "Nix v. Whiteside", "citation": "475 U.S. 157", "year": 1986},
 ]
 
 

@@ -151,7 +151,8 @@ def test_day_index_rotation():
 
 def test_flat_questions_covers_all_cards():
     cards = dashboard_service._flat_questions()
-    assert len(cards) == 160
+    expected = sum(len(t["questions"]) for t in dashboard_service.TOPICS.values())
+    assert len(cards) == expected
     for card in cards:
         assert card["question"]
         assert card["topic_id"]

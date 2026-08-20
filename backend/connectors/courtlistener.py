@@ -269,11 +269,11 @@ def _extract_opinion_id_from_cluster(cluster: dict) -> Optional[int]:
 def _seed_fallback(query: str) -> Optional[dict]:
     """Return the pre-seeded landmark opinion matching a query, if one exists.
 
-    The 70 landmark cases ship in the image as `landmark_seed.json` with full
+    The 85 landmark cases ship in the image as `landmark_seed.json` with full
     combined opinion text. When a live CourtListener fetch comes back empty
     or suspiciously short (a syllabus stub), the seed is the authoritative
     fallback — it is offline, rate-limit-free, and covers the whole core
-    curriculum plus the Doctrine Explorer's 70 cases.
+    curriculum plus the Doctrine Explorer's 85 cases.
     """
     try:
         if not _SEED_PATH.exists():

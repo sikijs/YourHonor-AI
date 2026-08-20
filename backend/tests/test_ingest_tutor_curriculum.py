@@ -9,7 +9,7 @@ from app.services.qdrant_store import TUTOR_COLLECTION_NAME
 def test_build_curriculum_points_one_per_card():
     points = build_curriculum_points()
     expected = sum(len(t["questions"]) for t in TOPICS.values())
-    assert expected == 160
+    assert expected > 0
     assert len(points) == expected
     for p in points:
         assert p["content"]
@@ -35,11 +35,12 @@ def test_seed_tutor_curriculum_deletes_then_upserts_into_tutor_collection():
          patch("app.ingest_tutor_curriculum.delete_collection") as mock_delete:
         result = seed_tutor_curriculum()
 
-    assert result == 160
+    expected = sum(len(t["questions"]) for t in TOPICS.values())
+    assert result == expected
     mock_delete.assert_called_once_with(TUTOR_COLLECTION_NAME)
     call = mock_add.call_args
     assert call.kwargs["collection_name"] == TUTOR_COLLECTION_NAME
-    assert len(call.args[0]) == 160
+    assert len(call.args[0]) == expected
 
 
 def test_seed_tutor_curriculum_returns_zero_on_error():

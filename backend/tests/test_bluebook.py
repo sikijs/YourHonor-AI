@@ -1,6 +1,6 @@
 """Tests for the Bluebook citation formatter.
 
-The formatter is two-tier: a deterministic local pass over the 70 landmark
+The formatter is two-tier: a deterministic local pass over the 85 landmark
 cases (zero LLM cost) plus an LLM pass for everything else. These tests cover
 both paths, input splitting, auth, error handling, and document saving.
 """

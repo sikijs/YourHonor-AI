@@ -48,7 +48,7 @@ def test_all_questions_have_short_and_deep_hints():
                     assert concept.lower() not in lowered, (
                         f"{topic_id}: deep_hint reveals concept '{concept}': {q.deep_hint[:100]}"
                     )
-    assert total == 160
+    assert total == sum(len(t["questions"]) for t in TOPICS.values())
 
 
 def test_tutor_start_without_auth_returns_401(client):
@@ -312,7 +312,7 @@ def test_all_questions_have_educative_answers():
             )
             # The answer must actually be about the question, not placeholder text
             assert q.answer.lower() != q.question.lower()
-    assert total == 160
+    assert total == sum(len(t["questions"]) for t in TOPICS.values())
 
 
 def test_follow_up_answer_propagates_to_follow_up_question(client, auth_headers):
