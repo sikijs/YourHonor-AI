@@ -1,6 +1,6 @@
 # Notes
 
-> **Version 1.5.0**
+> **Version 1.5.1**
 
 Quick reference for managing YourHonor AI.
 
@@ -442,7 +442,7 @@ Run these checks in order when you want to confirm the app is healthy:
 
 **1. Health endpoint** — open `http://localhost:8000/api/health` in your browser. Should return:
 ```json
-{"status":"healthy","version":"1.5.0"}
+{"status":"healthy","version":"1.5.1"}
 ```
 
 **2. Containers running** — run `docker ps`. Should show 2 containers:

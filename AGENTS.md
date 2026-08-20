@@ -1,7 +1,7 @@
 
 # YOURHONOR AI  ----   Platform & AI Agent Guidelines
 
-> **Current Version: 1.5.0**
+> **Current Version: 1.5.1**
 
 ## Project Overview
 
@@ -284,7 +284,7 @@ Backend available at http://localhost:8000
 - All 9 LLM service files route errors through `friendly_llm_error()`
 
 ### Phase 7 (Version Awareness) - COMPLETE
-- App version (`v1.5.0`) displayed in the footer on every page
+- App version (`v1.5.1`) displayed in the footer on every page
 - "Check for Updates" button calls `GET /api/check-update` which fetches the latest release from the GitHub API
 - Yellow banner with download link + upgrade instructions shown when a newer version exists
 - Green "up to date" banner when the current version matches the latest release
@@ -320,6 +320,11 @@ Backend available at http://localhost:8000
 - `doctrine_map.json` updated to 35 doctrines covering all 85 cases (4 new doctrines: `criminal-trial-rights`, `wills-trusts-succession`, `agency-partnership`, `professional-responsibility`; Riley/Jones/Carpenter added to `search-and-seizure`); parity tests (`test_doctrine.py`, `test_ingest_cleanup.py`) enforce one-to-one alignment with `LANDMARK_CASES`
 - Home "Case Law Atlas" card counts are now data-driven from `GET /api/doctrine/map` (no hardcoded 70/31)
 - Version bumped to v1.5.0 (constants in `backend/app/main.py`, `frontend/next.config.js`, `frontend/package.json`, `backend/pyproject.toml`); full backend suite 280 passed, frontend jest green
+
+### Phase 13 (v1.5.1 Fixes) - COMPLETE
+- Bluebook double-year quirk fixed: `_local_entry` in `backend/app/services/bluebook.py` no longer appends `({year})` when the seed citation already carries a year parenthetical (20 of 85 state/regional citations affected, e.g. `Gorton v. Doty, 69 P.2d 136 (Idaho 1937)` was `... (Idaho 1937) (1937)`); the Dashboard's Citation Drill answer benefits automatically; regression tests in `test_bluebook.py` assert a single year across all 85 local entries
+- First-boot embedding-model stall removed: `docker/Dockerfile.backend` pre-downloads `sentence-transformers/all-MiniLM-L6-v2` at build time (baked into `/root/.cache/huggingface`), so fresh containers start ingesting immediately instead of waiting 1-2 minutes on the download
+- Version bumped to v1.5.1
 
 ---
 

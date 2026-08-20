@@ -176,6 +176,18 @@ ethical responsibility, clear reasoning, and effective communication.
 
 ------------------------------------------------------------------------
 
+## 🆕 What's New in v1.5.1
+
+- **Bluebook citations fixed** — state and regional case citations no longer
+  show a doubled year (e.g. `Gorton v. Doty, 69 P.2d 136 (Idaho 1937) (1937)`
+  is now correctly `Gorton v. Doty, 69 P.2d 136 (Idaho 1937)`). The Dashboard's
+  Citation Drill benefits automatically.
+- **Faster first boot** — the AI embedding model is now baked into the Docker
+  image, so fresh installs start analyzing documents immediately instead of
+  waiting 1–2 minutes on a download.
+
+---
+
 ## 🆕 What's New in v1.5.0
 
 - **Expanded landmark library** — the Case Law Atlas grew from 70 to
