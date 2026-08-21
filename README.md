@@ -1,6 +1,6 @@
 # YourHonor AI
 
-> **Version 1.5.1**
+> **Version 1.6.0**
 
 A legal education AI platform for law students. Draft documents, analyze cases, research legal concepts — all from your browser.
 

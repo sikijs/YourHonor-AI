@@ -176,6 +176,28 @@ ethical responsibility, clear reasoning, and effective communication.
 
 ------------------------------------------------------------------------
 
+## 🆕 What's New in v1.6.0
+
+- **International Law everywhere** — 7 landmark Supreme Court cases on
+  international law joined the library: *The Paquete Habana* (customary
+  international law), *Missouri v. Holland* (treaty power), *Curtiss-Wright*
+  (foreign-affairs power), *Reid v. Covert* (no treaty can override the
+  Constitution), *Sabbatino* (act-of-state doctrine), *Sosa* (Alien Tort
+  Statute), and *Medellín v. Texas* (enforcing treaties at home). The Case
+  Law Atlas now spans **92 cases across 36 doctrines**, with a new
+  "International Law & Foreign Affairs" doctrine — full opinions, Bluebook
+  formatting, case comparisons, and daily drills all included.
+- **AI Tutor learns International Law too** — a new 13th tutor topic with
+  20 curated cards covering sources of international law, treaty
+  interpretation, jurisdiction, immunities, use of force, and more.
+- **Smarter tutor sessions** — Quiz/Review sessions now draw a fresh random
+  10 questions from each topic's bank every time, so no two sessions feel
+  the same while the whole bank still gets covered over time.
+- **Focus your review** — the cross-topic review queue can be filtered by
+  difficulty (1–4), so you can drill exactly the level you're weakest in.
+
+---
+
 ## 🆕 What's New in v1.5.1
 
 - **Bluebook citations fixed** — state and regional case citations no longer
