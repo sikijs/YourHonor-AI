@@ -1,6 +1,6 @@
 # Notes
 
-> **Version 1.5.1**
+> **Version 1.6.0**
 
 Quick reference for managing YourHonor AI.
 
@@ -20,6 +20,13 @@ phase notes in `AGENTS.md`.
   genocide, extradition, monism/dualism, universal jurisdiction)
 - Curriculum now 13 topics × 20 = 260 cards; `tutor_curriculum` Qdrant collection
   rebuilds to 260 points automatically on next boot; new parity test in `test_tutor.py`
+- Landmark library expanded to **92 cases / 36 doctrines**: new "International Law"
+  section in `LANDMARK_CASES` (Paquete Habana, Missouri v. Holland, Curtiss-Wright,
+  Reid v. Covert [cite corrected to 354 U.S. 1], Sabbatino, Sosa, Medellín) with full
+  opinions fetched into `landmark_seed.json` via `scripts/fetch_landmark_seed.py`
+- New `international-law` doctrine in `doctrine_map.json` ("International Law &
+  Foreign Affairs") covering the 7 new cases with curated holding/issue/plain_holding;
+  Atlas/Bluebook/Compare/Dashboard libraries auto-extend; hardcoded count copy swept
 
 ### v1.5.1
 - Bluebook double-year quirk fixed: state/regional citations no longer print a
@@ -481,7 +488,7 @@ Run these checks in order when you want to confirm the app is healthy:
 
 **1. Health endpoint** — open `http://localhost:8000/api/health` in your browser. Should return:
 ```json
-{"status":"healthy","version":"1.5.1"}
+{"status":"healthy","version":"1.6.0"}
 ```
 
 **2. Containers running** — run `docker ps`. Should show 2 containers:

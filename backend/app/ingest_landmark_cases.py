@@ -20,7 +20,7 @@ INGESTION_PROGRESS = {
     "current": "",
 }
 
-# 85 landmark cases covering the standard 1L curriculum plus the deep
+# 92 landmark cases covering the standard 1L curriculum plus the deep
 # constitutional-law threads used by the Doctrine Explorer. The names here
 # MUST match the "name" keys in landmark_seed.json exactly — _get_or_fetch
 # matches seeds by lowercase name, so mismatches silently fall back to a
@@ -124,6 +124,16 @@ LANDMARK_CASES = [
     # Professional Responsibility (2)
     {"name": "In re Ryder", "citation": "263 F. Supp. 360 (E.D. Va. 1967)", "year": 1967},
     {"name": "Nix v. Whiteside", "citation": "475 U.S. 157", "year": 1986},
+    # International Law (7) — SCOTUS cases teaching public-international-law
+    # doctrine: customary law, treaty power, foreign affairs, act of state,
+    # Alien Tort Statute, and treaty enforcement
+    {"name": "The Paquete Habana", "citation": "175 U.S. 677", "year": 1900},
+    {"name": "Missouri v. Holland", "citation": "252 U.S. 416", "year": 1920},
+    {"name": "United States v. Curtiss-Wright Export Corp.", "citation": "299 U.S. 304", "year": 1936},
+    {"name": "Reid v. Covert", "citation": "354 U.S. 1", "year": 1957},
+    {"name": "Banco Nacional de Cuba v. Sabbatino", "citation": "376 U.S. 398", "year": 1964},
+    {"name": "Sosa v. Alvarez-Machain", "citation": "542 U.S. 692", "year": 2004},
+    {"name": "Medellín v. Texas", "citation": "552 U.S. 491", "year": 2008},
 ]
 
 

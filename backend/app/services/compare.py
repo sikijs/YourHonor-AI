@@ -186,7 +186,7 @@ class CaseCompareService:
             unknown = names[0] if not case_a else names[1]
             raise ValueError(
                 f"Unknown landmark case: '{unknown}'. "
-                "Only the 85 curated landmark cases can be compared."
+                "Only the 92 curated landmark cases can be compared."
             )
 
         facts_a = _facts_for(case_a)

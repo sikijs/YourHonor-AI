@@ -1,982 +1,1046 @@
 {
- "version": 1,
- "updated": "2026-08-19",
- "doctrines": [
-  {
-   "id": "judicial-review",
-   "name": "Judicial Review",
-   "subject": "Constitutional Law",
-   "description": "The power of courts to review legislative and executive action against the Constitution and declare it invalid. Established in Marbury v. Madison, it is the cornerstone of American constitutional law.",
-   "cases": [
+  "version": 1,
+  "updated": "2026-08-21",
+  "doctrines": [
     {
-     "name": "Marbury v. Madison",
-     "citation": "5 U.S. 137",
-     "year": 1803,
-     "holding": "The Supreme Court has the power to review acts of Congress and declare them unconstitutional; Section 13 of the Judiciary Act of 1789, which purported to expand the Court's original jurisdiction, was unconstitutional.",
-     "issue": "Does Marbury have a right to his judicial commission, and can the Supreme Court order the government to deliver it?",
-     "plain_holding": "Yes and no: the Supreme Court can review laws passed by Congress and strike them down if they conflict with the Constitution. But the part of the Judiciary Act that let Marbury sue directly in the Supreme Court was unconstitutional, so the Court refused to order the commission delivered."
+      "id": "judicial-review",
+      "name": "Judicial Review",
+      "subject": "Constitutional Law",
+      "description": "The power of courts to review legislative and executive action against the Constitution and declare it invalid. Established in Marbury v. Madison, it is the cornerstone of American constitutional law.",
+      "cases": [
+        {
+          "name": "Marbury v. Madison",
+          "citation": "5 U.S. 137",
+          "year": 1803,
+          "holding": "The Supreme Court has the power to review acts of Congress and declare them unconstitutional; Section 13 of the Judiciary Act of 1789, which purported to expand the Court's original jurisdiction, was unconstitutional.",
+          "issue": "Does Marbury have a right to his judicial commission, and can the Supreme Court order the government to deliver it?",
+          "plain_holding": "Yes and no: the Supreme Court can review laws passed by Congress and strike them down if they conflict with the Constitution. But the part of the Judiciary Act that let Marbury sue directly in the Supreme Court was unconstitutional, so the Court refused to order the commission delivered."
+        }
+      ]
+    },
+    {
+      "id": "federalism-implied-powers",
+      "name": "Federalism & Implied Powers",
+      "subject": "Constitutional Law",
+      "description": "The relationship between the national government and the states, including Congress's implied powers under the Necessary and Proper Clause and the supremacy of federal law.",
+      "cases": [
+        {
+          "name": "McCulloch v. Maryland",
+          "citation": "17 U.S. 316",
+          "year": 1819,
+          "holding": "Congress may charter a national bank under the Necessary and Proper Clause, and states may not tax federal instrumentalities: the power to tax involves the power to destroy.",
+          "issue": "Does Congress have the power to create a national bank, and can a state tax it?",
+          "plain_holding": "Yes to both questions. Congress can charter a national bank under the Necessary and Proper Clause, and a state cannot tax a federal institution - as the Court put it, 'the power to tax involves the power to destroy.'"
+        }
+      ]
+    },
+    {
+      "id": "commerce-clause",
+      "name": "Commerce Clause",
+      "subject": "Constitutional Law",
+      "description": "Congress's power to regulate interstate commerce, its expansion over 200 years, and the modern limits placed on it. Traces the arc from Gibbons to Wickard and back to Lopez.",
+      "cases": [
+        {
+          "name": "Gibbons v. Ogden",
+          "citation": "22 U.S. 1",
+          "year": 1824,
+          "holding": "Interstate commerce includes navigation, and the federal Commerce Clause power is broad — states cannot monopolize steamboat traffic on interstate waterways.",
+          "issue": "Does the federal government's power over interstate commerce include steamboat traffic on waterways between states, and can a state grant a monopoly that blocks it?",
+          "plain_holding": "Yes. Interstate commerce includes carrying goods and people by boat across state lines, and Congress's power over it is broad. New York could not give one company a monopoly that shut out federally licensed steamboats."
+        },
+        {
+          "name": "Wickard v. Filburn",
+          "citation": "317 U.S. 111",
+          "year": 1942,
+          "holding": "Congress may regulate purely local activity that, in the aggregate, substantially affects interstate commerce — wheat grown for home consumption.",
+          "issue": "Can Congress regulate a farmer's wheat grown only for his own use at home?",
+          "plain_holding": "Yes. Even purely local activity - like a farmer growing wheat for his own family - can be regulated when, added together with many similar farmers, it has a big effect on the national wheat market."
+        },
+        {
+          "name": "United States v. Lopez",
+          "citation": "514 U.S. 549",
+          "year": 1995,
+          "holding": "The Gun-Free School Zones Act exceeds the Commerce Clause; Congress cannot regulate non-economic activity with no substantial effect on interstate commerce — the first limit on the clause since 1937.",
+          "issue": "Does Congress have the power under the Commerce Clause to make it a federal crime to carry a gun near a school?",
+          "plain_holding": "No. Carrying a gun near a school is not economic activity and does not substantially affect interstate commerce, so Congress went too far. This was the first time in nearly 60 years that the Court limited the Commerce Clause."
+        }
+      ]
+    },
+    {
+      "id": "anti-commandeering",
+      "name": "Anti-Commandeering",
+      "subject": "Constitutional Law",
+      "description": "The principle that Congress may not commandeer state legislatures or state executives to implement federal regulatory programs, preserving the dual-sovereignty structure of federalism.",
+      "cases": [
+        {
+          "name": "New York v. United States",
+          "citation": "505 U.S. 144",
+          "year": 1992,
+          "holding": "Congress may not commandeer state legislatures to enact a federal regulatory program; the 'take title' provision of the Low-Level Radioactive Waste Act violated the Tenth Amendment.",
+          "issue": "Can Congress force state legislatures to pass a federal waste-disposal law, and punish states that refuse?",
+          "plain_holding": "No. Congress may not 'commandeer' state legislatures to carry out federal programs. The law that told states to 'take title' to radioactive waste if they did not regulate it crossed that line."
+        }
+      ]
+    },
+    {
+      "id": "separation-of-powers",
+      "name": "Separation of Powers",
+      "subject": "Constitutional Law",
+      "description": "The allocation of power among the legislative, executive, and judicial branches, including the limits of executive authority and the qualified nature of executive privilege.",
+      "cases": [
+        {
+          "name": "Youngstown Sheet & Tube Co. v. Sawyer",
+          "citation": "343 U.S. 579",
+          "year": 1952,
+          "holding": "The President cannot seize private steel mills without congressional authorization; Justice Jackson's tripartite framework governs the scope of executive power.",
+          "issue": "Can the President seize private steel mills to stop a strike, without Congress's approval?",
+          "plain_holding": "No. The President may not take over private businesses without authority from Congress. Justice Jackson's famous framework for presidential power - acting with, without, or against Congress - is still used today."
+        },
+        {
+          "name": "United States v. Nixon",
+          "citation": "418 U.S. 683",
+          "year": 1974,
+          "holding": "Executive privilege is qualified, not absolute; the President must comply with a subpoena in a criminal case because the judiciary is the final arbiter of the Constitution.",
+          "issue": "Does the President's claim of executive privilege let him refuse a court order to hand over tape recordings in a criminal case?",
+          "plain_holding": "No. Executive privilege is real but not absolute. In a criminal case the President must obey a subpoena, because the courts - not the President - decide what the Constitution requires."
+        }
+      ]
+    },
+    {
+      "id": "administrative-deference",
+      "name": "Administrative Deference",
+      "subject": "Administrative Law",
+      "description": "How courts review agency interpretations of statutes. The two-step Chevron framework dominated administrative law for four decades before being overruled in 2024.",
+      "cases": [
+        {
+          "name": "Chevron v. NRDC",
+          "citation": "467 U.S. 837",
+          "year": 1984,
+          "holding": "Courts should defer to reasonable agency interpretations of ambiguous statutes at Chevron step two — a doctrine overruled by Loper Bright Enterprises v. Raimondo (2024).",
+          "issue": "When a law is unclear, should courts defer to the government agency's reasonable interpretation of it?",
+          "plain_holding": "Yes, under the old rule: if a law was ambiguous and the agency's reading was reasonable, courts deferred to it. The Supreme Court overruled that approach in 2024, so courts now decide unclear laws themselves."
+        }
+      ]
+    },
+    {
+      "id": "equal-protection",
+      "name": "Equal Protection",
+      "subject": "Constitutional Law",
+      "description": "The Fourteenth Amendment's guarantee of equal protection of the laws — from Plessy's separate-but-equal to Brown, the tiers of scrutiny, and the modern doctrine of race-conscious classifications.",
+      "cases": [
+        {
+          "name": "Plessy v. Ferguson",
+          "citation": "163 U.S. 537",
+          "year": 1896,
+          "holding": "Separate but equal railway accommodations do not violate the Equal Protection Clause — overruled by Brown v. Board of Education (1954).",
+          "issue": "Does separating railway passengers by race violate the Equal Protection Clause?",
+          "plain_holding": "No, said the Court: 'separate but equal' was allowed, so Louisiana's race-segregated train cars were upheld. Brown v. Board of Education overturned this in 1954."
+        },
+        {
+          "name": "United States v. Carolene Products Co.",
+          "citation": "304 U.S. 144",
+          "year": 1938,
+          "holding": "Economic regulation is reviewed under rational basis; Footnote 4 suggested heightened scrutiny for 'discrete and insular minorities' — the origin of the tiers of scrutiny.",
+          "issue": "Does a law banning 'filled milk' violate the Constitution?",
+          "plain_holding": "No. Economic regulations only need a rational reason, and this one had one. More importantly, Footnote 4 suggested the Court should review more strictly when laws target 'discrete and insular minorities' - the seed of modern tiers of scrutiny."
+        },
+        {
+          "name": "Brown v. Board of Education",
+          "citation": "347 U.S. 483",
+          "year": 1954,
+          "holding": "Racial segregation in public schools violates the Equal Protection Clause; separate educational facilities are inherently unequal.",
+          "issue": "Does segregating public schools by race violate the Equal Protection Clause?",
+          "plain_holding": "Yes. Separate schools for Black and white children are 'inherently unequal' and violate the Equal Protection Clause, even when the facilities are similar."
+        },
+        {
+          "name": "Loving v. Virginia",
+          "citation": "388 U.S. 1",
+          "year": 1967,
+          "holding": "Racial restrictions on marriage violate both the Equal Protection and Due Process Clauses of the Fourteenth Amendment.",
+          "issue": "Can a state ban marriage between people of different races?",
+          "plain_holding": "No. Race-based marriage bans violate both the Equal Protection and Due Process Clauses. Marriage is a fundamental right, and race has nothing to do with it."
+        },
+        {
+          "name": "Korematsu v. United States",
+          "citation": "323 U.S. 214",
+          "year": 1944,
+          "holding": "The wartime exclusion of Japanese Americans was upheld under military necessity — a decision widely discredited and repudiated in Trump v. Hawaii (2018).",
+          "issue": "Was it constitutional to force Japanese Americans into internment camps during World War II?",
+          "plain_holding": "The Court said yes at the time, citing military necessity. The decision is now widely considered a grave mistake and was formally repudiated in 2018 - a lesson in how fear can distort the law."
+        },
+        {
+          "name": "Grutter v. Bollinger",
+          "citation": "539 U.S. 306",
+          "year": 2003,
+          "holding": "Narrowly tailored affirmative action in law school admissions survives strict scrutiny because student-body diversity is a compelling state interest — later limited by Students for Fair Admissions (2023).",
+          "issue": "Does the University of Michigan Law School's use of race in admissions violate the Equal Protection Clause?",
+          "plain_holding": "No - a narrowly tailored plan can survive. A diverse student body is a compelling interest, and race was only one factor among many. The Court limited this approach in 2023, but Grutter remains the classic defense of affirmative action."
+        }
+      ]
+    },
+    {
+      "id": "voting-rights",
+      "name": "Voting Rights & Apportionment",
+      "subject": "Constitutional Law",
+      "description": "The constitutional rules governing legislative districts, racial gerrymandering, and the reach of the Voting Rights Act.",
+      "cases": [
+        {
+          "name": "Baker v. Carr",
+          "citation": "369 U.S. 186",
+          "year": 1962,
+          "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims.",
+          "issue": "Can federal courts hear challenges to how states draw voting districts?",
+          "plain_holding": "Yes. District-drawing claims are not a 'political question' the courts must avoid. Federal judges can hear one-person-one-vote cases, opening the door to decades of redistricting litigation."
+        },
+        {
+          "name": "Shaw v. Reno",
+          "citation": "509 U.S. 630",
+          "year": 1993,
+          "holding": "Racial gerrymandering claims are cognizable under the Equal Protection Clause where a district is so bizarre on its face that it can only be explained by race.",
+          "issue": "Can voters challenge a district drawn so oddly that it can only be explained by race?",
+          "plain_holding": "Yes. A district so bizarrely shaped that it looks like an attempt to separate voters by race can be challenged under the Equal Protection Clause - even without proof of concrete voter harm."
+        },
+        {
+          "name": "Shelby County v. Holder",
+          "citation": "570 U.S. 529",
+          "year": 2013,
+          "holding": "The preclearance coverage formula of Section 4(b) of the Voting Rights Act violates the Tenth Amendment's equal sovereignty principle; Congress must update it.",
+          "issue": "Is the formula the Voting Rights Act uses to decide which states need federal approval before changing election laws still valid?",
+          "plain_holding": "No. The coverage formula was based on 40-year-old data and violated the principle that states are sovereign equals. Congress can write a new formula, but until it does, the preclearance requirement is frozen."
+        }
+      ]
+    },
+    {
+      "id": "standing-and-justiciability",
+      "name": "Standing & Justiciability",
+      "subject": "Constitutional Law",
+      "description": "The threshold rules that decide when a case is fit for federal court: standing, ripeness, mootness, and the political question doctrine.",
+      "cases": [
+        {
+          "name": "Baker v. Carr",
+          "citation": "369 U.S. 186",
+          "year": 1962,
+          "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims.",
+          "issue": "Can federal courts hear challenges to how states draw voting districts?",
+          "plain_holding": "Yes. District-drawing claims are not a 'political question' the courts must avoid. Federal judges can hear one-person-one-vote cases, opening the door to decades of redistricting litigation."
+        },
+        {
+          "name": "Lujan v. Defenders of Wildlife",
+          "citation": "504 U.S. 555",
+          "year": 1992,
+          "holding": "Standing requires an injury in fact, a causal connection, and redressability; Congress cannot erase the Article III case-or-controversy requirement.",
+          "issue": "Do environmental groups have standing to challenge a rule when the harm to them is only a possible future visit to the affected animals?",
+          "plain_holding": "No. To sue, you need a concrete injury, a causal link to the defendant, and a decision that would fix the harm. 'Someday I might go see the animals' was too speculative, so the case was dismissed."
+        }
+      ]
+    },
+    {
+      "id": "substantive-due-process-privacy",
+      "name": "Substantive Due Process & Privacy",
+      "subject": "Constitutional Law",
+      "description": "The contested doctrine that the Due Process Clauses protect unenumerated fundamental rights — contraception, marriage, intimacy, and abortion — and the modern battle over its scope.",
+      "cases": [
+        {
+          "name": "Griswold v. Connecticut",
+          "citation": "381 U.S. 479",
+          "year": 1965,
+          "holding": "The Constitution protects marital privacy through the penumbras and emanations of the Bill of Rights; a ban on contraceptives for married couples is unconstitutional.",
+          "issue": "Can a state ban married couples from using contraceptives?",
+          "plain_holding": "No. The Constitution protects marital privacy - the Court found the right in the 'penumbras' (shadows) of the Bill of Rights. The ban was struck down, and this case became the foundation of the right to privacy."
+        },
+        {
+          "name": "Roe v. Wade",
+          "citation": "410 U.S. 113",
+          "year": 1973,
+          "holding": "The right of privacy under the Due Process Clause includes a woman's decision to terminate a pregnancy under the trimester framework — overruled by Dobbs v. Jackson (2022).",
+          "issue": "Does the Constitution protect a woman's right to end a pregnancy?",
+          "plain_holding": "Yes, under the right of privacy, but with limits: states could regulate abortion as pregnancy progressed and ban it after viability. Dobbs v. Jackson overruled this in 2022 and returned the question to the states."
+        },
+        {
+          "name": "Lawrence v. Texas",
+          "citation": "539 U.S. 558",
+          "year": 2003,
+          "holding": "Criminalizing same-sex sexual intimacy violates the Due Process Clause; Bowers v. Hardwick is overruled.",
+          "issue": "Can a state make private sexual intimacy between same-sex adults a crime?",
+          "plain_holding": "No. Criminalizing same-sex intimacy violates the Due Process Clause - adults have a right to private intimate conduct. The Court also overruled its earlier decision in Bowers v. Hardwick (1986), which had upheld a similar ban."
+        },
+        {
+          "name": "Obergefell v. Hodges",
+          "citation": "576 U.S. 644",
+          "year": 2015,
+          "holding": "The Fourteenth Amendment requires states to both license and recognize same-sex marriages; the right to marry is fundamental.",
+          "issue": "Must states allow and recognize same-sex marriages?",
+          "plain_holding": "Yes. The Fourteenth Amendment requires states to both license and recognize same-sex marriages, because the right to marry is a fundamental right that belongs to everyone."
+        },
+        {
+          "name": "Dobbs v. Jackson Women's Health",
+          "citation": "597 U.S. 215",
+          "year": 2022,
+          "holding": "The Constitution does not confer a right to abortion; Roe and Casey are overruled, returning abortion regulation to the states.",
+          "issue": "Does the Constitution protect a right to abortion?",
+          "plain_holding": "No. The Constitution does not mention abortion, and the Court overruled Roe and Casey. Abortion regulation now returns to the states, which may set their own rules."
+        }
+      ]
+    },
+    {
+      "id": "privileges-or-immunities",
+      "name": "Privileges or Immunities",
+      "subject": "Constitutional Law",
+      "description": "The Fourteenth Amendment's Privileges or Immunities Clause, narrowly read since 1873 to protect only federal citizenship rights — one of the great 'paths not taken' in constitutional law.",
+      "cases": [
+        {
+          "name": "Slaughter-House Cases",
+          "citation": "83 U.S. 36",
+          "year": 1873,
+          "holding": "The Privileges or Immunities Clause protects only the privileges of federal citizenship, not state citizenship — a narrow reading that channeled rights claims through the Due Process Clause instead.",
+          "issue": "Does the Privileges or Immunities Clause protect the basic rights of state citizens, like the right to work at any trade?",
+          "plain_holding": "No. The clause protects only the privileges of national citizenship, like traveling to the capital. That narrow reading sent most rights claims through the Due Process Clause instead."
+        }
+      ]
+    },
+    {
+      "id": "free-speech-press",
+      "name": "Free Speech & Press",
+      "subject": "First Amendment",
+      "description": "The core First Amendment doctrines: incitement, defamation, obscenity, expressive conduct, and student speech. Traces the evolution from the clear-and-present-danger test to modern categorical rules.",
+      "cases": [
+        {
+          "name": "Schenck v. United States",
+          "citation": "249 U.S. 47",
+          "year": 1919,
+          "holding": "Speech may be punished when it creates a clear and present danger of the evils Congress may prevent — the test later replaced by Brandenburg's imminent lawless action.",
+          "issue": "Can someone be punished for mailing anti-draft leaflets during wartime?",
+          "plain_holding": "Yes, under the 'clear and present danger' test: speech can be punished when it creates a real, immediate danger the government may lawfully prevent. The test was later replaced by Brandenburg's tougher standard."
+        },
+        {
+          "name": "New York Times v. Sullivan",
+          "citation": "376 U.S. 254",
+          "year": 1964,
+          "holding": "Public officials must prove actual malice — knowledge of falsity or reckless disregard for the truth — to win a defamation suit.",
+          "issue": "Can a public official win a defamation case without showing the newspaper knew the statement was false?",
+          "plain_holding": "No. Public officials must prove 'actual malice' - that the paper knew the statement was false or did not care whether it was true. The rule protects hard-hitting criticism of public figures."
+        },
+        {
+          "name": "Miller v. California",
+          "citation": "413 U.S. 15",
+          "year": 1973,
+          "holding": "Obscenity is defined by the three-part Miller test (prurient interest, patently offensive, serious value) and falls outside First Amendment protection.",
+          "issue": "Can the government punish the sale of obscene material?",
+          "plain_holding": "Yes, under a strict three-part test: the material appeals to prurient interest, depicts sexual conduct explicitly banned by law, and has no serious artistic, literary, political, or scientific value. Obscenity falls outside First Amendment protection."
+        },
+        {
+          "name": "Tinker v. Des Moines Independent Community School District",
+          "citation": "393 U.S. 503",
+          "year": 1969,
+          "holding": "Students retain First Amendment rights in school unless their speech substantially and materially disrupts the educational process.",
+          "issue": "Can a school punish students for wearing black armbands to protest the Vietnam War?",
+          "plain_holding": "No. Students keep their First Amendment rights at school as long as their speech does not substantially disrupt classes. Quietly wearing armbands was protected protest - 'students do not shed their rights at the schoolhouse gate.'"
+        },
+        {
+          "name": "Brandenburg v. Ohio",
+          "citation": "395 U.S. 444",
+          "year": 1969,
+          "holding": "Speech advocating lawlessness is protected unless it is directed to inciting and likely to incite imminent lawless action.",
+          "issue": "Can a state punish a speaker for a rally speech calling for violence?",
+          "plain_holding": "No - the speech was protected. Advocacy of lawbreaking is protected unless it is meant to incite and likely to produce immediate lawless action. This 'imminent lawless action' test is the modern free-speech standard."
+        },
+        {
+          "name": "Texas v. Johnson",
+          "citation": "491 U.S. 397",
+          "year": 1989,
+          "holding": "Burning the American flag is expressive conduct protected by the First Amendment; the government cannot ban it to preserve the flag's symbolic value.",
+          "issue": "Can a state ban burning the American flag?",
+          "plain_holding": "No. Burning the flag is expressive conduct protected by the First Amendment. The government cannot punish it simply to preserve the flag's symbolic value."
+        },
+        {
+          "name": "New York Times v. United States",
+          "citation": "403 U.S. 713",
+          "year": 1971,
+          "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm.",
+          "issue": "Can the government stop the New York Times from publishing the Pentagon Papers?",
+          "plain_holding": "No. Blocking publication in advance - prior restraint - is almost always unconstitutional. The government failed to show the papers would cause direct, serious harm to national security."
+        }
+      ]
+    },
+    {
+      "id": "prior-restraint",
+      "name": "Prior Restraint",
+      "subject": "First Amendment",
+      "description": "The doctrine that government may not restrain speech before it occurs, except in the most exceptional circumstances — from Near's newspapers to the Pentagon Papers.",
+      "cases": [
+        {
+          "name": "Near v. Minnesota",
+          "citation": "283 U.S. 697",
+          "year": 1931,
+          "holding": "Prior restraint is presumptively unconstitutional and applies to the states via the Fourteenth Amendment; a gag order on a defamatory newspaper was invalid.",
+          "issue": "Can a state shut down a newspaper for publishing harsh attacks?",
+          "plain_holding": "No. Prior restraint - stopping publication before it happens - is presumptively unconstitutional. The state law that let courts gag a 'defamatory' newspaper was struck down, applying the First Amendment to the states."
+        },
+        {
+          "name": "New York Times v. United States",
+          "citation": "403 U.S. 713",
+          "year": 1971,
+          "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm.",
+          "issue": "Can the government stop the New York Times from publishing the Pentagon Papers?",
+          "plain_holding": "No. Blocking publication in advance - prior restraint - is almost always unconstitutional. The government failed to show the papers would cause direct, serious harm to national security."
+        }
+      ]
+    },
+    {
+      "id": "religious-freedom",
+      "name": "Religious Freedom",
+      "subject": "First Amendment",
+      "description": "The Free Exercise and Establishment Clauses: when generally applicable laws may burden religion, the Amish exemption, and the rise and fall of the Lemon test.",
+      "cases": [
+        {
+          "name": "Wisconsin v. Yoder",
+          "citation": "406 U.S. 205",
+          "year": 1972,
+          "holding": "Compulsory school attendance beyond eighth grade violates the Amish's Free Exercise rights where it threatens their religious way of life.",
+          "issue": "Can Wisconsin force Amish children to attend school past eighth grade?",
+          "plain_holding": "No. The law clashed with the Amish religious way of life, and their free-exercise rights won. The state could not show the extra schooling was important enough to justify the burden."
+        },
+        {
+          "name": "Lemon v. Kurtzman",
+          "citation": "403 U.S. 602",
+          "year": 1971,
+          "holding": "The Establishment Clause requires the three-part Lemon test (secular purpose, no primary religious effect, no excessive entanglement) — a framework later widely disfavored and effectively abandoned.",
+          "issue": "Can states pay for secular subjects and materials in religious schools?",
+          "plain_holding": "The Court created the three-part 'Lemon test' for Establishment Clause cases: the law needs a secular purpose, must not mainly promote or inhibit religion, and must not entangle government with religion. The law here failed the test, which was later widely abandoned."
+        },
+        {
+          "name": "Employment Division v. Smith",
+          "citation": "494 U.S. 872",
+          "year": 1990,
+          "holding": "Neutral, generally applicable laws that burden religious exercise do not violate the Free Exercise Clause; strict scrutiny is not required — partially superseded by the Religious Freedom Restoration Act (1993).",
+          "issue": "Can the state deny unemployment benefits to someone fired for using peyote in a religious ceremony?",
+          "plain_holding": "Yes. A neutral law that applies to everyone can burden religious practice without violating the Free Exercise Clause - the peyote ban applied to all, not just to one religion. Congress later passed RFRA to restore stricter protection."
+        }
+      ]
+    },
+    {
+      "id": "commercial-speech-campaign-finance",
+      "name": "Commercial Speech & Campaign Finance",
+      "subject": "First Amendment",
+      "description": "The intermediate scrutiny applied to advertising and the First Amendment limits on regulating money in politics — from the Buckley distinction to corporate speech in Citizens United.",
+      "cases": [
+        {
+          "name": "Buckley v. Valeo",
+          "citation": "424 U.S. 1",
+          "year": 1976,
+          "holding": "Campaign expenditure limits violate the First Amendment, but contribution limits are upheld — creating the spending/contributions distinction that still governs campaign finance.",
+          "issue": "Can the government limit how much candidates and others spend on campaigns?",
+          "plain_holding": "Partly. Limits on campaign spending are unconstitutional, because spending money on speech is speech. But limits on direct contributions to candidates are allowed to fight corruption. That spending/contribution split still governs campaign finance."
+        },
+        {
+          "name": "Central Hudson Gas & Electric Corp. v. Public Service Commission",
+          "citation": "447 U.S. 557",
+          "year": 1980,
+          "holding": "Commercial speech receives intermediate scrutiny under the four-part Central Hudson test (lawful activity, substantial government interest, direct advancement, narrow tailoring).",
+          "issue": "Can a utility company be banned from advertising to encourage electricity use?",
+          "plain_holding": "No - the ban went too far. Advertising is commercial speech and gets intermediate scrutiny under a four-part test: a lawful product, a real government interest, a direct connection, and a rule no broader than necessary."
+        },
+        {
+          "name": "Citizens United v. FEC",
+          "citation": "558 U.S. 310",
+          "year": 2010,
+          "holding": "Corporate independent expenditures in elections are protected political speech; the BCRA's electioneering-communication ban is unconstitutional.",
+          "issue": "Can the government ban corporations from spending money on ads about candidates shortly before an election?",
+          "plain_holding": "No. Independent spending by corporations is political speech protected by the First Amendment. The Court struck down the ban, treating corporations as speakers with free-speech rights."
+        }
+      ]
+    },
+    {
+      "id": "second-amendment",
+      "name": "Second Amendment",
+      "subject": "Constitutional Law",
+      "description": "The modern individual-rights reading of the right to keep and bear arms, announced in Heller after nearly 70 years of silence on the subject.",
+      "cases": [
+        {
+          "name": "District of Columbia v. Heller",
+          "citation": "554 U.S. 570",
+          "year": 2008,
+          "holding": "The Second Amendment protects an individual right to keep and bear arms for self-defense in the home; the District's handgun ban is unconstitutional.",
+          "issue": "Does the Second Amendment protect an individual right to own a gun, and can D.C. ban handguns?",
+          "plain_holding": "Yes to both: the Second Amendment protects an individual right to keep a handgun at home for self-defense, and the District's handgun ban violated that right."
+        }
+      ]
+    },
+    {
+      "id": "search-and-seizure",
+      "name": "Search & Seizure",
+      "subject": "Criminal Procedure",
+      "description": "Fourth Amendment doctrine: the exclusionary rule, the reasonable-expectation-of-privacy test, stop and frisk, and the wingspan limit on searches incident to arrest.",
+      "cases": [
+        {
+          "name": "Mapp v. Ohio",
+          "citation": "367 U.S. 643",
+          "year": 1961,
+          "holding": "The exclusionary rule applies to the states through the Fourteenth Amendment; evidence seized in violation of the Fourth Amendment is inadmissible.",
+          "issue": "Can evidence seized illegally by police be used in state court?",
+          "plain_holding": "No. The exclusionary rule - evidence from an illegal search stays out of court - now applies to the states. This made the Fourth Amendment's promise real at the state level."
+        },
+        {
+          "name": "Katz v. United States",
+          "citation": "389 U.S. 347",
+          "year": 1967,
+          "holding": "The Fourth Amendment protects people, not places; wiretapping a phone booth without a warrant violates a reasonable expectation of privacy.",
+          "issue": "Does the FBI need a warrant to wiretap a public phone booth?",
+          "plain_holding": "Yes. The Fourth Amendment protects people, not just places. Katz had a reasonable expectation of privacy inside the booth, so the warrantless wiretap violated the Constitution."
+        },
+        {
+          "name": "Terry v. Ohio",
+          "citation": "392 U.S. 1",
+          "year": 1968,
+          "holding": "A brief investigatory stop and frisk for weapons is permitted on reasonable suspicion of criminal activity, weighing crime prevention against the Fourth Amendment.",
+          "issue": "Can police stop and frisk someone they suspect of planning a crime?",
+          "plain_holding": "Yes, within limits. With 'reasonable suspicion' of criminal activity, police may briefly stop a person and pat them down for weapons. The frisk must be limited to safety - it is not a full search."
+        },
+        {
+          "name": "Chimel v. California",
+          "citation": "395 U.S. 752",
+          "year": 1969,
+          "holding": "A search incident to arrest is limited to the area within the arrestee's immediate control; the full-house search was unconstitutional.",
+          "issue": "Can police search a whole house after making an arrest?",
+          "plain_holding": "No. After an arrest, police may search only the area within the person's immediate reach - to grab weapons or destroy evidence. Searching the rest of the house required a warrant."
+        },
+        {
+          "name": "Riley v. California",
+          "holding": "Police generally may not, without a warrant, search digital information stored on a cell phone seized incident to arrest; the search-incident-to-arrest exception does not justify warrantless access to a phone's contents because the rationales of officer safety and evidence preservation do not apply to digital data.",
+          "issue": "Does the Fourth Amendment require police to obtain a warrant before searching the contents of a cell phone seized incident to arrest?",
+          "plain_holding": "Yes. The police need a warrant before digging through a phone's digital contents, even after a lawful arrest. The old 'search anything on the person right after arrest' rule does not extend to the entire digital world inside a phone.",
+          "citation": "573 U.S. 373",
+          "year": 2014
+        },
+        {
+          "name": "United States v. Jones",
+          "holding": "Attaching a GPS tracking device to a vehicle and using it to monitor the vehicle's movements on public streets is a search under the Fourth Amendment; the government's physical trespass in installing the device triggers the Amendment, and long-term monitoring implicates privacy interests.",
+          "issue": "Does the warrantless installation and use of a GPS tracking device on a car to monitor its public movements violate the Fourth Amendment?",
+          "plain_holding": "Yes. Physically attaching a GPS device to someone's car is an intrusion that counts as a 'search,' so police generally need a warrant — even when the movements tracked were on public roads.",
+          "citation": "565 U.S. 400",
+          "year": 2012
+        },
+        {
+          "name": "Carpenter v. United States",
+          "holding": "The government's acquisition of historical cell-site location information (CSLI) from a wireless carrier is a search under the Fourth Amendment; accessing long-term location records intrudes on a reasonable expectation of privacy, so a warrant supported by probable cause is generally required.",
+          "issue": "Does the government's warrantless acquisition of cell-site location records from a wireless carrier violate the Fourth Amendment?",
+          "plain_holding": "Yes. Getting someone's past locations from their cell phone company — days and weeks of where they have been — is a search, and the police need a warrant based on probable cause to obtain it.",
+          "citation": "585 U.S. 296",
+          "year": 2018
+        }
+      ]
+    },
+    {
+      "id": "self-incrimination",
+      "name": "Self-Incrimination & Miranda",
+      "subject": "Criminal Procedure",
+      "description": "The Fifth Amendment right against compelled self-incrimination and the Miranda warning regime that guards it in custodial interrogation.",
+      "cases": [
+        {
+          "name": "Miranda v. Arizona",
+          "citation": "384 U.S. 436",
+          "year": 1966,
+          "holding": "Suspects in custody must be warned of their right to remain silent and to counsel before interrogation; statements obtained without warnings are inadmissible.",
+          "issue": "Can police use a confession from a suspect who was never told about their rights?",
+          "plain_holding": "No. Before questioning someone in custody, police must warn them of the right to remain silent and to have a lawyer. Confessions obtained without those warnings are inadmissible - that is where the Miranda warning comes from."
+        }
+      ]
+    },
+    {
+      "id": "right-to-counsel",
+      "name": "Right to Counsel & Fair Trial",
+      "subject": "Criminal Procedure",
+      "description": "The Sixth and Fourteenth Amendment guarantees of counsel and the prosecutor's duty to disclose exculpatory evidence — twin pillars of a fair trial.",
+      "cases": [
+        {
+          "name": "Brady v. Maryland",
+          "citation": "373 U.S. 83",
+          "year": 1963,
+          "holding": "The prosecution must disclose material exculpatory evidence to the defense, or the conviction is unconstitutional — the foundation of the Brady disclosure rule.",
+          "issue": "Must the prosecution share evidence that could help the defendant?",
+          "plain_holding": "Yes. If the prosecution hides material evidence that could help the defense, the conviction is unconstitutional. The 'Brady rule' requires disclosing favorable evidence."
+        },
+        {
+          "name": "Gideon v. Wainwright",
+          "citation": "372 U.S. 335",
+          "year": 1963,
+          "holding": "The Sixth Amendment right to counsel applies to the states through the Fourteenth Amendment; states must provide counsel to indigent felony defendants.",
+          "issue": "Does a poor person charged with a felony have a right to a free lawyer?",
+          "plain_holding": "Yes. The Sixth Amendment right to counsel applies to the states, so states must provide a lawyer to felony defendants who cannot afford one."
+        }
+      ]
+    },
+    {
+      "id": "jury-selection",
+      "name": "Jury Selection & Equal Protection",
+      "subject": "Criminal Procedure",
+      "description": "The constitutional limit on peremptory strikes: prosecutors (and in later cases, criminal defendants) may not exclude jurors on the basis of race.",
+      "cases": [
+        {
+          "name": "Batson v. Kentucky",
+          "citation": "476 U.S. 79",
+          "year": 1986,
+          "holding": "Peremptory strikes exercised on the basis of race violate the Equal Protection Clause; a defendant can challenge them under the Batson three-step inquiry.",
+          "issue": "Can a prosecutor use peremptory strikes to remove Black jurors because of their race?",
+          "plain_holding": "No. Striking jurors because of race violates the Equal Protection Clause. If the defendant shows a pattern, the prosecutor must give a race-neutral reason."
+        }
+      ]
+    },
+    {
+      "id": "cruel-unusual-punishment",
+      "name": "Cruel & Unusual Punishment",
+      "subject": "Criminal Procedure",
+      "description": "The Eighth Amendment's prohibition on cruel and unusual punishments, applied to the death penalty's arbitrary administration.",
+      "cases": [
+        {
+          "name": "Furman v. Georgia",
+          "citation": "408 U.S. 238",
+          "year": 1972,
+          "holding": "The death penalty as administered was arbitrary and discriminatory, violating the Cruel and Unusual Punishments Clause — a moratorium that states later reformed around (Gregg v. Georgia, 1976).",
+          "issue": "Is the death penalty, as actually applied, constitutional?",
+          "plain_holding": "No, as it was then applied: the system was arbitrary and discriminatory, so it violated the Eighth Amendment. States rewrote their death-penalty laws to fix the problem, and the Court approved the reforms in 1976."
+        }
+      ]
+    },
+    {
+      "id": "contracts-consideration",
+      "name": "Consideration",
+      "subject": "Contracts",
+      "description": "The bargain element that makes a promise enforceable: what counts as consideration, including forbearance of a legal right.",
+      "cases": [
+        {
+          "name": "Hamer v. Sidway",
+          "citation": "27 N.E. 256 (N.Y. 1891)",
+          "year": 1891,
+          "holding": "Forbearance of a legal right — an uncle's promise not to drink or gamble in exchange for the nephew's abstinence — constitutes valid consideration.",
+          "issue": "Is a promise enforceable when the other side's only 'payment' was promising not to do something they had a legal right to do?",
+          "plain_holding": "Yes. Giving up a legal right - here, a nephew's promise not to drink or gamble until age 21 - is valid consideration. The uncle's promise of $5,000 was enforceable."
+        }
+      ]
+    },
+    {
+      "id": "contracts-formation",
+      "name": "Formation & Unconscionability",
+      "subject": "Contracts",
+      "description": "When a contract is formed (objective intent) and when courts will refuse to enforce it (unconscionability).",
+      "cases": [
+        {
+          "name": "Lucy v. Zehmer",
+          "citation": "84 S.E.2d 516 (Va. 1954)",
+          "year": 1954,
+          "holding": "Contractual intent is judged by objective manifestations; a signed agreement to sell a farm is enforceable even where a party claims it was made in jest.",
+          "issue": "Is a contract binding if one side claims he was only joking?",
+          "plain_holding": "Yes. What matters is what a reasonable person would have understood from the objective signs, not a secret intent. Zehmer's signed, serious-looking agreement to sell the farm was enforceable."
+        },
+        {
+          "name": "Williams v. Walker-Thomas Furniture Co.",
+          "citation": "350 F.2d 445 (D.C. Cir. 1965)",
+          "year": 1965,
+          "holding": "A court may refuse to enforce a contract for unconscionability where grossly unfair terms and unequal bargaining power shock the conscience.",
+          "issue": "Can a court refuse to enforce a contract with very unfair terms against a poor buyer?",
+          "plain_holding": "Yes, if the terms 'shock the conscience.' A contract that is grossly unfair and exploits unequal bargaining power can be thrown out as unconscionable."
+        }
+      ]
+    },
+    {
+      "id": "contracts-damages",
+      "name": "Damages & Expectancy",
+      "subject": "Contracts",
+      "description": "How contract damages are measured: expectation damages that put the promisee in the position promised, limited by foreseeability at formation.",
+      "cases": [
+        {
+          "name": "Hadley v. Baxendale",
+          "citation": "9 Exch. 341 (1854)",
+          "year": 1854,
+          "holding": "Consequential damages are recoverable only for losses within the parties' reasonable contemplation at the time of contract formation — the famous foreseeability rule.",
+          "issue": "Can a miller recover lost profits from a delivery company that did not know the mill was shut down?",
+          "plain_holding": "No. You can only recover losses the other side could reasonably have foreseen when the contract was made. The carrier never knew the broken shaft would halt the whole mill, so the lost profits were too remote."
+        },
+        {
+          "name": "Hawkins v. McGee",
+          "citation": "146 A. 641 (N.H. 1929)",
+          "year": 1929,
+          "holding": "Expectation damages give the plaintiff the benefit of the bargain — the 'hairy hand' case, where damages were measured by the perfect hand promised, not the cost of surgery.",
+          "issue": "How are damages measured when a doctor promises a 'perfect hand' and the surgery fails?",
+          "plain_holding": "By the benefit of the bargain: the plaintiff gets what was promised - a perfect hand - not just the cost of the surgery. This is the classic expectation-damages case."
+        }
+      ]
+    },
+    {
+      "id": "torts-negligence",
+      "name": "Negligence & Duty",
+      "subject": "Torts",
+      "description": "The fault-based liability regime: the ordinary-care standard, the duty of care owed to foreseeable plaintiffs, manufacturer liability without privity, and the Hand formula.",
+      "cases": [
+        {
+          "name": "Brown v. Kendall",
+          "citation": "60 Mass. 292 (1850)",
+          "year": 1850,
+          "holding": "Accidental injuries require proof of fault; liability rests on a failure to exercise ordinary care, not on strict liability for the act.",
+          "issue": "Is a person liable for an injury caused by an accident while trying to stop a dog fight?",
+          "plain_holding": "No - not without fault. Liability requires a failure to use ordinary care, not just being the cause of the injury. Accidental harm is not automatically someone's legal responsibility."
+        },
+        {
+          "name": "MacPherson v. Buick Motor Co.",
+          "citation": "217 N.Y. 382 (1916)",
+          "year": 1916,
+          "holding": "Manufacturers owe a duty of care to ultimate consumers even without privity of contract; Buick was liable for the defective wheel that injured a remote buyer.",
+          "issue": "Does a car manufacturer owe a duty of care to a buyer who did not buy directly from it?",
+          "plain_holding": "Yes. Manufacturers owe a duty of care to the ultimate consumer, even without a direct contract. Buick had to pay for injuries from a wheel it could have inspected."
+        },
+        {
+          "name": "Palsgraf v. Long Island Railroad",
+          "citation": "248 N.Y. 339 (1928)",
+          "year": 1928,
+          "holding": "A duty of care runs only to foreseeable plaintiffs; the railroad owed no duty to Mrs. Palsgraf because her injury was an unforeseeable consequence of its conduct.",
+          "issue": "Does the railroad owe a duty of care to a woman injured by an unforeseeable chain of events?",
+          "plain_holding": "No. The duty of care runs only to foreseeable plaintiffs - people the defendant could reasonably expect to be at risk. Mrs. Palsgraf's injury was too far from the railroad's conduct, so she could not recover."
+        },
+        {
+          "name": "United States v. Carroll Towing Co.",
+          "citation": "159 F.2d 169 (2d Cir. 1947)",
+          "year": 1947,
+          "holding": "Negligence is determined by the Hand formula: a duty of care is breached where the burden of adequate precautions is less than the probability of harm times its severity (B < PL).",
+          "issue": "When is a barge owner negligent for not keeping a barge attended?",
+          "plain_holding": "Judge Learned Hand's formula: you are negligent if the cost of preventing the harm is less than the probability of the harm times its seriousness (B < PL). Here, keeping someone on the barge was cheap, so its owner shared the blame."
+        }
+      ]
+    },
+    {
+      "id": "torts-strict-liability",
+      "name": "Strict Liability",
+      "subject": "Torts",
+      "description": "Liability without fault for abnormally dangerous activities and defective products — the escape of dangerous things and the emerging doctrine of strict products liability.",
+      "cases": [
+        {
+          "name": "Rylands v. Fletcher",
+          "citation": "L.R. 3 H.L. 330 (1868)",
+          "year": 1868,
+          "holding": "A landowner is strictly liable for the escape of dangerous things brought onto land for non-natural uses — here, water flooding a neighbor's mine.",
+          "issue": "Is a mine owner liable for water escaping from his reservoir and flooding a neighbor's mine?",
+          "plain_holding": "Yes. If you bring something dangerous onto your land and it escapes, you are strictly liable - no fault required. The reservoir water flooded the neighbor's mine, so the mine owner had to pay."
+        },
+        {
+          "name": "Escola v. Coca Cola Bottling Co.",
+          "citation": "150 P.2d 436 (Cal. 1944)",
+          "year": 1944,
+          "holding": "Res ipsa loquitur applies to an exploding soda bottle; Justice Traynor's concurrence argued for strict products liability because manufacturers can bear and spread the cost of harm.",
+          "issue": "Can a waitress injured by an exploding soda bottle recover without proving exactly what went wrong?",
+          "plain_holding": "Yes, under res ipsa loquitur - a bottle does not explode without negligence, so the bottler must explain. Justice Traynor's concurrence went further and argued for strict products liability, which later became law."
+        }
+      ]
+    },
+    {
+      "id": "property-acquisition",
+      "name": "Acquisition & Sovereignty",
+      "subject": "Property",
+      "description": "How property rights come into being: first possession of wild animals and the discovery doctrine's impact on Native American land title.",
+      "cases": [
+        {
+          "name": "Pierson v. Post",
+          "citation": "3 Cai. R. 175 (N.Y. 1805)",
+          "year": 1805,
+          "holding": "First possession of a wild animal requires actual capture or control, not mere pursuit — the fox case that fixed the capture rule.",
+          "issue": "Who owns a fox: the hunter chasing it or the man who finally caught it?",
+          "plain_holding": "The one who caught it. Mere pursuit does not create ownership of a wild animal - you must actually capture or control it. This 'capture rule' became the basic rule of first possession."
+        },
+        {
+          "name": "Johnson v. M'Intosh",
+          "citation": "21 U.S. 543",
+          "year": 1823,
+          "holding": "Under the discovery doctrine, European sovereigns acquired title to discovered lands; Native American tribes retain only a right of occupancy — a doctrine later repudiated in federal Indian law.",
+          "issue": "Who owns the land when one buyer purchased it from a Native American tribe and another from the government?",
+          "plain_holding": "Under the discovery doctrine, the European nation that 'discovered' the land gained title, and the tribes kept only a right to occupy. So the government's grant to M'Intosh beat Johnson's purchase from the tribe. The doctrine was later repudiated."
+        }
+      ]
+    },
+    {
+      "id": "takings",
+      "name": "Takings & Public Use",
+      "subject": "Property",
+      "description": "The Fifth Amendment's Takings Clause: when regulations go so far as to effect a taking, and what counts as public use in eminent domain.",
+      "cases": [
+        {
+          "name": "Penn Central Transportation Co. v. New York City",
+          "citation": "438 U.S. 104",
+          "year": 1978,
+          "holding": "Regulatory takings are judged by an ad hoc multifactor test (economic impact, interference with investment-backed expectations, character of the action); the Grand Central landmark law was not a taking.",
+          "issue": "Does New York's landmark law, which stopped Grand Central Station from being built over, take the owner's property?",
+          "plain_holding": "No. Most regulatory limits are not takings. The Court weighed three factors - economic impact, interference with reasonable investment expectations, and the government's interest - and upheld the law."
+        },
+        {
+          "name": "Kelo v. City of New London",
+          "citation": "545 U.S. 469",
+          "year": 2005,
+          "holding": "'Public use' under the Takings Clause includes economic development by a private developer, so long as just compensation is paid — one of the most controversial eminent-domain decisions.",
+          "issue": "Does 'public use' allow a city to take homes for a private developer's economic plan?",
+          "plain_holding": "Yes. Taking property for economic development counts as a public use, as long as the owner receives just compensation. The decision was controversial, and many states passed laws against it afterward."
+        }
+      ]
+    },
+    {
+      "id": "property-rights-limits",
+      "name": "Property Rights & Their Limits",
+      "subject": "Property",
+      "description": "The principle that property rights are not absolute: an owner's right to exclude yields to the public interest and the basic needs of those on the land.",
+      "cases": [
+        {
+          "name": "State v. Shack",
+          "citation": "277 A.2d 369 (N.J. 1971)",
+          "year": 1971,
+          "holding": "A landowner may not exclude government officials entering to provide essential services to migrant farmworkers; property rights do not include absolute dominion.",
+          "issue": "Can a landowner keep government officials off his farm so they cannot serve migrant workers?",
+          "plain_holding": "No. Property rights are not absolute. The owner could not block officials from providing medical and legal services to workers living on his land."
+        }
+      ]
+    },
+    {
+      "id": "civpro-jurisdiction",
+      "name": "Personal Jurisdiction",
+      "subject": "Civil Procedure",
+      "description": "The constitutional limits on a court's power over defendants — from physical presence in Pennoyer to minimum contacts and purposeful availment in the modern era.",
+      "cases": [
+        {
+          "name": "Pennoyer v. Neff",
+          "citation": "95 U.S. 714",
+          "year": 1878,
+          "holding": "A court has personal jurisdiction over a defendant only through presence within the forum or consent; in rem jurisdiction attaches to property in the state.",
+          "issue": "Can an Oregon court take property from someone who was never in Oregon and never agreed to the suit?",
+          "plain_holding": "No. A court's power over a defendant comes from presence in the state or consent. Neff had neither, so the judgment against him was void."
+        },
+        {
+          "name": "International Shoe Co. v. Washington",
+          "citation": "326 U.S. 310",
+          "year": 1945,
+          "holding": "Personal jurisdiction requires minimum contacts such that the suit does not offend traditional notions of fair play and substantial justice.",
+          "issue": "Can Washington state hear a suit against a company whose only connection is salesmen visiting the state?",
+          "plain_holding": "Yes. A company must have 'minimum contacts' with a state for its courts to hear a case, and International Shoe's steady in-state business was enough. This case is the foundation of modern personal jurisdiction."
+        },
+        {
+          "name": "Asahi Metal Industry Co. v. Superior Court",
+          "citation": "480 U.S. 102",
+          "year": 1987,
+          "holding": "Mere placement of a product into the stream of commerce is insufficient for jurisdiction; the exercise of jurisdiction must be reasonable and comport with fair play.",
+          "issue": "Can California courts hear a suit against a Japanese valve maker whose part reached California through a long chain of sales?",
+          "plain_holding": "No. Merely placing a product into the stream of commerce is not enough by itself. The Court agreed the case was unreasonable - the burden on the Japanese company was too great."
+        }
+      ]
+    },
+    {
+      "id": "civpro-erie-pleading",
+      "name": "Erie Doctrine & Pleading",
+      "subject": "Civil Procedure",
+      "description": "The two great structural rules of modern federal civil litigation: state law governs substantive issues in diversity, and pleadings must state a plausible claim.",
+      "cases": [
+        {
+          "name": "Erie Railroad v. Tompkins",
+          "citation": "304 U.S. 64",
+          "year": 1938,
+          "holding": "Federal courts sitting in diversity must apply state substantive law; there is no general federal common law — Swift v. Tyson is overruled.",
+          "issue": "What law should federal courts apply in cases between citizens of different states?",
+          "plain_holding": "State law. Federal courts in diversity cases must apply state substantive law, and there is no general federal common law. The old rule from Swift v. Tyson (1842), which had let federal courts apply their own judge-made 'general federal common law' instead of state law, was overruled."
+        },
+        {
+          "name": "Ashcroft v. Iqbal",
+          "citation": "556 U.S. 662",
+          "year": 2009,
+          "holding": "Complaints must plead a facially plausible claim, not merely a conceivable one — the Twombly/Iqbal plausibility standard that governs federal pleading.",
+          "issue": "Must a complaint show facts that make the claim plausible, or just possible?",
+          "plain_holding": "Plausible. Bare legal conclusions are not enough - the complaint must plead facts that make the claim believable. Iqbal's blanket allegations about his detention were dismissed, and the 'plausibility' standard now governs federal pleading."
+        }
+      ]
+    },
+    {
+      "id": "criminal-trial-rights",
+      "name": "Criminal Trial Rights",
+      "subject": "Criminal Procedure",
+      "description": "Sixth Amendment guarantees that protect the fairness of criminal adjudication: the right to confront adverse witnesses (Crawford) and the right to a jury finding of every fact that raises a sentence above the statutory maximum (Blakely).",
+      "cases": [
+        {
+          "name": "Crawford v. Washington",
+          "holding": "The Sixth Amendment's Confrontation Clause bars admission of testimonial out-of-court statements against a criminal defendant unless the declarant is unavailable and the defendant had a prior opportunity for cross-examination; the reliability-based framework of Ohio v. Roberts is abandoned.",
+          "issue": "Does the admission of a wife's recorded statement against her husband violate the Confrontation Clause when he never had an opportunity to cross-examine her?",
+          "plain_holding": "Yes. If a witness's statement is 'testimonial' — made to be used against the defendant in court — the defendant must have a real chance to cross-examine that witness. The old 'it was reliable enough' test no longer works.",
+          "citation": "541 U.S. 36",
+          "year": 2004
+        },
+        {
+          "name": "Blakely v. Washington",
+          "holding": "The Sixth Amendment right to trial by jury requires that any fact that increases the maximum statutory sentence — other than a prior conviction — be found by the jury beyond a reasonable doubt; a judge cannot impose a sentence above the standard range based on facts the judge finds alone.",
+          "issue": "May a judge impose a sentence above the standard range based on facts the judge found, when the jury's verdict alone would support only the lower range?",
+          "plain_holding": "No. If a fact makes a defendant's sentence longer than the range the jury's verdict alone allows, that fact must be proven to a jury beyond a reasonable doubt — the judge cannot simply find it himself.",
+          "citation": "542 U.S. 296",
+          "year": 2004
+        }
+      ]
+    },
+    {
+      "id": "wills-trusts-succession",
+      "name": "Wills, Trusts & Estates",
+      "subject": "Wills, Trusts & Estates",
+      "description": "Core doctrines of donative transfer law: testamentary conditions and public policy (Shapira), the revocable bank-account trust (Totten), unilateral revocable trusts (Farkas), and attorney liability for negligent will drafting (Lucas v. Hamm).",
+      "cases": [
+        {
+          "name": "Lucas v. Hamm",
+          "holding": "An attorney who negligently drafts a will may be liable to the intended beneficiaries, who are third-party beneficiaries of the attorney-client relationship, for the value of the lost bequest; the rule against perpetuities is so complex that missing it is not automatically malpractice.",
+          "issue": "May intended beneficiaries of a negligently drafted will sue the drafting attorney, and was the attorney negligent in violating the rule against perpetuities?",
+          "plain_holding": "Mostly yes. Lawyers who botch a will can be sued by the people who were supposed to inherit — not just by the client. But the rule against perpetuities is so tricky that missing it is not automatically malpractice.",
+          "citation": "56 Cal. 2d 583",
+          "year": 1961
+        },
+        {
+          "name": "Shapira v. Union National Bank",
+          "holding": "A testamentary condition requiring a beneficiary to marry within a specified religion is not void as against public policy; a condition that encourages marriage within a faith (rather than prohibiting marriage or requiring divorce) is valid and enforceable.",
+          "issue": "Is a will condition requiring a beneficiary to marry a person of the Jewish faith void as against public policy?",
+          "plain_holding": "No. A will can say 'you only get this money if you marry someone of our faith.' That is enforceable — it encourages a particular marriage instead of forbidding marriage, which would be against public policy.",
+          "citation": "315 N.E.2d 825 (Ohio Ct. Com. Pl. 1974)",
+          "year": 1974
+        },
+        {
+          "name": "Matter of Totten",
+          "holding": "A deposit of money by one person in his own name as trustee for another creates a revocable trust (the 'Totten trust'); the depositor may withdraw the funds during life, and on death the balance passes to the beneficiary unless the trust was revoked.",
+          "issue": "Does a bank deposit made 'in trust for' another create an irrevocable trust, or may the depositor take back the funds during life?",
+          "plain_holding": "It is a 'poor man's will.' You can put money in a bank account 'in trust for' someone and still take it back anytime while you are alive; whatever is left when you die goes to that person.",
+          "citation": "71 N.E. 748 (N.Y. 1904)",
+          "year": 1904
+        },
+        {
+          "name": "Farkas v. Williams",
+          "holding": "A revocable trust created by a unilateral declaration in which the settlor names himself trustee for another is valid and confers a present interest on the beneficiary; no delivery of a physical res is required where the settlor is the trustee, and retention of a power of revocation does not defeat the trust.",
+          "issue": "Did the attempted trust, with stock registered in the decedent's name as trustee for his friend, create a valid trust, or did it fail for lack of delivery?",
+          "plain_holding": "Yes, it is a real trust. You can name yourself the trustee of a trust for someone else and still keep the power to take the property back; the beneficiary still has a present right to what remains at your death.",
+          "citation": "125 N.E.2d 600 (Ill. 1955)",
+          "year": 1955
+        }
+      ]
+    },
+    {
+      "id": "agency-partnership",
+      "name": "Agency & Partnership",
+      "subject": "Agency & Partnership",
+      "description": "The rules by which one person's acts bind another: agency created by request without compensation (Gorton v. Doty), creditor control that makes a lender a principal (Cargill), apparent authority (Lind v. Schenley), and the fiduciary duty partners owe one another (Meinhard).",
+      "cases": [
+        {
+          "name": "Gorton v. Doty",
+          "holding": "A person who lends her car and directs the driver to use it for her purpose may be a principal and the driver her agent, even without compensation or a business context; whether an agency relationship existed is for the jury, and the driver's negligence may be imputed to the owner.",
+          "issue": "Was the defendant, who allowed a coach to drive her car to transport football players, liable for his negligent driving as her agent?",
+          "plain_holding": "Yes. If you loan your car and ask someone to drive it for you, they can be your agent — even with no pay — and you can be responsible for their negligent driving. Agency does not require a business deal.",
+          "citation": "69 P.2d 136 (Idaho 1937)",
+          "year": 1937
+        },
+        {
+          "name": "Gay Jenson Farms Co. v. Cargill, Inc.",
+          "holding": "A creditor who exercises pervasive control over a debtor's business may become a principal and the debtor its agent, making the creditor liable to third parties for the debtor's obligations; Cargill's control over Warren's grain operations made it liable for Warren's unpaid contracts.",
+          "issue": "Is a creditor who takes over the finances and day-to-day operations of a failing debtor liable as principal for the debtor's unpaid obligations to third parties?",
+          "plain_holding": "Yes. If a lender controls a farmer's business so tightly — making decisions, requiring daily reports, approving purchases — that the farmer merely follows orders, the lender becomes legally responsible for the farmer's debts to outsiders.",
+          "citation": "309 N.W.2d 285 (Minn. 1981)",
+          "year": 1981
+        },
+        {
+          "name": "Lind v. Schenley Industries",
+          "holding": "A principal is bound by the acts of an agent acting within the apparent authority the principal's manifestations confer on the agent in the eyes of third parties; whether a hotel general manager had apparent authority to hire the plaintiff for a permanent position was a jury question.",
+          "issue": "Was the hotel general manager's promise of permanent employment within his apparent authority so as to bind the corporate owner?",
+          "plain_holding": "Maybe — and a jury should decide. A company can be bound by what its manager looks authorized to do, even without formal permission. The question is what the company's words and conduct led a reasonable person to believe the manager could do.",
+          "citation": "278 F.2d 79 (3d Cir. 1960)",
+          "year": 1960
+        },
+        {
+          "name": "Meinhard v. Salmon",
+          "holding": "Partners and joint venturers owe each other the highest duty of loyalty — a fiduciary duty of 'punctilio of an honor the most sensitive'; Salmon's secret taking of the lease renewal for himself was a breach because the opportunity belonged to the venture.",
+          "issue": "Did Salmon breach his fiduciary duty to Meinhard by secretly taking the renewal of the lease for himself at the end of their joint venture?",
+          "plain_holding": "Yes. People in business together owe each other an extreme loyalty. When the chance to renew the lease came up, it belonged to both of them — grabbing it secretly was a breach of the deal.",
+          "citation": "249 N.Y. 458",
+          "year": 1928
+        }
+      ]
+    },
+    {
+      "id": "professional-responsibility",
+      "name": "Professional Responsibility",
+      "subject": "Professional Responsibility",
+      "description": "Ethical duties of lawyers to the legal system: the duty of candor to the tribunal, which forbids concealing a client's evidence (In re Ryder) and forbids assisting client perjury (Nix v. Whiteside).",
+      "cases": [
+        {
+          "name": "In re Ryder",
+          "holding": "An attorney may not conceal evidence or shield a client's possession of a weapon and stolen money connected to a crime; such conduct violates the duty of candor to the court and professional responsibility, and the attorney was suspended for holding a sawed-off shotgun and robbery proceeds for his client.",
+          "issue": "May a defense attorney take possession of and conceal a client's sawed-off shotgun and the proceeds of a robbery to protect the client from prosecution?",
+          "plain_holding": "No. A lawyer cannot hide a client's gun and stolen money to keep them from becoming evidence. Defending a client does not mean covering up a crime — the attorney's conduct here led to his suspension.",
+          "citation": "263 F. Supp. 360 (E.D. Va. 1967)",
+          "year": 1967
+        },
+        {
+          "name": "Nix v. Whiteside",
+          "holding": "The Sixth Amendment right to counsel is not violated when an attorney refuses to cooperate in presenting client perjury, threatens to withdraw if the client testifies falsely, and prevents the false testimony; the attorney's duty of candor to the tribunal permits these responses.",
+          "issue": "Did defense counsel's refusal to allow Whiteside to testify falsely, and his threat to withdraw, deny Whiteside effective assistance of counsel?",
+          "plain_holding": "No. A lawyer is allowed — sometimes required — to stop a client from lying on the stand. Refusing to help with perjury is not bad lawyering; it is the lawyer doing the right thing.",
+          "citation": "475 U.S. 157",
+          "year": 1986
+        }
+      ]
+    },
+    {
+      "id": "international-law",
+      "name": "International Law & Foreign Affairs",
+      "subject": "International Law",
+      "description": "How international law enters the American legal system: customary international law is 'part of our law' (The Paquete Habana), treaties are made under federal power that reaches beyond enumerated grants (Missouri v. Holland; Curtiss-Wright), but no treaty or executive agreement can override the Constitution (Reid v. Covert) and most treaties need implementing legislation before courts enforce them (Medellín). The doctrine also covers judicial deference in foreign affairs — the act-of-state bar on questioning foreign expropriations (Sabbatino) and the narrow, founding-era scope of the Alien Tort Statute (Sosa).",
+      "cases": [
+        {
+          "name": "The Paquete Habana",
+          "citation": "175 U.S. 677",
+          "year": 1900,
+          "holding": "Customary international law — here, the long-standing exemption of coastal fishing vessels from capture as prize of war — 'is part of our law' and must be applied by American courts absent a controlling treaty, statute, or executive act.",
+          "issue": "Were two Cuban fishing smacks captured by United States naval forces during the Spanish-American War lawful prizes of war?",
+          "plain_holding": "No. Centuries of custom among nations say small coastal fishing boats are off-limits in wartime, and because international law is part of American law, the Court ordered the boats and their cargo returned to their owners."
+        },
+        {
+          "name": "Missouri v. Holland",
+          "citation": "252 U.S. 416",
+          "year": 1920,
+          "holding": "A treaty protecting migratory birds is a valid exercise of federal power under Article VI, and Congress may implement it through the Necessary and Proper Clause; the Tenth Amendment does not reserve such subjects exclusively to the states when a valid treaty is at stake.",
+          "issue": "Can Congress enforce a migratory-bird treaty with Canada through criminal penalties, even though wildlife within state borders would otherwise be state-regulated?",
+          "plain_holding": "Yes. A valid treaty is supreme federal law, so Congress can pass legislation carrying it out — even over subject matter that states would normally control — because birds are migratory and no single state could protect them alone."
+        },
+        {
+          "name": "United States v. Curtiss-Wright Export Corp.",
+          "citation": "299 U.S. 304",
+          "year": 1936,
+          "holding": "Congress may delegate broad discretion to the President in foreign affairs; the federal government's external sovereignty powers come not from enumerated grants but from the nation's status as a sovereign, and they are exercised with less strict separation-of-powers scrutiny than domestic powers.",
+          "issue": "Could Congress constitutionally authorize the President to prohibit sales of arms to countries engaged in the Chaco War whenever he found it would help restore peace?",
+          "plain_holding": "Yes. The joint resolution was not an unlawful delegation: in foreign affairs the President enjoys especially wide latitude, and the national government's power to deal with other nations flows from sovereignty itself rather than any listed constitutional power."
+        },
+        {
+          "name": "Reid v. Covert",
+          "citation": "354 U.S. 1",
+          "year": 1957,
+          "holding": "Civilian dependents of servicemen accused of capital crimes overseas could not be tried by military court-martial under executive agreements with host nations; no agreement or treaty can confer on the government power free from the restraints of the Constitution.",
+          "issue": "May the wives of American servicemen stationed abroad be tried by military tribunal for killing their husbands, pursuant to agreements allowing U.S. military jurisdiction in foreign territory?",
+          "plain_holding": "No. Constitutional protections like trial by jury and indictment by grand jury follow American citizens even overseas, and neither treaties nor the President's agreements can take those rights away."
+        },
+        {
+          "name": "Banco Nacional de Cuba v. Sabbatino",
+          "citation": "376 U.S. 398",
+          "year": 1964,
+          "holding": "Under the act-of-state doctrine, United States courts will not adjudicate the validity of a foreign sovereign's taking of property within its own territory, even if the taking allegedly violates international law; the doctrine rests on separation of powers and respect for the political branches' conduct of foreign relations.",
+          "issue": "Could an American sugar company recover goods in U.S. commerce that Cuba had expropriated, by arguing the seizure violated international law?",
+          "plain_holding": "No. Courts decline to second-guess what another country does with property inside its own borders — that judgment belongs to the President and Congress, so the bank holding the confiscated sugar proceeds wins despite the questionable seizure."
+        },
+        {
+          "name": "Sosa v. Alvarez-Machain",
+          "citation": "542 U.S. 692",
+          "year": 2004,
+          "holding": "The Alien Tort Statute gives federal courts jurisdiction over tort claims by aliens violating the law of nations, but only for a limited set of norms accepted in 1789 and their modern analogues of similar specificity; arbitrary cross-border arrest is not among them, so no claim lies.",
+          "issue": "Can a Mexican citizen kidnapped at the DEA's direction sue his captor in federal court under the 1789 Alien Tort Statute for arbitrary arrest and detention?",
+          "plain_holding": "The statute is real but narrow: it opens federal courts only to a handful of universally recognized wrongs known at the founding (like piracy and assaults on ambassadors). A one-day unlawful arrest across a border doesn't meet that high bar, so the suit fails."
+        },
+        {
+          "name": "Medellín v. Texas",
+          "citation": "552 U.S. 491",
+          "year": 2008,
+          "holding": "The ICJ's Avena judgment construing Article 36 of the Vienna Convention is not automatically enforceable domestic law; the treaty is non-self-executing, so absent implementing legislation neither the ICJ ruling nor the President's memorandum can displace state procedural default rules.",
+          "issue": "Must Texas reopen a death-row inmate's conviction because the International Court of Justice held that the United States violated his right to consular notification under the Vienna Convention?",
+          "plain_holding": "No. Most treaties don't automatically become laws courts can enforce — Congress has to pass implementing legislation first, and neither an ICJ decision nor a presidential memo can order state courts to ignore their own procedural rules."
+        }
+      ]
     }
-   ]
-  },
-  {
-   "id": "federalism-implied-powers",
-   "name": "Federalism & Implied Powers",
-   "subject": "Constitutional Law",
-   "description": "The relationship between the national government and the states, including Congress's implied powers under the Necessary and Proper Clause and the supremacy of federal law.",
-   "cases": [
-    {
-     "name": "McCulloch v. Maryland",
-     "citation": "17 U.S. 316",
-     "year": 1819,
-     "holding": "Congress may charter a national bank under the Necessary and Proper Clause, and states may not tax federal instrumentalities: the power to tax involves the power to destroy.",
-     "issue": "Does Congress have the power to create a national bank, and can a state tax it?",
-     "plain_holding": "Yes to both questions. Congress can charter a national bank under the Necessary and Proper Clause, and a state cannot tax a federal institution - as the Court put it, 'the power to tax involves the power to destroy.'"
-    }
-   ]
-  },
-  {
-   "id": "commerce-clause",
-   "name": "Commerce Clause",
-   "subject": "Constitutional Law",
-   "description": "Congress's power to regulate interstate commerce, its expansion over 200 years, and the modern limits placed on it. Traces the arc from Gibbons to Wickard and back to Lopez.",
-   "cases": [
-    {
-     "name": "Gibbons v. Ogden",
-     "citation": "22 U.S. 1",
-     "year": 1824,
-     "holding": "Interstate commerce includes navigation, and the federal Commerce Clause power is broad — states cannot monopolize steamboat traffic on interstate waterways.",
-     "issue": "Does the federal government's power over interstate commerce include steamboat traffic on waterways between states, and can a state grant a monopoly that blocks it?",
-     "plain_holding": "Yes. Interstate commerce includes carrying goods and people by boat across state lines, and Congress's power over it is broad. New York could not give one company a monopoly that shut out federally licensed steamboats."
-    },
-    {
-     "name": "Wickard v. Filburn",
-     "citation": "317 U.S. 111",
-     "year": 1942,
-     "holding": "Congress may regulate purely local activity that, in the aggregate, substantially affects interstate commerce — wheat grown for home consumption.",
-     "issue": "Can Congress regulate a farmer's wheat grown only for his own use at home?",
-     "plain_holding": "Yes. Even purely local activity - like a farmer growing wheat for his own family - can be regulated when, added together with many similar farmers, it has a big effect on the national wheat market."
-    },
-    {
-     "name": "United States v. Lopez",
-     "citation": "514 U.S. 549",
-     "year": 1995,
-     "holding": "The Gun-Free School Zones Act exceeds the Commerce Clause; Congress cannot regulate non-economic activity with no substantial effect on interstate commerce — the first limit on the clause since 1937.",
-     "issue": "Does Congress have the power under the Commerce Clause to make it a federal crime to carry a gun near a school?",
-     "plain_holding": "No. Carrying a gun near a school is not economic activity and does not substantially affect interstate commerce, so Congress went too far. This was the first time in nearly 60 years that the Court limited the Commerce Clause."
-    }
-   ]
-  },
-  {
-   "id": "anti-commandeering",
-   "name": "Anti-Commandeering",
-   "subject": "Constitutional Law",
-   "description": "The principle that Congress may not commandeer state legislatures or state executives to implement federal regulatory programs, preserving the dual-sovereignty structure of federalism.",
-   "cases": [
-    {
-     "name": "New York v. United States",
-     "citation": "505 U.S. 144",
-     "year": 1992,
-     "holding": "Congress may not commandeer state legislatures to enact a federal regulatory program; the 'take title' provision of the Low-Level Radioactive Waste Act violated the Tenth Amendment.",
-     "issue": "Can Congress force state legislatures to pass a federal waste-disposal law, and punish states that refuse?",
-     "plain_holding": "No. Congress may not 'commandeer' state legislatures to carry out federal programs. The law that told states to 'take title' to radioactive waste if they did not regulate it crossed that line."
-    }
-   ]
-  },
-  {
-   "id": "separation-of-powers",
-   "name": "Separation of Powers",
-   "subject": "Constitutional Law",
-   "description": "The allocation of power among the legislative, executive, and judicial branches, including the limits of executive authority and the qualified nature of executive privilege.",
-   "cases": [
-    {
-     "name": "Youngstown Sheet & Tube Co. v. Sawyer",
-     "citation": "343 U.S. 579",
-     "year": 1952,
-     "holding": "The President cannot seize private steel mills without congressional authorization; Justice Jackson's tripartite framework governs the scope of executive power.",
-     "issue": "Can the President seize private steel mills to stop a strike, without Congress's approval?",
-     "plain_holding": "No. The President may not take over private businesses without authority from Congress. Justice Jackson's famous framework for presidential power - acting with, without, or against Congress - is still used today."
-    },
-    {
-     "name": "United States v. Nixon",
-     "citation": "418 U.S. 683",
-     "year": 1974,
-     "holding": "Executive privilege is qualified, not absolute; the President must comply with a subpoena in a criminal case because the judiciary is the final arbiter of the Constitution.",
-     "issue": "Does the President's claim of executive privilege let him refuse a court order to hand over tape recordings in a criminal case?",
-     "plain_holding": "No. Executive privilege is real but not absolute. In a criminal case the President must obey a subpoena, because the courts - not the President - decide what the Constitution requires."
-    }
-   ]
-  },
-  {
-   "id": "administrative-deference",
-   "name": "Administrative Deference",
-   "subject": "Administrative Law",
-   "description": "How courts review agency interpretations of statutes. The two-step Chevron framework dominated administrative law for four decades before being overruled in 2024.",
-   "cases": [
-    {
-     "name": "Chevron v. NRDC",
-     "citation": "467 U.S. 837",
-     "year": 1984,
-     "holding": "Courts should defer to reasonable agency interpretations of ambiguous statutes at Chevron step two — a doctrine overruled by Loper Bright Enterprises v. Raimondo (2024).",
-     "issue": "When a law is unclear, should courts defer to the government agency's reasonable interpretation of it?",
-     "plain_holding": "Yes, under the old rule: if a law was ambiguous and the agency's reading was reasonable, courts deferred to it. The Supreme Court overruled that approach in 2024, so courts now decide unclear laws themselves."
-    }
-   ]
-  },
-  {
-   "id": "equal-protection",
-   "name": "Equal Protection",
-   "subject": "Constitutional Law",
-   "description": "The Fourteenth Amendment's guarantee of equal protection of the laws — from Plessy's separate-but-equal to Brown, the tiers of scrutiny, and the modern doctrine of race-conscious classifications.",
-   "cases": [
-    {
-     "name": "Plessy v. Ferguson",
-     "citation": "163 U.S. 537",
-     "year": 1896,
-     "holding": "Separate but equal railway accommodations do not violate the Equal Protection Clause — overruled by Brown v. Board of Education (1954).",
-     "issue": "Does separating railway passengers by race violate the Equal Protection Clause?",
-     "plain_holding": "No, said the Court: 'separate but equal' was allowed, so Louisiana's race-segregated train cars were upheld. Brown v. Board of Education overturned this in 1954."
-    },
-    {
-     "name": "United States v. Carolene Products Co.",
-     "citation": "304 U.S. 144",
-     "year": 1938,
-     "holding": "Economic regulation is reviewed under rational basis; Footnote 4 suggested heightened scrutiny for 'discrete and insular minorities' — the origin of the tiers of scrutiny.",
-     "issue": "Does a law banning 'filled milk' violate the Constitution?",
-     "plain_holding": "No. Economic regulations only need a rational reason, and this one had one. More importantly, Footnote 4 suggested the Court should review more strictly when laws target 'discrete and insular minorities' - the seed of modern tiers of scrutiny."
-    },
-    {
-     "name": "Brown v. Board of Education",
-     "citation": "347 U.S. 483",
-     "year": 1954,
-     "holding": "Racial segregation in public schools violates the Equal Protection Clause; separate educational facilities are inherently unequal.",
-     "issue": "Does segregating public schools by race violate the Equal Protection Clause?",
-     "plain_holding": "Yes. Separate schools for Black and white children are 'inherently unequal' and violate the Equal Protection Clause, even when the facilities are similar."
-    },
-    {
-     "name": "Loving v. Virginia",
-     "citation": "388 U.S. 1",
-     "year": 1967,
-     "holding": "Racial restrictions on marriage violate both the Equal Protection and Due Process Clauses of the Fourteenth Amendment.",
-     "issue": "Can a state ban marriage between people of different races?",
-     "plain_holding": "No. Race-based marriage bans violate both the Equal Protection and Due Process Clauses. Marriage is a fundamental right, and race has nothing to do with it."
-    },
-    {
-     "name": "Korematsu v. United States",
-     "citation": "323 U.S. 214",
-     "year": 1944,
-     "holding": "The wartime exclusion of Japanese Americans was upheld under military necessity — a decision widely discredited and repudiated in Trump v. Hawaii (2018).",
-     "issue": "Was it constitutional to force Japanese Americans into internment camps during World War II?",
-     "plain_holding": "The Court said yes at the time, citing military necessity. The decision is now widely considered a grave mistake and was formally repudiated in 2018 - a lesson in how fear can distort the law."
-    },
-    {
-     "name": "Grutter v. Bollinger",
-     "citation": "539 U.S. 306",
-     "year": 2003,
-     "holding": "Narrowly tailored affirmative action in law school admissions survives strict scrutiny because student-body diversity is a compelling state interest — later limited by Students for Fair Admissions (2023).",
-     "issue": "Does the University of Michigan Law School's use of race in admissions violate the Equal Protection Clause?",
-     "plain_holding": "No - a narrowly tailored plan can survive. A diverse student body is a compelling interest, and race was only one factor among many. The Court limited this approach in 2023, but Grutter remains the classic defense of affirmative action."
-    }
-   ]
-  },
-  {
-   "id": "voting-rights",
-   "name": "Voting Rights & Apportionment",
-   "subject": "Constitutional Law",
-   "description": "The constitutional rules governing legislative districts, racial gerrymandering, and the reach of the Voting Rights Act.",
-   "cases": [
-    {
-     "name": "Baker v. Carr",
-     "citation": "369 U.S. 186",
-     "year": 1962,
-     "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims.",
-     "issue": "Can federal courts hear challenges to how states draw voting districts?",
-     "plain_holding": "Yes. District-drawing claims are not a 'political question' the courts must avoid. Federal judges can hear one-person-one-vote cases, opening the door to decades of redistricting litigation."
-    },
-    {
-     "name": "Shaw v. Reno",
-     "citation": "509 U.S. 630",
-     "year": 1993,
-     "holding": "Racial gerrymandering claims are cognizable under the Equal Protection Clause where a district is so bizarre on its face that it can only be explained by race.",
-     "issue": "Can voters challenge a district drawn so oddly that it can only be explained by race?",
-     "plain_holding": "Yes. A district so bizarrely shaped that it looks like an attempt to separate voters by race can be challenged under the Equal Protection Clause - even without proof of concrete voter harm."
-    },
-    {
-     "name": "Shelby County v. Holder",
-     "citation": "570 U.S. 529",
-     "year": 2013,
-     "holding": "The preclearance coverage formula of Section 4(b) of the Voting Rights Act violates the Tenth Amendment's equal sovereignty principle; Congress must update it.",
-     "issue": "Is the formula the Voting Rights Act uses to decide which states need federal approval before changing election laws still valid?",
-     "plain_holding": "No. The coverage formula was based on 40-year-old data and violated the principle that states are sovereign equals. Congress can write a new formula, but until it does, the preclearance requirement is frozen."
-    }
-   ]
-  },
-  {
-   "id": "standing-and-justiciability",
-   "name": "Standing & Justiciability",
-   "subject": "Constitutional Law",
-   "description": "The threshold rules that decide when a case is fit for federal court: standing, ripeness, mootness, and the political question doctrine.",
-   "cases": [
-    {
-     "name": "Baker v. Carr",
-     "citation": "369 U.S. 186",
-     "year": 1962,
-     "holding": "Equal-protection challenges to legislative apportionment are justiciable; federal courts may hear one-person-one-vote claims.",
-     "issue": "Can federal courts hear challenges to how states draw voting districts?",
-     "plain_holding": "Yes. District-drawing claims are not a 'political question' the courts must avoid. Federal judges can hear one-person-one-vote cases, opening the door to decades of redistricting litigation."
-    },
-    {
-     "name": "Lujan v. Defenders of Wildlife",
-     "citation": "504 U.S. 555",
-     "year": 1992,
-     "holding": "Standing requires an injury in fact, a causal connection, and redressability; Congress cannot erase the Article III case-or-controversy requirement.",
-     "issue": "Do environmental groups have standing to challenge a rule when the harm to them is only a possible future visit to the affected animals?",
-     "plain_holding": "No. To sue, you need a concrete injury, a causal link to the defendant, and a decision that would fix the harm. 'Someday I might go see the animals' was too speculative, so the case was dismissed."
-    }
-   ]
-  },
-  {
-   "id": "substantive-due-process-privacy",
-   "name": "Substantive Due Process & Privacy",
-   "subject": "Constitutional Law",
-   "description": "The contested doctrine that the Due Process Clauses protect unenumerated fundamental rights — contraception, marriage, intimacy, and abortion — and the modern battle over its scope.",
-   "cases": [
-    {
-     "name": "Griswold v. Connecticut",
-     "citation": "381 U.S. 479",
-     "year": 1965,
-     "holding": "The Constitution protects marital privacy through the penumbras and emanations of the Bill of Rights; a ban on contraceptives for married couples is unconstitutional.",
-     "issue": "Can a state ban married couples from using contraceptives?",
-     "plain_holding": "No. The Constitution protects marital privacy - the Court found the right in the 'penumbras' (shadows) of the Bill of Rights. The ban was struck down, and this case became the foundation of the right to privacy."
-    },
-    {
-     "name": "Roe v. Wade",
-     "citation": "410 U.S. 113",
-     "year": 1973,
-     "holding": "The right of privacy under the Due Process Clause includes a woman's decision to terminate a pregnancy under the trimester framework — overruled by Dobbs v. Jackson (2022).",
-     "issue": "Does the Constitution protect a woman's right to end a pregnancy?",
-     "plain_holding": "Yes, under the right of privacy, but with limits: states could regulate abortion as pregnancy progressed and ban it after viability. Dobbs v. Jackson overruled this in 2022 and returned the question to the states."
-    },
-    {
-     "name": "Lawrence v. Texas",
-     "citation": "539 U.S. 558",
-     "year": 2003,
-     "holding": "Criminalizing same-sex sexual intimacy violates the Due Process Clause; Bowers v. Hardwick is overruled.",
-     "issue": "Can a state make private sexual intimacy between same-sex adults a crime?",
-     "plain_holding": "No. Criminalizing same-sex intimacy violates the Due Process Clause - adults have a right to private intimate conduct. The Court also overruled its earlier decision in Bowers v. Hardwick (1986), which had upheld a similar ban."
-    },
-    {
-     "name": "Obergefell v. Hodges",
-     "citation": "576 U.S. 644",
-     "year": 2015,
-     "holding": "The Fourteenth Amendment requires states to both license and recognize same-sex marriages; the right to marry is fundamental.",
-     "issue": "Must states allow and recognize same-sex marriages?",
-     "plain_holding": "Yes. The Fourteenth Amendment requires states to both license and recognize same-sex marriages, because the right to marry is a fundamental right that belongs to everyone."
-    },
-    {
-     "name": "Dobbs v. Jackson Women's Health",
-     "citation": "597 U.S. 215",
-     "year": 2022,
-     "holding": "The Constitution does not confer a right to abortion; Roe and Casey are overruled, returning abortion regulation to the states.",
-     "issue": "Does the Constitution protect a right to abortion?",
-     "plain_holding": "No. The Constitution does not mention abortion, and the Court overruled Roe and Casey. Abortion regulation now returns to the states, which may set their own rules."
-    }
-   ]
-  },
-  {
-   "id": "privileges-or-immunities",
-   "name": "Privileges or Immunities",
-   "subject": "Constitutional Law",
-   "description": "The Fourteenth Amendment's Privileges or Immunities Clause, narrowly read since 1873 to protect only federal citizenship rights — one of the great 'paths not taken' in constitutional law.",
-   "cases": [
-    {
-     "name": "Slaughter-House Cases",
-     "citation": "83 U.S. 36",
-     "year": 1873,
-     "holding": "The Privileges or Immunities Clause protects only the privileges of federal citizenship, not state citizenship — a narrow reading that channeled rights claims through the Due Process Clause instead.",
-     "issue": "Does the Privileges or Immunities Clause protect the basic rights of state citizens, like the right to work at any trade?",
-     "plain_holding": "No. The clause protects only the privileges of national citizenship, like traveling to the capital. That narrow reading sent most rights claims through the Due Process Clause instead."
-    }
-   ]
-  },
-  {
-   "id": "free-speech-press",
-   "name": "Free Speech & Press",
-   "subject": "First Amendment",
-   "description": "The core First Amendment doctrines: incitement, defamation, obscenity, expressive conduct, and student speech. Traces the evolution from the clear-and-present-danger test to modern categorical rules.",
-   "cases": [
-    {
-     "name": "Schenck v. United States",
-     "citation": "249 U.S. 47",
-     "year": 1919,
-     "holding": "Speech may be punished when it creates a clear and present danger of the evils Congress may prevent — the test later replaced by Brandenburg's imminent lawless action.",
-     "issue": "Can someone be punished for mailing anti-draft leaflets during wartime?",
-     "plain_holding": "Yes, under the 'clear and present danger' test: speech can be punished when it creates a real, immediate danger the government may lawfully prevent. The test was later replaced by Brandenburg's tougher standard."
-    },
-    {
-     "name": "New York Times v. Sullivan",
-     "citation": "376 U.S. 254",
-     "year": 1964,
-     "holding": "Public officials must prove actual malice — knowledge of falsity or reckless disregard for the truth — to win a defamation suit.",
-     "issue": "Can a public official win a defamation case without showing the newspaper knew the statement was false?",
-     "plain_holding": "No. Public officials must prove 'actual malice' - that the paper knew the statement was false or did not care whether it was true. The rule protects hard-hitting criticism of public figures."
-    },
-    {
-     "name": "Miller v. California",
-     "citation": "413 U.S. 15",
-     "year": 1973,
-     "holding": "Obscenity is defined by the three-part Miller test (prurient interest, patently offensive, serious value) and falls outside First Amendment protection.",
-     "issue": "Can the government punish the sale of obscene material?",
-     "plain_holding": "Yes, under a strict three-part test: the material appeals to prurient interest, depicts sexual conduct explicitly banned by law, and has no serious artistic, literary, political, or scientific value. Obscenity falls outside First Amendment protection."
-    },
-    {
-     "name": "Tinker v. Des Moines Independent Community School District",
-     "citation": "393 U.S. 503",
-     "year": 1969,
-     "holding": "Students retain First Amendment rights in school unless their speech substantially and materially disrupts the educational process.",
-     "issue": "Can a school punish students for wearing black armbands to protest the Vietnam War?",
-     "plain_holding": "No. Students keep their First Amendment rights at school as long as their speech does not substantially disrupt classes. Quietly wearing armbands was protected protest - 'students do not shed their rights at the schoolhouse gate.'"
-    },
-    {
-     "name": "Brandenburg v. Ohio",
-     "citation": "395 U.S. 444",
-     "year": 1969,
-     "holding": "Speech advocating lawlessness is protected unless it is directed to inciting and likely to incite imminent lawless action.",
-     "issue": "Can a state punish a speaker for a rally speech calling for violence?",
-     "plain_holding": "No - the speech was protected. Advocacy of lawbreaking is protected unless it is meant to incite and likely to produce immediate lawless action. This 'imminent lawless action' test is the modern free-speech standard."
-    },
-    {
-     "name": "Texas v. Johnson",
-     "citation": "491 U.S. 397",
-     "year": 1989,
-     "holding": "Burning the American flag is expressive conduct protected by the First Amendment; the government cannot ban it to preserve the flag's symbolic value.",
-     "issue": "Can a state ban burning the American flag?",
-     "plain_holding": "No. Burning the flag is expressive conduct protected by the First Amendment. The government cannot punish it simply to preserve the flag's symbolic value."
-    },
-    {
-     "name": "New York Times v. United States",
-     "citation": "403 U.S. 713",
-     "year": 1971,
-     "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm.",
-     "issue": "Can the government stop the New York Times from publishing the Pentagon Papers?",
-     "plain_holding": "No. Blocking publication in advance - prior restraint - is almost always unconstitutional. The government failed to show the papers would cause direct, serious harm to national security."
-    }
-   ]
-  },
-  {
-   "id": "prior-restraint",
-   "name": "Prior Restraint",
-   "subject": "First Amendment",
-   "description": "The doctrine that government may not restrain speech before it occurs, except in the most exceptional circumstances — from Near's newspapers to the Pentagon Papers.",
-   "cases": [
-    {
-     "name": "Near v. Minnesota",
-     "citation": "283 U.S. 697",
-     "year": 1931,
-     "holding": "Prior restraint is presumptively unconstitutional and applies to the states via the Fourteenth Amendment; a gag order on a defamatory newspaper was invalid.",
-     "issue": "Can a state shut down a newspaper for publishing harsh attacks?",
-     "plain_holding": "No. Prior restraint - stopping publication before it happens - is presumptively unconstitutional. The state law that let courts gag a 'defamatory' newspaper was struck down, applying the First Amendment to the states."
-    },
-    {
-     "name": "New York Times v. United States",
-     "citation": "403 U.S. 713",
-     "year": 1971,
-     "holding": "The government bears a heavy presumption against prior restraint; the Pentagon Papers could not be enjoined without proof of direct national-security harm.",
-     "issue": "Can the government stop the New York Times from publishing the Pentagon Papers?",
-     "plain_holding": "No. Blocking publication in advance - prior restraint - is almost always unconstitutional. The government failed to show the papers would cause direct, serious harm to national security."
-    }
-   ]
-  },
-  {
-   "id": "religious-freedom",
-   "name": "Religious Freedom",
-   "subject": "First Amendment",
-   "description": "The Free Exercise and Establishment Clauses: when generally applicable laws may burden religion, the Amish exemption, and the rise and fall of the Lemon test.",
-   "cases": [
-    {
-     "name": "Wisconsin v. Yoder",
-     "citation": "406 U.S. 205",
-     "year": 1972,
-     "holding": "Compulsory school attendance beyond eighth grade violates the Amish's Free Exercise rights where it threatens their religious way of life.",
-     "issue": "Can Wisconsin force Amish children to attend school past eighth grade?",
-     "plain_holding": "No. The law clashed with the Amish religious way of life, and their free-exercise rights won. The state could not show the extra schooling was important enough to justify the burden."
-    },
-    {
-     "name": "Lemon v. Kurtzman",
-     "citation": "403 U.S. 602",
-     "year": 1971,
-     "holding": "The Establishment Clause requires the three-part Lemon test (secular purpose, no primary religious effect, no excessive entanglement) — a framework later widely disfavored and effectively abandoned.",
-     "issue": "Can states pay for secular subjects and materials in religious schools?",
-     "plain_holding": "The Court created the three-part 'Lemon test' for Establishment Clause cases: the law needs a secular purpose, must not mainly promote or inhibit religion, and must not entangle government with religion. The law here failed the test, which was later widely abandoned."
-    },
-    {
-     "name": "Employment Division v. Smith",
-     "citation": "494 U.S. 872",
-     "year": 1990,
-     "holding": "Neutral, generally applicable laws that burden religious exercise do not violate the Free Exercise Clause; strict scrutiny is not required — partially superseded by the Religious Freedom Restoration Act (1993).",
-     "issue": "Can the state deny unemployment benefits to someone fired for using peyote in a religious ceremony?",
-     "plain_holding": "Yes. A neutral law that applies to everyone can burden religious practice without violating the Free Exercise Clause - the peyote ban applied to all, not just to one religion. Congress later passed RFRA to restore stricter protection."
-    }
-   ]
-  },
-  {
-   "id": "commercial-speech-campaign-finance",
-   "name": "Commercial Speech & Campaign Finance",
-   "subject": "First Amendment",
-   "description": "The intermediate scrutiny applied to advertising and the First Amendment limits on regulating money in politics — from the Buckley distinction to corporate speech in Citizens United.",
-   "cases": [
-    {
-     "name": "Buckley v. Valeo",
-     "citation": "424 U.S. 1",
-     "year": 1976,
-     "holding": "Campaign expenditure limits violate the First Amendment, but contribution limits are upheld — creating the spending/contributions distinction that still governs campaign finance.",
-     "issue": "Can the government limit how much candidates and others spend on campaigns?",
-     "plain_holding": "Partly. Limits on campaign spending are unconstitutional, because spending money on speech is speech. But limits on direct contributions to candidates are allowed to fight corruption. That spending/contribution split still governs campaign finance."
-    },
-    {
-     "name": "Central Hudson Gas & Electric Corp. v. Public Service Commission",
-     "citation": "447 U.S. 557",
-     "year": 1980,
-     "holding": "Commercial speech receives intermediate scrutiny under the four-part Central Hudson test (lawful activity, substantial government interest, direct advancement, narrow tailoring).",
-     "issue": "Can a utility company be banned from advertising to encourage electricity use?",
-     "plain_holding": "No - the ban went too far. Advertising is commercial speech and gets intermediate scrutiny under a four-part test: a lawful product, a real government interest, a direct connection, and a rule no broader than necessary."
-    },
-    {
-     "name": "Citizens United v. FEC",
-     "citation": "558 U.S. 310",
-     "year": 2010,
-     "holding": "Corporate independent expenditures in elections are protected political speech; the BCRA's electioneering-communication ban is unconstitutional.",
-     "issue": "Can the government ban corporations from spending money on ads about candidates shortly before an election?",
-     "plain_holding": "No. Independent spending by corporations is political speech protected by the First Amendment. The Court struck down the ban, treating corporations as speakers with free-speech rights."
-    }
-   ]
-  },
-  {
-   "id": "second-amendment",
-   "name": "Second Amendment",
-   "subject": "Constitutional Law",
-   "description": "The modern individual-rights reading of the right to keep and bear arms, announced in Heller after nearly 70 years of silence on the subject.",
-   "cases": [
-    {
-     "name": "District of Columbia v. Heller",
-     "citation": "554 U.S. 570",
-     "year": 2008,
-     "holding": "The Second Amendment protects an individual right to keep and bear arms for self-defense in the home; the District's handgun ban is unconstitutional.",
-     "issue": "Does the Second Amendment protect an individual right to own a gun, and can D.C. ban handguns?",
-     "plain_holding": "Yes to both: the Second Amendment protects an individual right to keep a handgun at home for self-defense, and the District's handgun ban violated that right."
-    }
-   ]
-  },
-  {
-   "id": "search-and-seizure",
-   "name": "Search & Seizure",
-   "subject": "Criminal Procedure",
-   "description": "Fourth Amendment doctrine: the exclusionary rule, the reasonable-expectation-of-privacy test, stop and frisk, and the wingspan limit on searches incident to arrest.",
-   "cases": [
-    {
-     "name": "Mapp v. Ohio",
-     "citation": "367 U.S. 643",
-     "year": 1961,
-     "holding": "The exclusionary rule applies to the states through the Fourteenth Amendment; evidence seized in violation of the Fourth Amendment is inadmissible.",
-     "issue": "Can evidence seized illegally by police be used in state court?",
-     "plain_holding": "No. The exclusionary rule - evidence from an illegal search stays out of court - now applies to the states. This made the Fourth Amendment's promise real at the state level."
-    },
-    {
-     "name": "Katz v. United States",
-     "citation": "389 U.S. 347",
-     "year": 1967,
-     "holding": "The Fourth Amendment protects people, not places; wiretapping a phone booth without a warrant violates a reasonable expectation of privacy.",
-     "issue": "Does the FBI need a warrant to wiretap a public phone booth?",
-     "plain_holding": "Yes. The Fourth Amendment protects people, not just places. Katz had a reasonable expectation of privacy inside the booth, so the warrantless wiretap violated the Constitution."
-    },
-    {
-     "name": "Terry v. Ohio",
-     "citation": "392 U.S. 1",
-     "year": 1968,
-     "holding": "A brief investigatory stop and frisk for weapons is permitted on reasonable suspicion of criminal activity, weighing crime prevention against the Fourth Amendment.",
-     "issue": "Can police stop and frisk someone they suspect of planning a crime?",
-     "plain_holding": "Yes, within limits. With 'reasonable suspicion' of criminal activity, police may briefly stop a person and pat them down for weapons. The frisk must be limited to safety - it is not a full search."
-    },
-    {
-     "name": "Chimel v. California",
-     "citation": "395 U.S. 752",
-     "year": 1969,
-     "holding": "A search incident to arrest is limited to the area within the arrestee's immediate control; the full-house search was unconstitutional.",
-     "issue": "Can police search a whole house after making an arrest?",
-     "plain_holding": "No. After an arrest, police may search only the area within the person's immediate reach - to grab weapons or destroy evidence. Searching the rest of the house required a warrant."
-    },
-    {
-     "name": "Riley v. California",
-     "holding": "Police generally may not, without a warrant, search digital information stored on a cell phone seized incident to arrest; the search-incident-to-arrest exception does not justify warrantless access to a phone's contents because the rationales of officer safety and evidence preservation do not apply to digital data.",
-     "issue": "Does the Fourth Amendment require police to obtain a warrant before searching the contents of a cell phone seized incident to arrest?",
-     "plain_holding": "Yes. The police need a warrant before digging through a phone's digital contents, even after a lawful arrest. The old 'search anything on the person right after arrest' rule does not extend to the entire digital world inside a phone.",
-     "citation": "573 U.S. 373",
-     "year": 2014
-    },
-    {
-     "name": "United States v. Jones",
-     "holding": "Attaching a GPS tracking device to a vehicle and using it to monitor the vehicle's movements on public streets is a search under the Fourth Amendment; the government's physical trespass in installing the device triggers the Amendment, and long-term monitoring implicates privacy interests.",
-     "issue": "Does the warrantless installation and use of a GPS tracking device on a car to monitor its public movements violate the Fourth Amendment?",
-     "plain_holding": "Yes. Physically attaching a GPS device to someone's car is an intrusion that counts as a 'search,' so police generally need a warrant — even when the movements tracked were on public roads.",
-     "citation": "565 U.S. 400",
-     "year": 2012
-    },
-    {
-     "name": "Carpenter v. United States",
-     "holding": "The government's acquisition of historical cell-site location information (CSLI) from a wireless carrier is a search under the Fourth Amendment; accessing long-term location records intrudes on a reasonable expectation of privacy, so a warrant supported by probable cause is generally required.",
-     "issue": "Does the government's warrantless acquisition of cell-site location records from a wireless carrier violate the Fourth Amendment?",
-     "plain_holding": "Yes. Getting someone's past locations from their cell phone company — days and weeks of where they have been — is a search, and the police need a warrant based on probable cause to obtain it.",
-     "citation": "585 U.S. 296",
-     "year": 2018
-    }
-   ]
-  },
-  {
-   "id": "self-incrimination",
-   "name": "Self-Incrimination & Miranda",
-   "subject": "Criminal Procedure",
-   "description": "The Fifth Amendment right against compelled self-incrimination and the Miranda warning regime that guards it in custodial interrogation.",
-   "cases": [
-    {
-     "name": "Miranda v. Arizona",
-     "citation": "384 U.S. 436",
-     "year": 1966,
-     "holding": "Suspects in custody must be warned of their right to remain silent and to counsel before interrogation; statements obtained without warnings are inadmissible.",
-     "issue": "Can police use a confession from a suspect who was never told about their rights?",
-     "plain_holding": "No. Before questioning someone in custody, police must warn them of the right to remain silent and to have a lawyer. Confessions obtained without those warnings are inadmissible - that is where the Miranda warning comes from."
-    }
-   ]
-  },
-  {
-   "id": "right-to-counsel",
-   "name": "Right to Counsel & Fair Trial",
-   "subject": "Criminal Procedure",
-   "description": "The Sixth and Fourteenth Amendment guarantees of counsel and the prosecutor's duty to disclose exculpatory evidence — twin pillars of a fair trial.",
-   "cases": [
-    {
-     "name": "Brady v. Maryland",
-     "citation": "373 U.S. 83",
-     "year": 1963,
-     "holding": "The prosecution must disclose material exculpatory evidence to the defense, or the conviction is unconstitutional — the foundation of the Brady disclosure rule.",
-     "issue": "Must the prosecution share evidence that could help the defendant?",
-     "plain_holding": "Yes. If the prosecution hides material evidence that could help the defense, the conviction is unconstitutional. The 'Brady rule' requires disclosing favorable evidence."
-    },
-    {
-     "name": "Gideon v. Wainwright",
-     "citation": "372 U.S. 335",
-     "year": 1963,
-     "holding": "The Sixth Amendment right to counsel applies to the states through the Fourteenth Amendment; states must provide counsel to indigent felony defendants.",
-     "issue": "Does a poor person charged with a felony have a right to a free lawyer?",
-     "plain_holding": "Yes. The Sixth Amendment right to counsel applies to the states, so states must provide a lawyer to felony defendants who cannot afford one."
-    }
-   ]
-  },
-  {
-   "id": "jury-selection",
-   "name": "Jury Selection & Equal Protection",
-   "subject": "Criminal Procedure",
-   "description": "The constitutional limit on peremptory strikes: prosecutors (and in later cases, criminal defendants) may not exclude jurors on the basis of race.",
-   "cases": [
-    {
-     "name": "Batson v. Kentucky",
-     "citation": "476 U.S. 79",
-     "year": 1986,
-     "holding": "Peremptory strikes exercised on the basis of race violate the Equal Protection Clause; a defendant can challenge them under the Batson three-step inquiry.",
-     "issue": "Can a prosecutor use peremptory strikes to remove Black jurors because of their race?",
-     "plain_holding": "No. Striking jurors because of race violates the Equal Protection Clause. If the defendant shows a pattern, the prosecutor must give a race-neutral reason."
-    }
-   ]
-  },
-  {
-   "id": "cruel-unusual-punishment",
-   "name": "Cruel & Unusual Punishment",
-   "subject": "Criminal Procedure",
-   "description": "The Eighth Amendment's prohibition on cruel and unusual punishments, applied to the death penalty's arbitrary administration.",
-   "cases": [
-    {
-     "name": "Furman v. Georgia",
-     "citation": "408 U.S. 238",
-     "year": 1972,
-     "holding": "The death penalty as administered was arbitrary and discriminatory, violating the Cruel and Unusual Punishments Clause — a moratorium that states later reformed around (Gregg v. Georgia, 1976).",
-     "issue": "Is the death penalty, as actually applied, constitutional?",
-     "plain_holding": "No, as it was then applied: the system was arbitrary and discriminatory, so it violated the Eighth Amendment. States rewrote their death-penalty laws to fix the problem, and the Court approved the reforms in 1976."
-    }
-   ]
-  },
-  {
-   "id": "contracts-consideration",
-   "name": "Consideration",
-   "subject": "Contracts",
-   "description": "The bargain element that makes a promise enforceable: what counts as consideration, including forbearance of a legal right.",
-   "cases": [
-    {
-     "name": "Hamer v. Sidway",
-     "citation": "27 N.E. 256 (N.Y. 1891)",
-     "year": 1891,
-     "holding": "Forbearance of a legal right — an uncle's promise not to drink or gamble in exchange for the nephew's abstinence — constitutes valid consideration.",
-     "issue": "Is a promise enforceable when the other side's only 'payment' was promising not to do something they had a legal right to do?",
-     "plain_holding": "Yes. Giving up a legal right - here, a nephew's promise not to drink or gamble until age 21 - is valid consideration. The uncle's promise of $5,000 was enforceable."
-    }
-   ]
-  },
-  {
-   "id": "contracts-formation",
-   "name": "Formation & Unconscionability",
-   "subject": "Contracts",
-   "description": "When a contract is formed (objective intent) and when courts will refuse to enforce it (unconscionability).",
-   "cases": [
-    {
-     "name": "Lucy v. Zehmer",
-     "citation": "84 S.E.2d 516 (Va. 1954)",
-     "year": 1954,
-     "holding": "Contractual intent is judged by objective manifestations; a signed agreement to sell a farm is enforceable even where a party claims it was made in jest.",
-     "issue": "Is a contract binding if one side claims he was only joking?",
-     "plain_holding": "Yes. What matters is what a reasonable person would have understood from the objective signs, not a secret intent. Zehmer's signed, serious-looking agreement to sell the farm was enforceable."
-    },
-    {
-     "name": "Williams v. Walker-Thomas Furniture Co.",
-     "citation": "350 F.2d 445 (D.C. Cir. 1965)",
-     "year": 1965,
-     "holding": "A court may refuse to enforce a contract for unconscionability where grossly unfair terms and unequal bargaining power shock the conscience.",
-     "issue": "Can a court refuse to enforce a contract with very unfair terms against a poor buyer?",
-     "plain_holding": "Yes, if the terms 'shock the conscience.' A contract that is grossly unfair and exploits unequal bargaining power can be thrown out as unconscionable."
-    }
-   ]
-  },
-  {
-   "id": "contracts-damages",
-   "name": "Damages & Expectancy",
-   "subject": "Contracts",
-   "description": "How contract damages are measured: expectation damages that put the promisee in the position promised, limited by foreseeability at formation.",
-   "cases": [
-    {
-     "name": "Hadley v. Baxendale",
-     "citation": "9 Exch. 341 (1854)",
-     "year": 1854,
-     "holding": "Consequential damages are recoverable only for losses within the parties' reasonable contemplation at the time of contract formation — the famous foreseeability rule.",
-     "issue": "Can a miller recover lost profits from a delivery company that did not know the mill was shut down?",
-     "plain_holding": "No. You can only recover losses the other side could reasonably have foreseen when the contract was made. The carrier never knew the broken shaft would halt the whole mill, so the lost profits were too remote."
-    },
-    {
-     "name": "Hawkins v. McGee",
-     "citation": "146 A. 641 (N.H. 1929)",
-     "year": 1929,
-     "holding": "Expectation damages give the plaintiff the benefit of the bargain — the 'hairy hand' case, where damages were measured by the perfect hand promised, not the cost of surgery.",
-     "issue": "How are damages measured when a doctor promises a 'perfect hand' and the surgery fails?",
-     "plain_holding": "By the benefit of the bargain: the plaintiff gets what was promised - a perfect hand - not just the cost of the surgery. This is the classic expectation-damages case."
-    }
-   ]
-  },
-  {
-   "id": "torts-negligence",
-   "name": "Negligence & Duty",
-   "subject": "Torts",
-   "description": "The fault-based liability regime: the ordinary-care standard, the duty of care owed to foreseeable plaintiffs, manufacturer liability without privity, and the Hand formula.",
-   "cases": [
-    {
-     "name": "Brown v. Kendall",
-     "citation": "60 Mass. 292 (1850)",
-     "year": 1850,
-     "holding": "Accidental injuries require proof of fault; liability rests on a failure to exercise ordinary care, not on strict liability for the act.",
-     "issue": "Is a person liable for an injury caused by an accident while trying to stop a dog fight?",
-     "plain_holding": "No - not without fault. Liability requires a failure to use ordinary care, not just being the cause of the injury. Accidental harm is not automatically someone's legal responsibility."
-    },
-    {
-     "name": "MacPherson v. Buick Motor Co.",
-     "citation": "217 N.Y. 382 (1916)",
-     "year": 1916,
-     "holding": "Manufacturers owe a duty of care to ultimate consumers even without privity of contract; Buick was liable for the defective wheel that injured a remote buyer.",
-     "issue": "Does a car manufacturer owe a duty of care to a buyer who did not buy directly from it?",
-     "plain_holding": "Yes. Manufacturers owe a duty of care to the ultimate consumer, even without a direct contract. Buick had to pay for injuries from a wheel it could have inspected."
-    },
-    {
-     "name": "Palsgraf v. Long Island Railroad",
-     "citation": "248 N.Y. 339 (1928)",
-     "year": 1928,
-     "holding": "A duty of care runs only to foreseeable plaintiffs; the railroad owed no duty to Mrs. Palsgraf because her injury was an unforeseeable consequence of its conduct.",
-     "issue": "Does the railroad owe a duty of care to a woman injured by an unforeseeable chain of events?",
-     "plain_holding": "No. The duty of care runs only to foreseeable plaintiffs - people the defendant could reasonably expect to be at risk. Mrs. Palsgraf's injury was too far from the railroad's conduct, so she could not recover."
-    },
-    {
-     "name": "United States v. Carroll Towing Co.",
-     "citation": "159 F.2d 169 (2d Cir. 1947)",
-     "year": 1947,
-     "holding": "Negligence is determined by the Hand formula: a duty of care is breached where the burden of adequate precautions is less than the probability of harm times its severity (B < PL).",
-     "issue": "When is a barge owner negligent for not keeping a barge attended?",
-     "plain_holding": "Judge Learned Hand's formula: you are negligent if the cost of preventing the harm is less than the probability of the harm times its seriousness (B < PL). Here, keeping someone on the barge was cheap, so its owner shared the blame."
-    }
-   ]
-  },
-  {
-   "id": "torts-strict-liability",
-   "name": "Strict Liability",
-   "subject": "Torts",
-   "description": "Liability without fault for abnormally dangerous activities and defective products — the escape of dangerous things and the emerging doctrine of strict products liability.",
-   "cases": [
-    {
-     "name": "Rylands v. Fletcher",
-     "citation": "L.R. 3 H.L. 330 (1868)",
-     "year": 1868,
-     "holding": "A landowner is strictly liable for the escape of dangerous things brought onto land for non-natural uses — here, water flooding a neighbor's mine.",
-     "issue": "Is a mine owner liable for water escaping from his reservoir and flooding a neighbor's mine?",
-     "plain_holding": "Yes. If you bring something dangerous onto your land and it escapes, you are strictly liable - no fault required. The reservoir water flooded the neighbor's mine, so the mine owner had to pay."
-    },
-    {
-     "name": "Escola v. Coca Cola Bottling Co.",
-     "citation": "150 P.2d 436 (Cal. 1944)",
-     "year": 1944,
-     "holding": "Res ipsa loquitur applies to an exploding soda bottle; Justice Traynor's concurrence argued for strict products liability because manufacturers can bear and spread the cost of harm.",
-     "issue": "Can a waitress injured by an exploding soda bottle recover without proving exactly what went wrong?",
-     "plain_holding": "Yes, under res ipsa loquitur - a bottle does not explode without negligence, so the bottler must explain. Justice Traynor's concurrence went further and argued for strict products liability, which later became law."
-    }
-   ]
-  },
-  {
-   "id": "property-acquisition",
-   "name": "Acquisition & Sovereignty",
-   "subject": "Property",
-   "description": "How property rights come into being: first possession of wild animals and the discovery doctrine's impact on Native American land title.",
-   "cases": [
-    {
-     "name": "Pierson v. Post",
-     "citation": "3 Cai. R. 175 (N.Y. 1805)",
-     "year": 1805,
-     "holding": "First possession of a wild animal requires actual capture or control, not mere pursuit — the fox case that fixed the capture rule.",
-     "issue": "Who owns a fox: the hunter chasing it or the man who finally caught it?",
-     "plain_holding": "The one who caught it. Mere pursuit does not create ownership of a wild animal - you must actually capture or control it. This 'capture rule' became the basic rule of first possession."
-    },
-    {
-     "name": "Johnson v. M'Intosh",
-     "citation": "21 U.S. 543",
-     "year": 1823,
-     "holding": "Under the discovery doctrine, European sovereigns acquired title to discovered lands; Native American tribes retain only a right of occupancy — a doctrine later repudiated in federal Indian law.",
-     "issue": "Who owns the land when one buyer purchased it from a Native American tribe and another from the government?",
-     "plain_holding": "Under the discovery doctrine, the European nation that 'discovered' the land gained title, and the tribes kept only a right to occupy. So the government's grant to M'Intosh beat Johnson's purchase from the tribe. The doctrine was later repudiated."
-    }
-   ]
-  },
-  {
-   "id": "takings",
-   "name": "Takings & Public Use",
-   "subject": "Property",
-   "description": "The Fifth Amendment's Takings Clause: when regulations go so far as to effect a taking, and what counts as public use in eminent domain.",
-   "cases": [
-    {
-     "name": "Penn Central Transportation Co. v. New York City",
-     "citation": "438 U.S. 104",
-     "year": 1978,
-     "holding": "Regulatory takings are judged by an ad hoc multifactor test (economic impact, interference with investment-backed expectations, character of the action); the Grand Central landmark law was not a taking.",
-     "issue": "Does New York's landmark law, which stopped Grand Central Station from being built over, take the owner's property?",
-     "plain_holding": "No. Most regulatory limits are not takings. The Court weighed three factors - economic impact, interference with reasonable investment expectations, and the government's interest - and upheld the law."
-    },
-    {
-     "name": "Kelo v. City of New London",
-     "citation": "545 U.S. 469",
-     "year": 2005,
-     "holding": "'Public use' under the Takings Clause includes economic development by a private developer, so long as just compensation is paid — one of the most controversial eminent-domain decisions.",
-     "issue": "Does 'public use' allow a city to take homes for a private developer's economic plan?",
-     "plain_holding": "Yes. Taking property for economic development counts as a public use, as long as the owner receives just compensation. The decision was controversial, and many states passed laws against it afterward."
-    }
-   ]
-  },
-  {
-   "id": "property-rights-limits",
-   "name": "Property Rights & Their Limits",
-   "subject": "Property",
-   "description": "The principle that property rights are not absolute: an owner's right to exclude yields to the public interest and the basic needs of those on the land.",
-   "cases": [
-    {
-     "name": "State v. Shack",
-     "citation": "277 A.2d 369 (N.J. 1971)",
-     "year": 1971,
-     "holding": "A landowner may not exclude government officials entering to provide essential services to migrant farmworkers; property rights do not include absolute dominion.",
-     "issue": "Can a landowner keep government officials off his farm so they cannot serve migrant workers?",
-     "plain_holding": "No. Property rights are not absolute. The owner could not block officials from providing medical and legal services to workers living on his land."
-    }
-   ]
-  },
-  {
-   "id": "civpro-jurisdiction",
-   "name": "Personal Jurisdiction",
-   "subject": "Civil Procedure",
-   "description": "The constitutional limits on a court's power over defendants — from physical presence in Pennoyer to minimum contacts and purposeful availment in the modern era.",
-   "cases": [
-    {
-     "name": "Pennoyer v. Neff",
-     "citation": "95 U.S. 714",
-     "year": 1878,
-     "holding": "A court has personal jurisdiction over a defendant only through presence within the forum or consent; in rem jurisdiction attaches to property in the state.",
-     "issue": "Can an Oregon court take property from someone who was never in Oregon and never agreed to the suit?",
-     "plain_holding": "No. A court's power over a defendant comes from presence in the state or consent. Neff had neither, so the judgment against him was void."
-    },
-    {
-     "name": "International Shoe Co. v. Washington",
-     "citation": "326 U.S. 310",
-     "year": 1945,
-     "holding": "Personal jurisdiction requires minimum contacts such that the suit does not offend traditional notions of fair play and substantial justice.",
-     "issue": "Can Washington state hear a suit against a company whose only connection is salesmen visiting the state?",
-     "plain_holding": "Yes. A company must have 'minimum contacts' with a state for its courts to hear a case, and International Shoe's steady in-state business was enough. This case is the foundation of modern personal jurisdiction."
-    },
-    {
-     "name": "Asahi Metal Industry Co. v. Superior Court",
-     "citation": "480 U.S. 102",
-     "year": 1987,
-     "holding": "Mere placement of a product into the stream of commerce is insufficient for jurisdiction; the exercise of jurisdiction must be reasonable and comport with fair play.",
-     "issue": "Can California courts hear a suit against a Japanese valve maker whose part reached California through a long chain of sales?",
-     "plain_holding": "No. Merely placing a product into the stream of commerce is not enough by itself. The Court agreed the case was unreasonable - the burden on the Japanese company was too great."
-    }
-   ]
-  },
-  {
-   "id": "civpro-erie-pleading",
-   "name": "Erie Doctrine & Pleading",
-   "subject": "Civil Procedure",
-   "description": "The two great structural rules of modern federal civil litigation: state law governs substantive issues in diversity, and pleadings must state a plausible claim.",
-   "cases": [
-    {
-     "name": "Erie Railroad v. Tompkins",
-     "citation": "304 U.S. 64",
-     "year": 1938,
-     "holding": "Federal courts sitting in diversity must apply state substantive law; there is no general federal common law — Swift v. Tyson is overruled.",
-     "issue": "What law should federal courts apply in cases between citizens of different states?",
-     "plain_holding": "State law. Federal courts in diversity cases must apply state substantive law, and there is no general federal common law. The old rule from Swift v. Tyson (1842), which had let federal courts apply their own judge-made 'general federal common law' instead of state law, was overruled."
-    },
-    {
-     "name": "Ashcroft v. Iqbal",
-     "citation": "556 U.S. 662",
-     "year": 2009,
-     "holding": "Complaints must plead a facially plausible claim, not merely a conceivable one — the Twombly/Iqbal plausibility standard that governs federal pleading.",
-     "issue": "Must a complaint show facts that make the claim plausible, or just possible?",
-     "plain_holding": "Plausible. Bare legal conclusions are not enough - the complaint must plead facts that make the claim believable. Iqbal's blanket allegations about his detention were dismissed, and the 'plausibility' standard now governs federal pleading."
-    }
-   ]
-  },
-  {
-   "id": "criminal-trial-rights",
-   "name": "Criminal Trial Rights",
-   "subject": "Criminal Procedure",
-   "description": "Sixth Amendment guarantees that protect the fairness of criminal adjudication: the right to confront adverse witnesses (Crawford) and the right to a jury finding of every fact that raises a sentence above the statutory maximum (Blakely).",
-   "cases": [
-    {
-     "name": "Crawford v. Washington",
-     "holding": "The Sixth Amendment's Confrontation Clause bars admission of testimonial out-of-court statements against a criminal defendant unless the declarant is unavailable and the defendant had a prior opportunity for cross-examination; the reliability-based framework of Ohio v. Roberts is abandoned.",
-     "issue": "Does the admission of a wife's recorded statement against her husband violate the Confrontation Clause when he never had an opportunity to cross-examine her?",
-     "plain_holding": "Yes. If a witness's statement is 'testimonial' — made to be used against the defendant in court — the defendant must have a real chance to cross-examine that witness. The old 'it was reliable enough' test no longer works.",
-     "citation": "541 U.S. 36",
-     "year": 2004
-    },
-    {
-     "name": "Blakely v. Washington",
-     "holding": "The Sixth Amendment right to trial by jury requires that any fact that increases the maximum statutory sentence — other than a prior conviction — be found by the jury beyond a reasonable doubt; a judge cannot impose a sentence above the standard range based on facts the judge finds alone.",
-     "issue": "May a judge impose a sentence above the standard range based on facts the judge found, when the jury's verdict alone would support only the lower range?",
-     "plain_holding": "No. If a fact makes a defendant's sentence longer than the range the jury's verdict alone allows, that fact must be proven to a jury beyond a reasonable doubt — the judge cannot simply find it himself.",
-     "citation": "542 U.S. 296",
-     "year": 2004
-    }
-   ]
-  },
-  {
-   "id": "wills-trusts-succession",
-   "name": "Wills, Trusts & Estates",
-   "subject": "Wills, Trusts & Estates",
-   "description": "Core doctrines of donative transfer law: testamentary conditions and public policy (Shapira), the revocable bank-account trust (Totten), unilateral revocable trusts (Farkas), and attorney liability for negligent will drafting (Lucas v. Hamm).",
-   "cases": [
-    {
-     "name": "Lucas v. Hamm",
-     "holding": "An attorney who negligently drafts a will may be liable to the intended beneficiaries, who are third-party beneficiaries of the attorney-client relationship, for the value of the lost bequest; the rule against perpetuities is so complex that missing it is not automatically malpractice.",
-     "issue": "May intended beneficiaries of a negligently drafted will sue the drafting attorney, and was the attorney negligent in violating the rule against perpetuities?",
-     "plain_holding": "Mostly yes. Lawyers who botch a will can be sued by the people who were supposed to inherit — not just by the client. But the rule against perpetuities is so tricky that missing it is not automatically malpractice.",
-     "citation": "56 Cal. 2d 583",
-     "year": 1961
-    },
-    {
-     "name": "Shapira v. Union National Bank",
-     "holding": "A testamentary condition requiring a beneficiary to marry within a specified religion is not void as against public policy; a condition that encourages marriage within a faith (rather than prohibiting marriage or requiring divorce) is valid and enforceable.",
-     "issue": "Is a will condition requiring a beneficiary to marry a person of the Jewish faith void as against public policy?",
-     "plain_holding": "No. A will can say 'you only get this money if you marry someone of our faith.' That is enforceable — it encourages a particular marriage instead of forbidding marriage, which would be against public policy.",
-     "citation": "315 N.E.2d 825 (Ohio Ct. Com. Pl. 1974)",
-     "year": 1974
-    },
-    {
-     "name": "Matter of Totten",
-     "holding": "A deposit of money by one person in his own name as trustee for another creates a revocable trust (the 'Totten trust'); the depositor may withdraw the funds during life, and on death the balance passes to the beneficiary unless the trust was revoked.",
-     "issue": "Does a bank deposit made 'in trust for' another create an irrevocable trust, or may the depositor take back the funds during life?",
-     "plain_holding": "It is a 'poor man's will.' You can put money in a bank account 'in trust for' someone and still take it back anytime while you are alive; whatever is left when you die goes to that person.",
-     "citation": "71 N.E. 748 (N.Y. 1904)",
-     "year": 1904
-    },
-    {
-     "name": "Farkas v. Williams",
-     "holding": "A revocable trust created by a unilateral declaration in which the settlor names himself trustee for another is valid and confers a present interest on the beneficiary; no delivery of a physical res is required where the settlor is the trustee, and retention of a power of revocation does not defeat the trust.",
-     "issue": "Did the attempted trust, with stock registered in the decedent's name as trustee for his friend, create a valid trust, or did it fail for lack of delivery?",
-     "plain_holding": "Yes, it is a real trust. You can name yourself the trustee of a trust for someone else and still keep the power to take the property back; the beneficiary still has a present right to what remains at your death.",
-     "citation": "125 N.E.2d 600 (Ill. 1955)",
-     "year": 1955
-    }
-   ]
-  },
-  {
-   "id": "agency-partnership",
-   "name": "Agency & Partnership",
-   "subject": "Agency & Partnership",
-   "description": "The rules by which one person's acts bind another: agency created by request without compensation (Gorton v. Doty), creditor control that makes a lender a principal (Cargill), apparent authority (Lind v. Schenley), and the fiduciary duty partners owe one another (Meinhard).",
-   "cases": [
-    {
-     "name": "Gorton v. Doty",
-     "holding": "A person who lends her car and directs the driver to use it for her purpose may be a principal and the driver her agent, even without compensation or a business context; whether an agency relationship existed is for the jury, and the driver's negligence may be imputed to the owner.",
-     "issue": "Was the defendant, who allowed a coach to drive her car to transport football players, liable for his negligent driving as her agent?",
-     "plain_holding": "Yes. If you loan your car and ask someone to drive it for you, they can be your agent — even with no pay — and you can be responsible for their negligent driving. Agency does not require a business deal.",
-     "citation": "69 P.2d 136 (Idaho 1937)",
-     "year": 1937
-    },
-    {
-     "name": "Gay Jenson Farms Co. v. Cargill, Inc.",
-     "holding": "A creditor who exercises pervasive control over a debtor's business may become a principal and the debtor its agent, making the creditor liable to third parties for the debtor's obligations; Cargill's control over Warren's grain operations made it liable for Warren's unpaid contracts.",
-     "issue": "Is a creditor who takes over the finances and day-to-day operations of a failing debtor liable as principal for the debtor's unpaid obligations to third parties?",
-     "plain_holding": "Yes. If a lender controls a farmer's business so tightly — making decisions, requiring daily reports, approving purchases — that the farmer merely follows orders, the lender becomes legally responsible for the farmer's debts to outsiders.",
-     "citation": "309 N.W.2d 285 (Minn. 1981)",
-     "year": 1981
-    },
-    {
-     "name": "Lind v. Schenley Industries",
-     "holding": "A principal is bound by the acts of an agent acting within the apparent authority the principal's manifestations confer on the agent in the eyes of third parties; whether a hotel general manager had apparent authority to hire the plaintiff for a permanent position was a jury question.",
-     "issue": "Was the hotel general manager's promise of permanent employment within his apparent authority so as to bind the corporate owner?",
-     "plain_holding": "Maybe — and a jury should decide. A company can be bound by what its manager looks authorized to do, even without formal permission. The question is what the company's words and conduct led a reasonable person to believe the manager could do.",
-     "citation": "278 F.2d 79 (3d Cir. 1960)",
-     "year": 1960
-    },
-    {
-     "name": "Meinhard v. Salmon",
-     "holding": "Partners and joint venturers owe each other the highest duty of loyalty — a fiduciary duty of 'punctilio of an honor the most sensitive'; Salmon's secret taking of the lease renewal for himself was a breach because the opportunity belonged to the venture.",
-     "issue": "Did Salmon breach his fiduciary duty to Meinhard by secretly taking the renewal of the lease for himself at the end of their joint venture?",
-     "plain_holding": "Yes. People in business together owe each other an extreme loyalty. When the chance to renew the lease came up, it belonged to both of them — grabbing it secretly was a breach of the deal.",
-     "citation": "249 N.Y. 458",
-     "year": 1928
-    }
-   ]
-  },
-  {
-   "id": "professional-responsibility",
-   "name": "Professional Responsibility",
-   "subject": "Professional Responsibility",
-   "description": "Ethical duties of lawyers to the legal system: the duty of candor to the tribunal, which forbids concealing a client's evidence (In re Ryder) and forbids assisting client perjury (Nix v. Whiteside).",
-   "cases": [
-    {
-     "name": "In re Ryder",
-     "holding": "An attorney may not conceal evidence or shield a client's possession of a weapon and stolen money connected to a crime; such conduct violates the duty of candor to the court and professional responsibility, and the attorney was suspended for holding a sawed-off shotgun and robbery proceeds for his client.",
-     "issue": "May a defense attorney take possession of and conceal a client's sawed-off shotgun and the proceeds of a robbery to protect the client from prosecution?",
-     "plain_holding": "No. A lawyer cannot hide a client's gun and stolen money to keep them from becoming evidence. Defending a client does not mean covering up a crime — the attorney's conduct here led to his suspension.",
-     "citation": "263 F. Supp. 360 (E.D. Va. 1967)",
-     "year": 1967
-    },
-    {
-     "name": "Nix v. Whiteside",
-     "holding": "The Sixth Amendment right to counsel is not violated when an attorney refuses to cooperate in presenting client perjury, threatens to withdraw if the client testifies falsely, and prevents the false testimony; the attorney's duty of candor to the tribunal permits these responses.",
-     "issue": "Did defense counsel's refusal to allow Whiteside to testify falsely, and his threat to withdraw, deny Whiteside effective assistance of counsel?",
-     "plain_holding": "No. A lawyer is allowed — sometimes required — to stop a client from lying on the stand. Refusing to help with perjury is not bad lawyering; it is the lawyer doing the right thing.",
-     "citation": "475 U.S. 157",
-     "year": 1986
-    }
-   ]
-  }
- ]
+  ]
 }
