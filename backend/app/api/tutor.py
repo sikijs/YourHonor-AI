@@ -213,10 +213,11 @@ def mark_review(
 @router.get("/review/queue", response_model=ReviewQueueResponse)
 def review_queue(
     user_id: int = Depends(get_current_user_id),
+    difficulty: Optional[int] = None,
 ):
     try:
         service = get_tutor_service()
-        cards = service.get_review_queue(user_id)
+        cards = service.get_review_queue(user_id, difficulty=difficulty)
         return ReviewQueueResponse(cards=cards, total=len(cards))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")

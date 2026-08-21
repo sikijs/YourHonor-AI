@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 import logging
+import random
 import re
 from typing import Optional
 
@@ -30,12 +31,18 @@ EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 # and the session moves on. A fully correct answer always advances immediately.
 MAX_ATTEMPTS_PER_QUESTION = 3
 
+# Questions served per Quiz/Review session. Each topic's curated bank holds
+# 20 cards; every session draws a fresh random 10 so students never settle
+# into a fixed routine and the whole bank still gets coverage over time.
+QUESTIONS_PER_SESSION = 10
+
 
 class TutorSession:
     def __init__(self, topic_id: str):
         self.topic_id = topic_id
         self.topic_data = TOPICS.get(topic_id)
-        self.questions = list(self.topic_data["questions"])
+        bank = self.topic_data["questions"]
+        self.questions = random.sample(bank, min(QUESTIONS_PER_SESSION, len(bank)))
         self.current_index = 0
         self.correct_count = 0
         self.wrong_count = 0
@@ -498,7 +505,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             conn.close()
         return {"status": "ok", "question": question, "got_it": got_it}
 
-    def get_review_queue(self, user_id: int, limit: int = 10) -> list[CurriculumCard]:
+    def get_review_queue(self, user_id: int, limit: int = 10, difficulty: Optional[int] = None) -> list[CurriculumCard]:
         """Cards marked "need to study", enriched with similar curriculum cards.
 
         Always returns ALL of the student's own weak cards (most recently
@@ -507,6 +514,9 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
         `limit` weak cards, the queue is extended with semantically similar
         cards retrieved over the weak cards' expected concepts so re-study
         covers related material. Deduplicated by question text.
+
+        An optional `difficulty` (1-4) narrows both the weak cards and the
+        enrichment to that exact curriculum level (None = everything).
         """
         from app import db
         conn = db.get_db()
@@ -541,6 +551,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
             card = self._curriculum_card_for(row["topic_id"], question)
             if card is None:
                 continue
+            if difficulty is not None and card.difficulty != difficulty:
+                continue
             cards.append(card)
             weak_concepts.extend(card.expected_concepts)
 
@@ -554,6 +566,8 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                     if card is None or card.question in seen:
                         continue
                     if card.question in mastered:
+                        continue
+                    if difficulty is not None and card.difficulty != difficulty:
                         continue
                     seen.add(card.question)
                     cards.append(card)

@@ -290,8 +290,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ question, topic_id: topicId, got_it: gotIt }),
       }),
-    reviewQueue: () =>
-      fetchApi<{ cards: CurriculumCard[]; total: number }>('/api/tutor/review/queue'),
+    reviewQueue: (difficulty?: number) =>
+      fetchApi<{ cards: CurriculumCard[]; total: number }>(
+        `/api/tutor/review/queue${difficulty !== undefined ? `?difficulty=${difficulty}` : ''}`
+      ),
   },
 
   templates: {

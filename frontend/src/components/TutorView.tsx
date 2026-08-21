@@ -78,6 +78,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [reviewQueueCards, setReviewQueueCards] = useState<CurriculumCard[] | null>(null);
   const [reviewSessionMarked, setReviewSessionMarked] = useState<string[]>([]);
 
+  const [reviewDifficulty, setReviewDifficulty] = useState(0);
+
   const cancelRef = useRef<AbortController | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -117,26 +119,46 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     }
   }, [practiceEditorKey]);
 
+  function getReviewCards(): TutorQuestion[] {
+    if (!session) return [];
+    return reviewDifficulty === 0
+      ? session.questions
+      : session.questions.filter(q => q.difficulty === reviewDifficulty);
+  }
+
+  function changeReviewDifficulty(v: number) {
+    setReviewDifficulty(v);
+    setReviewIndex(0);
+    setReviewFlipped(false);
+    setReviewCorrect(0);
+    setReviewWrong(0);
+    setReviewComplete(false);
+    setReviewSessionMarked([]);
+    setReviewRelatedCards({});
+  }
+
   useEffect(() => {
     if (!reviewMode || !reviewFlipped || !session) return;
-    const card = session.questions[reviewIndex];
+    const card = getReviewCards()[reviewIndex];
     if (!card || reviewRelatedCards[reviewIndex]) return;
     let cancelled = false;
     api.tutor.relatedConcepts(card.question, session.topic_id, 3)
       .then(res => { if (!cancelled) setReviewRelatedCards(prev => ({ ...prev, [reviewIndex]: res.cards })); })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [reviewMode, reviewFlipped, reviewIndex, session, reviewRelatedCards]);
+  }, [reviewMode, reviewFlipped, reviewIndex, session, reviewRelatedCards, reviewDifficulty]);
 
   useEffect(() => {
     if (reviewMode && reviewComplete) {
-      api.tutor.reviewQueue().then(res => setReviewQueueCards(res.cards)).catch(() => {});
+      api.tutor.reviewQueue(reviewDifficulty || undefined)
+        .then(res => setReviewQueueCards(res.cards))
+        .catch(() => {});
     }
-  }, [reviewMode, reviewComplete]);
+  }, [reviewMode, reviewComplete, reviewDifficulty]);
 
   function markCard(gotIt: boolean): Promise<void> {
     if (!session) return Promise.resolve();
-    const card = session.questions[reviewIndex];
+    const card = getReviewCards()[reviewIndex];
     if (!card) return Promise.resolve();
     setReviewSessionMarked(prev => (prev.includes(card.question) ? prev : [...prev, card.question]));
     return api.tutor.markReview(card.question, session.topic_id, gotIt)
@@ -671,10 +693,10 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <div className="card" style={{ flex: 1, minWidth: '200px', padding: '0.5rem 1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span style={{ fontSize: '0.85rem' }}>
-              <strong>Progress:</strong> {reviewMode ? (reviewComplete ? totalQuestions : reviewIndex) : (isComplete ? totalQuestions : currentIndex)}/{totalQuestions}
+              <strong>Progress:</strong> {reviewMode ? (reviewComplete ? getReviewCards().length : reviewIndex) : (isComplete ? totalQuestions : currentIndex)}/{reviewMode ? getReviewCards().length : totalQuestions}
             </span>
             <div style={{ flex: 1, height: '8px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${(reviewMode ? ((reviewComplete ? totalQuestions : reviewIndex) / totalQuestions) : ((isComplete ? totalQuestions : currentIndex) / totalQuestions)) * 100}%`, background: 'var(--blue-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
+              <div style={{ height: '100%', width: `${(reviewMode ? ((reviewComplete ? getReviewCards().length : reviewIndex) / Math.max(getReviewCards().length, 1)) : ((isComplete ? totalQuestions : currentIndex) / totalQuestions)) * 100}%`, background: 'var(--blue-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
             </div>
           </div>
           <div className="card" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '1rem' }}>
@@ -750,7 +772,12 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       {practiceMode && practiceFactPattern && !practiceLoading && !practiceFeedback && (
         <div>
           <div className="card" style={{ marginBottom: '1rem', borderLeft: '4px solid var(--blue-primary)' }}>
-            <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>Fact Pattern</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>Fact Pattern</h3>
+              <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                Difficulty: {practiceDifficulty}/5
+              </span>
+            </div>
             <p style={{ fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', margin: 0 }}>{practiceFactPattern}</p>
             <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {practiceKeyConcepts.map((c, i) => (
@@ -789,7 +816,12 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div>
           {practiceFactPattern && (
             <div className="card" style={{ marginBottom: '1rem', borderLeft: '4px solid var(--blue-primary)' }}>
-              <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.5rem' }}>Fact Pattern</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>Fact Pattern</h3>
+                <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  Difficulty: {practiceDifficulty}/5
+                </span>
+              </div>
               <p style={{ fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', margin: 0 }}>{practiceFactPattern}</p>
             </div>
           )}
@@ -868,47 +900,36 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
       )}
 
       {mcMode && !mcQuestion && !mcLoading && (
-        <div>
-          <h2>MC Quiz: Multiple Choice</h2>
-          <p style={{ color: 'var(--blue-primary)', fontSize: '0.95rem', marginBottom: '1.75rem' }}>
-            Test your knowledge with multiple-choice questions. Each question presents a legal scenario with 4 answer choices. You&apos;ll get instant feedback explaining why each option is right or wrong.
+        <div className="card" style={{ marginBottom: '1rem', padding: '1.5rem' }}>
+          <h3 style={{ color: 'var(--dark-navy)', marginBottom: '0.75rem' }}>MC Quiz: Multiple Choice</h3>
+          <p style={{ fontSize: '0.9rem', color: 'var(--gray-text)', marginBottom: '1rem' }}>
+            Test your knowledge of <strong>{session.topic_name}</strong> with multiple-choice questions. Each question presents a legal scenario with 4 answer choices. You&apos;ll get instant feedback explaining why each option is right or wrong.
           </p>
-          <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
-            Pick a topic and difficulty to begin.
-          </p>
-          <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Difficulty:</label>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--dark-navy)', display: 'block', marginBottom: '0.3rem' }}>Difficulty: {mcDifficulty}/5</label>
             <input
               type="range" min="1" max="5" value={mcDifficulty}
               onChange={(e) => setMcDifficulty(Number(e.target.value))}
-              style={{ width: '120px' }}
+              style={{ width: '100%', maxWidth: '300px' }}
             />
-            <span style={{ fontSize: '0.85rem', color: 'var(--gray-text)', fontWeight: 600 }}>{mcDifficulty}/5</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '300px', fontSize: '0.75rem', color: 'var(--gray-text)' }}>
+              <span>Beginner</span><span>Expert</span>
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-            {topics.map((topic) => (
-              <div key={topic.id} className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div>
-                  <h3 style={{ color: 'var(--blue-primary)', margin: '0 0 0.25rem 0' }}>{topic.name}</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', margin: 0 }}>{topic.description}</p>
-                </div>
-                <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(true)}>
-                  Start MC Quiz
-                </button>
-                {mcShowCost && (
-                  <div style={{ padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
-                      This will use AI API calls (~$0.03 per question) to generate questions on this topic. Continue?
-                    </p>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startMCQuiz(topic.id)}>Yes, start</button>
-                      <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(false)}>Cancel</button>
-                    </div>
-                  </div>
-                )}
+          <button className="btn btn-primary" onClick={() => setMcShowCost(true)}>
+            Start MC Quiz
+          </button>
+          {mcShowCost && (
+            <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
+              <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
+                This will use AI API calls (~$0.03 per question) to generate a 5-question quiz on <strong>{session.topic_name}</strong>. Continue?
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startMCQuiz(session.topic_id)}>Yes, start</button>
+                <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(false)}>Cancel</button>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1029,7 +1050,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                 {mcSaving ? 'Saving...' : 'Save to Documents'}
               </button>
             )}
-            <button className="btn btn-primary" onClick={resetMC}>Try Another Topic</button>
+            <button className="btn btn-primary" onClick={resetMC}>New MC Quiz</button>
           </div>
         </div>
       )}
@@ -1266,14 +1287,54 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && !mcMode && reviewMode && !reviewComplete && session.questions[reviewIndex] && (
+      {!practiceMode && !mcMode && reviewMode && !reviewComplete && getReviewCards().length === 0 && (
+        <div className="card" style={{ marginBottom: '1rem', textAlign: 'center', padding: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <label style={{ fontSize: '0.9rem', color: 'var(--dark-navy)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              Difficulty:
+              <select
+                value={reviewDifficulty}
+                onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
+                style={{ fontSize: '0.9rem', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+              >
+                <option value={0}>All</option>
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+                <option value={4}>4</option>
+              </select>
+            </label>
+          </div>
+          <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+            No cards at this difficulty in the current session. Choose another level or reset to All.
+          </p>
+        </div>
+      )}
+
+      {!practiceMode && !mcMode && reviewMode && !reviewComplete && getReviewCards()[reviewIndex] && (
         <div className="card" style={{ marginBottom: '1rem' }}>
+          <div style={{ padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderBottom: '1px solid #eee' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--gray-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              Difficulty:
+              <select
+                value={reviewDifficulty}
+                onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
+                style={{ fontSize: '0.8rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+              >
+                <option value={0}>All</option>
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+                <option value={4}>4</option>
+              </select>
+            </label>
+          </div>
           {!reviewFlipped ? (
             <div
               onClick={() => setReviewFlipped(true)}
               style={{ cursor: 'pointer', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem', textAlign: 'center' }}
             >
-              <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>{session.questions[reviewIndex].question}</h3>
+              <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>{getReviewCards()[reviewIndex].question}</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', marginTop: '1rem' }}>
                 Click to reveal answer
               </p>
@@ -1282,19 +1343,19 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             <div style={{ padding: '2rem' }}>
               <h4 style={{ color: 'var(--purple-secondary)', margin: '0 0 0.5rem 0' }}>Answer</h4>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-                {session.questions[reviewIndex].answer || 'No written answer available for this card.'}
+                {getReviewCards()[reviewIndex].answer || 'No written answer available for this card.'}
               </p>
               <h5 style={{ color: 'var(--dark-navy)', margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 600 }}>
                 Key concepts
               </h5>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                {session.questions[reviewIndex].expected_concepts.map((c: string, i: number) => (
+                {getReviewCards()[reviewIndex].expected_concepts.map((c: string, i: number) => (
                   <span key={i} style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0' }}>{c}</span>
                 ))}
               </div>
-              {session.questions[reviewIndex].hint && (
+              {getReviewCards()[reviewIndex].hint && (
                 <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
-                  <strong>Hint:</strong> {session.questions[reviewIndex].hint}
+                  <strong>Hint:</strong> {getReviewCards()[reviewIndex].hint}
                 </p>
               )}
               {(reviewRelatedCards[reviewIndex]?.length ?? 0) > 0 && (
@@ -1319,10 +1380,10 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
                 </div>
               )}
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
-                <button type="button" className="btn btn-primary" onClick={() => { const markPromise = markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
+                <button type="button" className="btn btn-primary" onClick={() => { const markPromise = markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= getReviewCards().length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
                   Got it ✓
                 </button>
-                <button type="button" className="btn btn-outline" onClick={() => { const markPromise = markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= session.questions.length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
+                <button type="button" className="btn btn-outline" onClick={() => { const markPromise = markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= getReviewCards().length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
                   Need to Study ✗
                 </button>
               </div>

@@ -113,10 +113,21 @@ input, textarea, select {
   margin-bottom: 1rem;
 }
 
+input[type="range"] {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--blue-primary);
   box-shadow: 0 0 0 3px rgba(32, 157, 215, 0.2);
+}
+
+input[type="range"]:focus {
+  box-shadow: none;
 }
 
 .card {

@@ -23,8 +23,13 @@ export default function ReviewQueueView({
   const [againCount, setAgainCount] = useState(0);
   const [complete, setComplete] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [difficulty, setDifficulty] = useState(0);
 
   useEffect(() => { loadQueue(); }, []);
+
+  useEffect(() => {
+    if (cards !== null) loadQueue();
+  }, [difficulty]);
 
   async function loadQueue() {
     setLoading(true);
@@ -35,7 +40,7 @@ export default function ReviewQueueView({
     setAgainCount(0);
     setComplete(false);
     try {
-      const res = await api.tutor.reviewQueue();
+      const res = await api.tutor.reviewQueue(difficulty || undefined);
       const topicCards = topicId
         ? res.cards.filter((c) => c.topic_id === topicId)
         : res.cards;
@@ -131,13 +136,29 @@ export default function ReviewQueueView({
   const card = cards[index];
   return (
     <div className="card" style={{ marginBottom: '1rem' }}>
-      <div style={{ padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee' }}>
+      <div style={{ padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', gap: '1rem', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '0.85rem', color: 'var(--gray-text)' }}>
           Card {index + 1} of {cards.length}
         </span>
-        <span style={{ fontSize: '0.85rem', color: 'var(--blue-primary)', fontWeight: 600 }}>
-          ✓ {gotCount} &nbsp;·&nbsp; ✗ {againCount}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--blue-primary)', fontWeight: 600 }}>
+            ✓ {gotCount} &nbsp;·&nbsp; ✗ {againCount}
+          </span>
+          <label style={{ fontSize: '0.8rem', color: 'var(--gray-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            Difficulty:
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(Number(e.target.value))}
+              style={{ fontSize: '0.8rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+            >
+              <option value={0}>All</option>
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+            </select>
+          </label>
+        </div>
       </div>
       {error && <div className="error" style={{ margin: '0.75rem 1.5rem' }}>{error}</div>}
       {!flipped ? (

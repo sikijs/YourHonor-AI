@@ -24,6 +24,49 @@ def test_tutor_contracts_has_twenty_questions(client):
     assert contracts["question_count"] == 20
 
 
+def test_tutor_international_law_topic_present_with_twenty_questions(client):
+    resp = client.get("/api/tutor/topics")
+    intl = next(t for t in resp.json()["topics"] if t["id"] == "international_law")
+    assert intl["name"] == "International Law"
+    assert intl["question_count"] == 20
+
+
+# ------------------------------------------------- shuffled per-session window
+
+def test_tutor_session_serves_shuffled_ten_card_window(client, auth_headers):
+    from app.services.tutor_data import TOPICS
+    from app.services.tutor import QUESTIONS_PER_SESSION
+
+    resp = client.post("/api/tutor/start", headers=auth_headers, json={"topic_id": "contracts"})
+    assert resp.status_code == 200
+    data = resp.json()
+
+    bank_texts = [q.question for q in TOPICS["contracts"]["questions"]]
+    served = [q["question"] for q in data["questions"]]
+
+    # Sessions serve a fixed 10 of the topic's 20 curated cards:
+    # right length, duplicate-free, drawn from the bank, first card up front.
+    assert QUESTIONS_PER_SESSION == 10
+    assert data["total_questions"] == 10
+    assert len(served) == 10
+    assert len(set(served)) == 10
+    assert set(served) <= set(bank_texts)
+    assert data["current_question"]["question"] == served[0]
+
+
+def test_tutor_sessions_draw_varying_windows():
+    from app.services.tutor import TutorSession
+
+    windows = [
+        frozenset(q.question for q in TutorSession("contracts").questions)
+        for _ in range(6)
+    ]
+    # Every draw is a valid 10-card window, and consecutive sessions actually
+    # vary (all six identical has probability ~1e-27 under random.sample).
+    assert all(len(w) == 10 for w in windows)
+    assert len(set(windows)) > 1
+
+
 def test_all_questions_have_short_and_deep_hints():
     from app.services.tutor_data import TOPICS
     from app.services.tutor import MAX_ATTEMPTS_PER_QUESTION
@@ -694,6 +737,32 @@ def test_review_queue_returns_all_weak_cards_beyond_limit(client, auth_headers):
     assert len(set(questions)) == 14
     for q in weak_cards:
         assert q.question in questions
+
+
+def test_review_queue_filters_by_difficulty(client, auth_headers):
+    from unittest.mock import patch
+    from app.services.tutor_data import TOPICS
+
+    questions = TOPICS["contracts"]["questions"]
+    easy = next(q for q in questions if q.difficulty == 1)
+    hard = next(q for q in questions if q.difficulty == 4)
+
+    with patch("app.services.tutor.retrieve_curriculum", return_value=[]):
+        for q in (easy, hard):
+            client.post("/api/tutor/review/mark", headers=auth_headers, json={
+                "question": q.question, "topic_id": "contracts", "got_it": False,
+            })
+
+        resp = client.get("/api/tutor/review/queue?difficulty=4", headers=auth_headers)
+        assert resp.status_code == 200
+        data = resp.json()
+        questions_out = [c["question"] for c in data["cards"]]
+        assert hard.question in questions_out
+        assert easy.question not in questions_out
+        assert all(c["difficulty"] == 4 for c in data["cards"])
+
+        resp = client.get("/api/tutor/review/queue", headers=auth_headers)
+        assert resp.json()["total"] == 2  # no filter -> both weak cards
 
 
 def test_review_queue_enriches_with_similar_cards_and_deduplicates(client, auth_headers):

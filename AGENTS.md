@@ -204,6 +204,7 @@ Backend available at http://localhost:8000
 - POST /api/tutor/start-dynamic      - Start a session (LLM-generated questions)
 - POST /api/tutor/answer             - Submit answer and get evaluation + follow-up
 - POST /api/tutor/continue-learning  - Generate a new dynamic question mid-session
+- GET  /api/tutor/review/queue       - Review queue; optional `difficulty` (1-4) query param narrows weak + enrichment cards to that exact level (None = all)
 
 ### Legal Tools
 - POST /api/legal/case-brief       - Generate structured case brief
@@ -228,7 +229,7 @@ Backend available at http://localhost:8000
 
 ### Study Dashboard
 - GET /api/stats/me - Aggregate study stats (auth required): documents total + by-type breakdown, notes count, tutor review progress (mastered/weak + weak topics), completed live tutor sessions (sessions/answers/accuracy per topic), skills & competencies (6 buckets mapped from doc types/uploads/tutor activity), work portfolio (last 6 documents). Pure SQLite aggregations, zero LLM cost.
-- GET /api/dashboard/today - Daily study-plan picks for the Dashboard's "Today's Legal Practice" section (auth required): Case of the Day (from the 85 landmark cases, with a plain-English one-two-sentence summary from the doctrine map's curated `plain_holding`) + Citation Drill (both from the 85 landmark cases; the drill's Bluebook answer comes from the local deterministic pass in `bluebook.py`), Term of the Day (glossary_seed.json), Question of the Day (240 tutor cards — question text only; the curated answer ships only on explicit request via `GET /api/dashboard/today/answer`), Issue-Spotting Prompt (concrete one-sentence scaffold; the plain-language hint — doctrine subject, name, and description — plus the court's issue and plain-English holding ship only on explicit request via `GET /api/dashboard/today/issue-answer`), and a Suggested Focus topic from the user's weak review cards. All picks are deterministic (seeded by day-of-year), zero LLM, zero Qdrant.
+- GET /api/dashboard/today - Daily study-plan picks for the Dashboard's "Today's Legal Practice" section (auth required): Case of the Day (from the 85 landmark cases, with a plain-English one-two-sentence summary from the doctrine map's curated `plain_holding`) + Citation Drill (both from the 85 landmark cases; the drill's Bluebook answer comes from the local deterministic pass in `bluebook.py`), Term of the Day (glossary_seed.json), Question of the Day (260 tutor cards — question text only; the curated answer ships only on explicit request via `GET /api/dashboard/today/answer`), Issue-Spotting Prompt (concrete one-sentence scaffold; the plain-language hint — doctrine subject, name, and description — plus the court's issue and plain-English holding ship only on explicit request via `GET /api/dashboard/today/issue-answer`), and a Suggested Focus topic from the user's weak review cards. All picks are deterministic (seeded by day-of-year), zero LLM, zero Qdrant.
 - GET /api/dashboard/today/answer - Hint + curated answer for today's Question of the Day (auth required). Shares the same deterministic card pick as `/api/dashboard/today` via one helper, so the two endpoints can never drift; answers leave the backend only when the user asks to reveal them.
 - GET /api/dashboard/today/issue-answer - Plain-language hint (doctrine subject + doctrine name + the doctrine's plain-English description) and the court's own issue + holding rewritten in beginner-friendly terms for today's Case of the Day (auth required). Both come from curated fields (`issue`, `plain_holding`, `description`) in `doctrine_map.json`; shares the same day-seeded case pick as `/api/dashboard/today`; holdings leave the backend only when the user asks to reveal them.
 
@@ -274,7 +275,7 @@ Backend available at http://localhost:8000
 - Memorandum drafting
 - Predictive analytics (future development; educational explainer in the Resources AI-in-Law section — not implemented)
 - Legal reasoning graphs (future development; educational explainer in the Resources AI-in-Law section — not implemented)
-- AI tutor features — Socratic dialogue across 12 topics, 240+ hardcoded questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student)
+- AI tutor features — Socratic dialogue across 13 topics, 260 curated questions, AI Quick Start dynamic generation via LLM, difficulty scaling 2-4, follow-up scaffolding, flashcard review, RAG-grounded answer evaluation (evaluation prompts anchored to the curated card answer; hidden reference material, never shown to the student). Quiz/Review sessions serve a shuffled 10-of-20 window per topic (`QUESTIONS_PER_SESSION = 10` in `tutor.py` — fresh random draw each session so no routine forms and the full bank still gets coverage; banks themselves remain 13 × 20 = 260 cards)
 - Multi-turn chat with conversation history (10-turn context window)
 - Debate/counterargument engine — analyze both sides of a legal question with structured counterpoints
 - Case Law Atlas — curated doctrine map (`backend/app/data/doctrine_map.json`, 35 doctrines covering all 85 landmark cases) with card/timeline views, subject filters, and one-click case brief generation from any doctrine node; served via GET /api/doctrine/map (public, no LLM)
@@ -307,7 +308,7 @@ Backend available at http://localhost:8000
 - Glossary semantic lookup is now margin-based (`SEED_SEMANTIC_MIN=0.35`, `SEED_CONFIDENT_SCORE=0.55`, `SEED_MARGIN=0.10`): serve the top seed entry when it clears 0.55, or when it sits ≥0.35 with a clear gap over the runner-up; ties in the flat score band fall to the LLM
 
 ### Phase 11 (Dashboard v2: Today's Legal Practice Hub) - COMPLETE
-- `GET /api/dashboard/today` (`app/api/dashboard.py` + `app/services/dashboard.py`) — deterministic daily study picks seeded by day-of-year from the app's curated libraries: Case of the Day (landmark_seed.json, 85, with a plain-English summary from the doctrine map's curated `plain_holding`), Citation Drill (raw citation + Bluebook-correct answer via the public `format_landmark_case()` wrapper over the local deterministic pass in `bluebook.py` — zero LLM), Term of the Day (glossary_seed.json, 123), Question of the Day (240 tutor cards; question text only — the curated hint + answer ship only on explicit request via `GET /api/dashboard/today/answer`, which shares the same deterministic pick through one helper so the two endpoints can never drift), Issue-Spotting Prompt (concrete one-sentence scaffold for the day's case; the plain-language doctrine hint + the court's curated issue and plain-English holding ship only on explicit request via `GET /api/dashboard/today/issue-answer`, which shares the same day-seeded case pick as the Case of the Day), and Suggested Focus (weakest review topic). Zero LLM, zero Qdrant, instant
+- `GET /api/dashboard/today` (`app/api/dashboard.py` + `app/services/dashboard.py`) — deterministic daily study picks seeded by day-of-year from the app's curated libraries: Case of the Day (landmark_seed.json, 85, with a plain-English summary from the doctrine map's curated `plain_holding`), Citation Drill (raw citation + Bluebook-correct answer via the public `format_landmark_case()` wrapper over the local deterministic pass in `bluebook.py` — zero LLM), Term of the Day (glossary_seed.json, 123), Question of the Day (260 tutor cards; question text only — the curated hint + answer ship only on explicit request via `GET /api/dashboard/today/answer`, which shares the same deterministic pick through one helper so the two endpoints can never drift), Issue-Spotting Prompt (concrete one-sentence scaffold for the day's case; the plain-language doctrine hint + the court's curated issue and plain-English holding ship only on explicit request via `GET /api/dashboard/today/issue-answer`, which shares the same day-seeded case pick as the Case of the Day), and Suggested Focus (weakest review topic). Zero LLM, zero Qdrant, instant
 - Account Age stat card removed from the dashboard (vanity metric — measured existence, not activity); `account_age_days` dropped from the stats model/service/tests
 - `/api/stats/me` extended with `skills` (6 competency buckets — Legal Research & Summaries incl. PDF uploads, Legal Drafting, Citation Skills, Case Analysis, Issue Spotting, Tutor Practice — mapped from saved-document doc_types + tutor activity; Tutor Practice counts completed tutor sessions only, 1 point each, so units match 1 point per saved document; review-card marks are surfaced in the tutor review panel instead, since individual marks are cheap one-click actions that would dwarf the document-based skills) and `portfolio` (last 6 documents by updated_at with doc_type badges)
 - `TodayPracticePanel.tsx` — "Today's Legal Practice" cards with deep links: "Brief this case"/"Summarize" prefill Legal Drafting via the `navigate()` alias, "Reveal answer" for the Citation Drill, Glossary/Tutor/Issue Spotter links, and a Suggested Focus banner that opens the topic-filtered review queue
@@ -332,7 +333,7 @@ Backend available at http://localhost:8000
 
 The **`legal_documents`** Qdrant collection holds uploaded cases + the
 pre-ingested landmark cases. The **`tutor_curriculum`** collection holds the
-AI Tutor's 240 curated Q&A cards (one point per card; use the `topic` payload
+AI Tutor's 260 curated Q&A cards (one point per card; use the `topic` payload
 index for filtered retrievals). The **`glossary_seed`** collection holds the
 123 curated glossary definitions from `glossary_seed.json` (served via
 margin-based semantic selection — confident top-of-band match, or a clear
@@ -342,7 +343,7 @@ instead of serving a wrong curated term).
 | Collection | Content | Points |
 |------------|---------|--------|
 | legal_documents | 85 courtlistener/seed landmark cases (chunked) + user uploads | ~2,200 |
-| tutor_curriculum | 240 AI Tutor flashcards (12 topics × 20) | 240 |
+| tutor_curriculum | 260 AI Tutor flashcards (13 topics × 20) | 260 |
 | glossary_seed | 123 curated glossary definitions (term + definition + related terms) | 123 |
 
 Notes:

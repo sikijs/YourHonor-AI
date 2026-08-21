@@ -6,6 +6,45 @@ Quick reference for managing YourHonor AI.
 
 ---
 
+## Changelog
+
+Reverse-chronological history of what changed in each release. Details and
+user-facing writeups live in `docs/about.md` ("What's New" sections) and the
+phase notes in `AGENTS.md`.
+
+### Unreleased
+- AI Tutor: 13th topic added — **International Law** (20 curated public-international-law
+  cards: sources of law, custom formation, jus cogens, VCLT interpretation/reservations/
+  termination, ICJ jurisdiction and enforcement, statehood, attribution, reparations,
+  sovereign and diplomatic immunity, use of force and self-defense, ICC core crimes,
+  genocide, extradition, monism/dualism, universal jurisdiction)
+- Curriculum now 13 topics × 20 = 260 cards; `tutor_curriculum` Qdrant collection
+  rebuilds to 260 points automatically on next boot; new parity test in `test_tutor.py`
+
+### v1.5.1
+- Bluebook double-year quirk fixed: state/regional citations no longer print a
+  duplicate year parenthetical (e.g. `Gorton v. Doty, 69 P.2d 136 (Idaho 1937)` —
+  was `... (Idaho 1937) (1937)`); the Dashboard Citation Drill answer benefits automatically
+- First-boot stall removed: the `all-MiniLM-L6-v2` embedding model is now
+  pre-downloaded at Docker build time, so fresh containers start ingesting immediately
+- Full backend suite green
+
+### v1.5.0
+- AI Tutor curriculum grown 8 → 12 topics and 160 → 240 curated Q&A cards
+  (new: criminal procedure, professional responsibility, wills & trusts, agency)
+- 15 landmark cases added (85 total): digital privacy (Riley, Jones, Carpenter),
+  trial rights (Crawford, Blakely), wills/estates (Lucas, Shapira, Totten, Farkas),
+  agency/partnership (Gorton, Cargill, Lind, Meinhard), professional responsibility
+  (Ryder, Nix)
+- `landmark_seed.json` rebuilt to all 85 full opinions — boot needs no CourtListener calls
+- `doctrine_map.json` grown to 35 doctrines covering all 85 cases
+- Home "Case Law Atlas" card counts are now data-driven (no hardcoded numbers)
+- Full backend suite 280 passed, frontend jest green
+
+Earlier history is captured in the Phase notes in `AGENTS.md`.
+
+---
+
 ## Sharing the App
 
 When someone asks to try YourHonor AI, send them this link:
@@ -495,6 +534,12 @@ Run all commands from `~/YourHonor AI/` unless noted.
 > extracts the version from `APP_VERSION`, and publishes both `:latest` and
 > `:vX.Y.Z` to ghcr.io. Steps 2–5 below are only needed for a manual release
 > (e.g. CI unavailable).
+
+**0. Update the NOTES.md changelog**
+
+Add a `### vX.Y.Z` entry to the Changelog section at the top of `NOTES.md`
+(3–6 bullets: features, fixes, test results), and bump the version header on
+line 3 to match.
 
 **1. Make your code changes and commit them**
 ```bash
