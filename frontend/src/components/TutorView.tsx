@@ -33,7 +33,6 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [maxAttempts, setMaxAttempts] = useState(3);
 
   const [reviewMode, setReviewMode] = useState(false);
-  const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewCorrect, setReviewCorrect] = useState(0);
   const [reviewWrong, setReviewWrong] = useState(0);
   const [reviewFlipped, setReviewFlipped] = useState(false);
@@ -72,7 +71,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [mcTotalQuestions, setMcTotalQuestions] = useState(5);
   const [mcHistory, setMcHistory] = useState<{question: string; options: string[]; selected: number; correct: number; optionExplanations: string[]; questionExplanation: string}[]>([]);
 
-  const [reviewRelatedCards, setReviewRelatedCards] = useState<Record<number, CurriculumCard[]>>({});
+  const [reviewRelatedCards, setReviewRelatedCards] = useState<Record<string, CurriculumCard[]>>({});
   const [quizRelated, setQuizRelated] = useState<CurriculumCard[] | null>(null);
   const [quizRelatedLoading, setQuizRelatedLoading] = useState(false);
   const [reviewQueueCards, setReviewQueueCards] = useState<CurriculumCard[] | null>(null);
@@ -119,34 +118,38 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     }
   }, [practiceEditorKey]);
 
-  function getReviewCards(): TutorQuestion[] {
+  // Review is one cumulative pass over the whole session: the difficulty
+  // dropdown only routes which unmarked card you see next — it never resets
+  // progress, and the session is complete only when every card has a mark.
+  function remainingReviewCards(): TutorQuestion[] {
     if (!session) return [];
-    return reviewDifficulty === 0
-      ? session.questions
-      : session.questions.filter(q => q.difficulty === reviewDifficulty);
+    return session.questions.filter(q => !reviewSessionMarked.includes(q.question));
+  }
+
+  function currentReviewCard(): TutorQuestion | null {
+    const remaining = remainingReviewCards();
+    if (reviewDifficulty === 0) return remaining[0] ?? null;
+    return remaining.find(q => q.difficulty === reviewDifficulty) ?? null;
   }
 
   function changeReviewDifficulty(v: number) {
     setReviewDifficulty(v);
-    setReviewIndex(0);
     setReviewFlipped(false);
-    setReviewCorrect(0);
-    setReviewWrong(0);
-    setReviewComplete(false);
-    setReviewSessionMarked([]);
-    setReviewRelatedCards({});
   }
 
   useEffect(() => {
     if (!reviewMode || !reviewFlipped || !session) return;
-    const card = getReviewCards()[reviewIndex];
-    if (!card || reviewRelatedCards[reviewIndex]) return;
+    const remaining = session.questions.filter(q => !reviewSessionMarked.includes(q.question));
+    const card = reviewDifficulty === 0
+      ? remaining[0]
+      : remaining.find(q => q.difficulty === reviewDifficulty);
+    if (!card || reviewRelatedCards[card.question]) return;
     let cancelled = false;
     api.tutor.relatedConcepts(card.question, session.topic_id, 3)
-      .then(res => { if (!cancelled) setReviewRelatedCards(prev => ({ ...prev, [reviewIndex]: res.cards })); })
+      .then(res => { if (!cancelled) setReviewRelatedCards(prev => ({ ...prev, [card.question]: res.cards })); })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [reviewMode, reviewFlipped, reviewIndex, session, reviewRelatedCards, reviewDifficulty]);
+  }, [reviewMode, reviewFlipped, session, reviewRelatedCards, reviewDifficulty, reviewSessionMarked]);
 
   useEffect(() => {
     if (reviewMode && reviewComplete) {
@@ -156,14 +159,25 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     }
   }, [reviewMode, reviewComplete, reviewDifficulty]);
 
-  function markCard(gotIt: boolean): Promise<void> {
-    if (!session) return Promise.resolve();
-    const card = getReviewCards()[reviewIndex];
-    if (!card) return Promise.resolve();
-    setReviewSessionMarked(prev => (prev.includes(card.question) ? prev : [...prev, card.question]));
-    return api.tutor.markReview(card.question, session.topic_id, gotIt)
+  // Handles a ✓/✗ tap: records the mark, advances to the next unmarked card
+  // (via derived state), and only flips to the completion card once every
+  // session card has been marked — regardless of which difficulties were used.
+  function handleReviewMark(gotIt: boolean) {
+    if (!session) return;
+    const card = currentReviewCard();
+    if (!card) return;
+    const nextMarked = reviewSessionMarked.includes(card.question)
+      ? reviewSessionMarked
+      : [...reviewSessionMarked, card.question];
+    const markPromise = api.tutor.markReview(card.question, session.topic_id, gotIt)
       .then(() => {})
       .catch(() => {});
+    setReviewSessionMarked(nextMarked);
+    if (gotIt) setReviewCorrect(p => p + 1); else setReviewWrong(p => p + 1);
+    setReviewFlipped(false);
+    if (nextMarked.length >= session.questions.length) {
+      markPromise.then(() => setReviewComplete(true));
+    }
   }
 
   function removeFromReviewQueue(card: CurriculumCard) {
@@ -679,7 +693,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             </button>
             <button
               className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewIndex(0); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setReviewSessionMarked([]); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setReviewSessionMarked([]); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review
@@ -693,10 +707,10 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <div className="card" style={{ flex: 1, minWidth: '200px', padding: '0.5rem 1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span style={{ fontSize: '0.85rem' }}>
-              <strong>Progress:</strong> {reviewMode ? (reviewComplete ? getReviewCards().length : reviewIndex) : (isComplete ? totalQuestions : currentIndex)}/{reviewMode ? getReviewCards().length : totalQuestions}
+              <strong>Progress:</strong> {reviewMode ? (reviewComplete ? session.questions.length : reviewSessionMarked.length) : (isComplete ? totalQuestions : currentIndex)}/{reviewMode ? session.questions.length : totalQuestions}
             </span>
             <div style={{ flex: 1, height: '8px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${(reviewMode ? ((reviewComplete ? getReviewCards().length : reviewIndex) / Math.max(getReviewCards().length, 1)) : ((isComplete ? totalQuestions : currentIndex) / totalQuestions)) * 100}%`, background: 'var(--blue-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
+              <div style={{ height: '100%', width: `${(reviewMode ? ((reviewComplete ? session.questions.length : reviewSessionMarked.length) / Math.max(session.questions.length, 1)) : ((isComplete ? totalQuestions : currentIndex) / totalQuestions)) * 100}%`, background: 'var(--blue-primary)', borderRadius: '4px', transition: 'width 0.3s' }} />
             </div>
           </div>
           <div className="card" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '1rem' }}>
@@ -1287,110 +1301,143 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         </div>
       )}
 
-      {!practiceMode && !mcMode && reviewMode && !reviewComplete && getReviewCards().length === 0 && (
-        <div className="card" style={{ marginBottom: '1rem', textAlign: 'center', padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <label style={{ fontSize: '0.9rem', color: 'var(--dark-navy)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              Difficulty:
-              <select
-                value={reviewDifficulty}
-                onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
-                style={{ fontSize: '0.9rem', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
-              >
-                <option value={0}>All</option>
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-              </select>
-            </label>
-          </div>
-          <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
-            No cards at this difficulty in the current session. Choose another level or reset to All.
-          </p>
-        </div>
-      )}
-
-      {!practiceMode && !mcMode && reviewMode && !reviewComplete && getReviewCards()[reviewIndex] && (
-        <div className="card" style={{ marginBottom: '1rem' }}>
-          <div style={{ padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderBottom: '1px solid #eee' }}>
-            <label style={{ fontSize: '0.8rem', color: 'var(--gray-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              Difficulty:
-              <select
-                value={reviewDifficulty}
-                onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
-                style={{ fontSize: '0.8rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
-              >
-                <option value={0}>All</option>
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-              </select>
-            </label>
-          </div>
-          {!reviewFlipped ? (
-            <div
-              onClick={() => setReviewFlipped(true)}
-              style={{ cursor: 'pointer', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem', textAlign: 'center' }}
-            >
-              <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>{getReviewCards()[reviewIndex].question}</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', marginTop: '1rem' }}>
-                Click to reveal answer
-              </p>
+      {!practiceMode && !mcMode && reviewMode && !reviewComplete && (() => {
+        const remaining = remainingReviewCards();
+        const current = currentReviewCard();
+        // Rendered only when the chosen difficulty has no unmarked cards but
+        // the pass is not finished — lets the student hop to another level
+        // (or clear everything with All) instead of ending the session early.
+        if (current || remaining.length === 0) return null;
+        const clearedAtLevel = session.questions.filter(
+          q => q.difficulty === reviewDifficulty && reviewSessionMarked.includes(q.question),
+        ).length;
+        const levelCounts: Record<number, number> = {};
+        remaining.forEach(q => { levelCounts[q.difficulty] = (levelCounts[q.difficulty] ?? 0) + 1; });
+        return (
+          <div className="card" style={{ marginBottom: '1rem', textAlign: 'center', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+              <label style={{ fontSize: '0.9rem', color: 'var(--dark-navy)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                Difficulty:
+                <select
+                  value={reviewDifficulty}
+                  onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
+                  style={{ fontSize: '0.9rem', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+                >
+                  <option value={0}>All</option>
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                  <option value={4}>4</option>
+                </select>
+              </label>
             </div>
-          ) : (
-            <div style={{ padding: '2rem' }}>
-              <h4 style={{ color: 'var(--purple-secondary)', margin: '0 0 0.5rem 0' }}>Answer</h4>
-              <p style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-                {getReviewCards()[reviewIndex].answer || 'No written answer available for this card.'}
-              </p>
-              <h5 style={{ color: 'var(--dark-navy)', margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 600 }}>
-                Key concepts
-              </h5>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                {getReviewCards()[reviewIndex].expected_concepts.map((c: string, i: number) => (
-                  <span key={i} style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0' }}>{c}</span>
-                ))}
-              </div>
-              {getReviewCards()[reviewIndex].hint && (
-                <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
-                  <strong>Hint:</strong> {getReviewCards()[reviewIndex].hint}
+            <p style={{ color: 'var(--dark-navy)', fontWeight: 600, margin: '0 0 0.25rem 0' }}>
+              {clearedAtLevel > 0
+                ? `You've cleared all ${clearedAtLevel} card${clearedAtLevel === 1 ? '' : 's'} at Difficulty ${reviewDifficulty}.`
+                : `No unmarked cards at Difficulty ${reviewDifficulty} in this session.`}
+            </p>
+            <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem', margin: '0 0 0.9rem 0' }}>
+              {remaining.length} card{remaining.length === 1 ? '' : 's'} left to finish this review pass — pick where to continue:
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {[1, 2, 3, 4].filter(d => levelCounts[d]).map(d => (
+                <button key={d} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.3rem 0.8rem' }} onClick={() => changeReviewDifficulty(d)}>
+                  Difficulty {d} · {levelCounts[d]} left
+                </button>
+              ))}
+              <button className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.3rem 0.8rem' }} onClick={() => changeReviewDifficulty(0)}>
+                All remaining ({remaining.length})
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {!practiceMode && !mcMode && reviewMode && !reviewComplete && (() => {
+        const card = currentReviewCard();
+        if (!card) return null;
+        const related = reviewRelatedCards[card.question] ?? [];
+        return (
+          <div className="card" style={{ marginBottom: '1rem' }}>
+            <div style={{ padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderBottom: '1px solid #eee' }}>
+              <label style={{ fontSize: '0.8rem', color: 'var(--gray-text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                Difficulty:
+                <select
+                  value={reviewDifficulty}
+                  onChange={(e) => changeReviewDifficulty(Number(e.target.value))}
+                  style={{ fontSize: '0.8rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+                >
+                  <option value={0}>All</option>
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                  <option value={4}>4</option>
+                </select>
+              </label>
+            </div>
+            {!reviewFlipped ? (
+              <div
+                onClick={() => setReviewFlipped(true)}
+                style={{ cursor: 'pointer', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem', textAlign: 'center' }}
+              >
+                <h3 style={{ color: 'var(--dark-navy)', margin: 0 }}>{card.question}</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--gray-text)', marginTop: '1rem' }}>
+                  Click to reveal answer
                 </p>
-              )}
-              {(reviewRelatedCards[reviewIndex]?.length ?? 0) > 0 && (
-                <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f4f0ff', border: '1px solid #d3c4e8', borderRadius: '6px', textAlign: 'left' }}>
-                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', fontWeight: 600, color: 'var(--purple-secondary)' }}>
-                    Related concepts from other subjects
-                  </p>
-                  {reviewRelatedCards[reviewIndex].map((c, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        marginBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '0.6rem' : 0,
-                        paddingBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '0.6rem' : 0,
-                        borderBottom: i < reviewRelatedCards[reviewIndex].length - 1 ? '1px solid #e6def2' : 'none',
-                      }}
-                    >
-                      <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{c.question}</p>
-                      <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.8rem', color: '#444', lineHeight: 1.5 }}>{c.answer}</p>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
-                    </div>
+              </div>
+            ) : (
+              <div style={{ padding: '2rem' }}>
+                <h4 style={{ color: 'var(--purple-secondary)', margin: '0 0 0.5rem 0' }}>Answer</h4>
+                <p style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                  {card.answer || 'No written answer available for this card.'}
+                </p>
+                <h5 style={{ color: 'var(--dark-navy)', margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 600 }}>
+                  Key concepts
+                </h5>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                  {card.expected_concepts.map((c: string, i: number) => (
+                    <span key={i} style={{ fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '3px', background: '#e3f2fd', color: '#1565c0' }}>{c}</span>
                   ))}
                 </div>
-              )}
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
-                <button type="button" className="btn btn-primary" onClick={() => { const markPromise = markCard(true); setReviewCorrect(p => p + 1); const next = reviewIndex + 1; if (next >= getReviewCards().length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }}>
-                  Got it ✓
-                </button>
-                <button type="button" className="btn btn-outline" onClick={() => { const markPromise = markCard(false); setReviewWrong(p => p + 1); const next = reviewIndex + 1; if (next >= getReviewCards().length) { markPromise.then(() => setReviewComplete(true)); } else { setReviewIndex(next); setReviewFlipped(false); } }} style={{ color: '#c62828', borderColor: '#c62828' }}>
-                  Need to Study ✗
-                </button>
+                {card.hint && (
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--gray-text)' }}>
+                    <strong>Hint:</strong> {card.hint}
+                  </p>
+                )}
+                {related.length > 0 && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f4f0ff', border: '1px solid #d3c4e8', borderRadius: '6px', textAlign: 'left' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', fontWeight: 600, color: 'var(--purple-secondary)' }}>
+                      Related concepts from other subjects
+                    </p>
+                    {related.map((c, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          marginBottom: i < related.length - 1 ? '0.6rem' : 0,
+                          paddingBottom: i < related.length - 1 ? '0.6rem' : 0,
+                          borderBottom: i < related.length - 1 ? '1px solid #e6def2' : 'none',
+                        }}
+                      >
+                        <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{c.question}</p>
+                        <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.8rem', color: '#444', lineHeight: 1.5 }}>{c.answer}</p>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--gray-text)' }}>{c.topic_name} · Difficulty {c.difficulty}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.25rem' }}>
+                  <button type="button" className="btn btn-primary" onClick={() => handleReviewMark(true)}>
+                    Got it ✓
+                  </button>
+                  <button type="button" className="btn btn-outline" onClick={() => handleReviewMark(false)} style={{ color: '#c62828', borderColor: '#c62828' }}>
+                    Need to Study ✗
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        );
+      })()}
 
       <div className="card" style={{ background: '#f8f9fa', marginTop: '0.5rem' }}>
         <p style={{ fontSize: '0.8rem', color: 'var(--gray-text)', margin: 0 }}>
