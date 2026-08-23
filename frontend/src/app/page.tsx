@@ -7,6 +7,7 @@ import {
   viewToHash,
   ViewName,
   DraftingTabName,
+  AtlasTabName,
   ParsedHash,
   PUBLIC_VIEWS,
   VIEW_NAMES,
@@ -27,7 +28,7 @@ import AboutView from '@/components/AboutView';
 import AppFooter from '@/components/AppFooter';
 import ScratchPad from '@/components/ScratchPad';
 import IngestionBanner from '@/components/IngestionBanner';
-import DoctrineExplorerView from '@/components/DoctrineExplorerView';
+import AtlasView from '@/components/AtlasView';
 import DashboardView from '@/components/DashboardView';
 import CitationsView from '@/components/CitationsView';
 
@@ -38,6 +39,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [draftQuery, setBriefQuery] = useState('');
   const [draftTab, setDraftTab] = useState<DraftingTabName>('brief');
+  const [atlasTab, setAtlasTab] = useState<AtlasTabName>('map');
 
   // Apply a parsed hash route to state, gating non-public views on auth.
   function applyRoute(parsed: ParsedHash, isAuthed: boolean) {
@@ -46,6 +48,7 @@ export default function Home() {
       return;
     }
     if (parsed.draftTab) setDraftTab(parsed.draftTab);
+    if (parsed.atlasTab) setAtlasTab(parsed.atlasTab);
     if (parsed.query) setBriefQuery(parsed.query);
     setView(parsed.view);
   }
@@ -61,6 +64,12 @@ export default function Home() {
     setDraftTab(tab);
     // location.replace keeps tab switches out of history (no Back noise).
     window.location.replace(viewToHash('drafting', { draftTab: tab }));
+  }
+
+  function handleAtlasTabChange(tab: AtlasTabName) {
+    setAtlasTab(tab);
+    // location.replace keeps tab switches out of history (no Back noise).
+    window.location.replace(viewToHash('doctrines', { atlasTab: tab }));
   }
 
   function navigate(v: string, q?: string) {
@@ -232,7 +241,12 @@ export default function Home() {
         )}
 
         {view === 'doctrines' && (
-          <DoctrineExplorerView user={user} onNavigate={navigate} />
+          <AtlasView
+            user={user}
+            onNavigate={navigate}
+            initialTab={atlasTab}
+            onTabChange={handleAtlasTabChange}
+          />
         )}
 
         {view === 'generator' && user && (

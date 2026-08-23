@@ -14,6 +14,7 @@ import {
   IconLandmark,
   IconFolder,
   IconBookOpen,
+  IconTarget,
 } from '@/components/icons';
 
 type NavigateFn = (view: string) => void;
@@ -245,6 +246,11 @@ export default function HomeView({ user, onNavigate }: { user: User | null; onNa
                   <h3>Debate Analysis</h3>
                   <p>Generate structured pro/con arguments and counter-rebuttals for any legal position</p>
                 </div>
+        <div className="card feature-card" onClick={() => onNavigate(user ? 'issuespotter' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
+          <div className="icon-chip icon-chip--blue icon-chip--center"><IconTarget /></div>
+          <h3>Issue Spotter</h3>
+          <p>Paste a fact pattern to surface every legal issue, governing rule, and application — built for exam practice</p>
+        </div>
                 <div className="card feature-card" onClick={() => onNavigate(user ? 'glossary' : 'auth')} style={{ cursor: user ? 'pointer' : 'default' }}>
                   <div className="icon-chip icon-chip--blue icon-chip--center"><IconBook /></div>
                   <h3>Legal Glossary</h3>

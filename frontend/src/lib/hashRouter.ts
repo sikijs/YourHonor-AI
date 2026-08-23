@@ -10,6 +10,10 @@
 
 export type DraftingTabName = 'brief' | 'summary' | 'arguments' | 'memorandum';
 
+export type AtlasTabName = 'map' | 'guide';
+
+export const ATLAS_TABS: AtlasTabName[] = ['map', 'guide'];
+
 export const VIEW_NAMES = [
   'home',
   'auth',
@@ -45,6 +49,7 @@ export const DRAFTING_TABS: DraftingTabName[] = ['brief', 'summary', 'arguments'
 export interface ParsedHash {
   view: ViewName;
   draftTab?: DraftingTabName;
+  atlasTab?: AtlasTabName;
   query?: string;
 }
 
@@ -56,25 +61,39 @@ export function parseHash(hash: string): ParsedHash | null {
   if (!VIEW_NAMES.includes(view)) return null;
 
   const params = new URLSearchParams(queryStr || '');
-  const draftTab = params.get('tab') as DraftingTabName | null;
+  const tabParam = params.get('tab');
+  const draftTab =
+    view === 'drafting' && tabParam && DRAFTING_TABS.includes(tabParam as DraftingTabName)
+      ? (tabParam as DraftingTabName)
+      : undefined;
+  const atlasTab =
+    view === 'doctrines' && tabParam && ATLAS_TABS.includes(tabParam as AtlasTabName)
+      ? (tabParam as AtlasTabName)
+      : undefined;
   const query = params.get('q') || undefined;
 
   return {
     view,
-    draftTab: view === 'drafting' && draftTab && DRAFTING_TABS.includes(draftTab) ? draftTab : undefined,
+    draftTab,
+    atlasTab,
     query: query || undefined,
   };
 }
 
 export function viewToHash(
   view: string,
-  opts?: { draftTab?: DraftingTabName; query?: string },
+  opts?: { draftTab?: DraftingTabName; atlasTab?: AtlasTabName; query?: string },
 ): string {
   let hash = `#${view}`;
   if (view === 'drafting' && (opts?.draftTab || opts?.query)) {
     const params = new URLSearchParams();
     if (opts?.draftTab) params.set('tab', opts.draftTab);
     if (opts?.query) params.set('q', opts.query);
+    hash += `?${params.toString()}`;
+  }
+  if (view === 'doctrines' && opts?.atlasTab) {
+    const params = new URLSearchParams();
+    params.set('tab', opts.atlasTab);
     hash += `?${params.toString()}`;
   }
   return hash;

@@ -339,6 +339,16 @@ Backend available at http://localhost:8000
 
 ---
 
+## Phase 15 (Atlas Case Guide Tab + Issue Spotter Home Card) - COMPLETE
+- Landmark Cases Guide moved off the Resources page into the Case Law Atlas as a second tab: new `AtlasView.tsx` wrapper ("Doctrine Map" / "Case Guide" tabs, cloned from the `CitationsView.tsx` pattern) rendered by `page.tsx` for the `doctrines` view; `DoctrineExplorerView.tsx` itself untouched
+- `LandmarkGuideSection.tsx` dropped its standalone header row + "Show guide" toggle (the tab bar replaces both) and now auto-fetches `/static/landmark-cases.md` lazily on mount — laziness preserved since the component only mounts when its tab is active
+- `hashRouter.ts` extended with `AtlasTabName` (`'map' | 'guide'`) mirroring `draftTab`: `parseHash`/`viewToHash` carry a `tab` param for the doctrines view only, and `handleAtlasTabChange` in `page.tsx` syncs switches via `location.replace` (no history noise), so `#doctrines?tab=guide` survives refresh/bookmarks — future Home/Dashboard cards can deep-link straight into the guide
+- Guide removed from `ResourcesView.tsx` (single source of truth); the Atlas is a public view, so the guide is now visible to signed-out visitors for the first time
+- Home feature cards 9 → 10: added the previously missing **Issue Spotter** card in `HomeView.tsx` (`IconTarget`, auth-gated `onNavigate('issuespotter')`) — the tool had shipped with only a nav link; the 5-column `.features` grid now fills evenly (5+5)
+- Tests: new `AtlasView.test.tsx` (default tab, initialTab, switch + onTabChange both directions); `LandmarkGuideSection.test.tsx` rewritten for auto-fetch-on-mount (load/error states); `hashRouter.test.ts` atlas-tab parse/serialize/round-trip cases; frontend suite 160 passed
+
+---
+
 ## RAG Content Inventory
 
 The **`legal_documents`** Qdrant collection holds uploaded cases + the

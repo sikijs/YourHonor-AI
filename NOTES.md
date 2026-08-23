@@ -27,6 +27,13 @@ phase notes in `AGENTS.md`.
 - New `international-law` doctrine in `doctrine_map.json` ("International Law &
   Foreign Affairs") covering the 7 new cases with curated holding/issue/plain_holding;
   Atlas/Bluebook/Compare/Dashboard libraries auto-extend; hardcoded count copy swept
+- **Case Law Atlas restructure**: the Landmark Cases Guide (92-case reference doc)
+  moved from the bottom of Resources into a new **"Case Guide" tab** on the Case Law
+  Atlas via `AtlasView.tsx` (tab wrapper over DoctrineExplorerView + guide, same
+  pattern as CitationsView/DraftingView); the guide auto-fetches when the tab opens,
+  is deep-linkable via `#doctrines?tab=guide`, and is gone from `ResourcesView.tsx`
+- Home page: **Issue Spotter feature card added** (10th card — the tool previously
+  had only a nav link); the 5-column features grid now fills evenly at 5+5
 
 ### v1.5.1
 - Bluebook double-year quirk fixed: state/regional citations no longer print a
@@ -209,7 +216,7 @@ The family tree of the law. Give it a case, and it maps every authority the opin
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
 
 ### Case Law Atlas
-A visual map of landmark US law. Browse **35 doctrines** across **85 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
+A visual map of landmark US law. Browse **36 doctrines** across **92 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. A second **Case Guide** tab holds a plain-English reference tour of all 92 cases. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
 
 ### Issue Spotter
 Exam practice. Paste a fact pattern — a story full of legal problems — and it identifies **every issue** in it. Each issue gets the full treatment: **Issue, Rule, Application, Conclusion, Missing Information, and Relevant Authorities**, and results are grouped by legal area (e.g. Fourth Amendment, Contracts, Torts) with an overview and tips for writing the exam answer. It's deliberately thorough: in law school exams, missing an issue costs more than over-identifying one. **Use it for** drilling exam-style fact patterns.
@@ -218,7 +225,7 @@ Exam practice. Paste a fact pattern — a story full of legal problems — and i
 Socratic dialogue. Pick one of 12 subjects (240+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
 
 ### Study Dashboard
-Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, **live tutor session accuracy** (completed sessions, answers, and % correct per topic), and your account age. **Use it for** checking overall progress without digging through every tool.
+Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, **live tutor session accuracy** (completed sessions, answers, and % correct per topic), and skills & competencies with your work portfolio. **Use it for** checking overall progress without digging through every tool.
 
 ### Generate Document
 A drafting assistant. Chat with the AI to figure out which document you need from the catalog of **24 templates** (agreements, contracts, briefs, etc.), and it helps you supply the fields (parties, dates, amounts...), then produces the finished document and saves it to My Documents. **Use it for** drafting routine documents conversationally without knowing the format yourself.
@@ -290,6 +297,9 @@ YourHonor AI/
 | Qdrant vectors | `data/qdrant_storage/` | Contains embedded legal content (landmark cases, templates, Constitution) |
 | Docker bind mount | `docker/data/` | Mirrors SQLite + uploads inside the running container |
 | Frontend build output | `frontend/out/` → copied to `backend/app/static/` | Built with `npm run build`, then copied for Docker deployment |
+| Landmark cases guide (dev) | [docs/landmark-cases.md](docs/landmark-cases.md) | Plain-English tour of all 92 built-in landmark cases — what each one is about, issue/holding/plain English. Canonical copy lives here |
+| Landmark cases guide (app) | [frontend/public/landmark-cases.md](frontend/public/landmark-cases.md) · live at [localhost:8000/static/landmark-cases.md](http://localhost:8000/static/landmark-cases.md) | Same file students see under **Case Law Atlas → "Case Guide" tab** (deep link: `#doctrines?tab=guide`). If you edit the doc: update `docs/`, re-copy to `frontend/public/`, then run `bash scripts/sync-frontend.sh` so all three stay identical |
+| Landmark case data (raw) | [doctrine_map.json](backend/app/data/doctrine_map.json) · [landmark_seed.json](backend/app/data/landmark_seed.json) | The curated source data the app reads: 36 doctrines × issue/holding/plain-English holding per case, plus full seed opinions + citations |
 | App logs | `docker compose logs backend` | Real-time or tail with `docker compose logs -f` |
 | Container logs (past) | `docker inspect <container> --format='{{.LogPath}}'` | On-disk log files (rarely needed) |
 

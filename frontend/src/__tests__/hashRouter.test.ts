@@ -37,6 +37,22 @@ describe('parseHash', () => {
     expect(parseHash('#home?tab=summary')).toEqual({ view: 'home' });
   });
 
+  test('parses atlas tab param on the doctrines view', () => {
+    expect(parseHash('#doctrines?tab=guide')).toEqual({
+      view: 'doctrines',
+      atlasTab: 'guide',
+    });
+    expect(parseHash('#doctrines?tab=map')).toEqual({
+      view: 'doctrines',
+      atlasTab: 'map',
+    });
+  });
+
+  test('ignores invalid atlas tab values', () => {
+    expect(parseHash('#doctrines?tab=nope')).toEqual({ view: 'doctrines' });
+    expect(parseHash('#doctrines?tab=summary')).toEqual({ view: 'doctrines' });
+  });
+
   test('does not treat trailing slash as a view', () => {
     expect(parseHash('#dashboard/')).toBeNull();
   });
@@ -62,6 +78,17 @@ describe('viewToHash', () => {
 
   test('drops params on non-drafting views', () => {
     expect(viewToHash('tutor', { draftTab: 'brief', query: 'x' })).toBe('#tutor');
+  });
+
+  test('builds atlas hashes with tab', () => {
+    expect(viewToHash('doctrines')).toBe('#doctrines');
+    expect(viewToHash('doctrines', { atlasTab: 'guide' })).toBe('#doctrines?tab=guide');
+    expect(viewToHash('doctrines', { atlasTab: 'map' })).toBe('#doctrines?tab=map');
+  });
+
+  test('round-trips the atlas tab through parseHash', () => {
+    const hash = viewToHash('doctrines', { atlasTab: 'guide' });
+    expect(parseHash(hash)).toEqual({ view: 'doctrines', atlasTab: 'guide' });
   });
 });
 
