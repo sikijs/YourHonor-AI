@@ -115,6 +115,10 @@ class MCStartRequest(BaseModel):
     difficulty: int = 3
 
 
+class OfflineMCStartRequest(BaseModel):
+    topic_id: str
+
+
 class MCStartResponse(BaseModel):
     topic_id: str
     topic_name: str
@@ -138,5 +142,44 @@ class MCAnswerResponse(BaseModel):
     is_complete: bool
     disclaimer: str = (
         "This quiz is for educational purposes only. "
+        "It should not be relied upon as legal advice."
+    )
+
+
+class EmbeddedIssue(BaseModel):
+    issue: str
+    rule: str = ""
+    fact_trigger: str = ""
+
+
+class DrillGenerateRequest(BaseModel):
+    topic_id: str
+    difficulty: int = 3
+
+
+class DrillGenerateResponse(BaseModel):
+    fact_pattern: str
+    embedded_issues: list[EmbeddedIssue] = []
+    key_concepts: list[str] = []
+    suggested_minutes: int = 5
+
+
+class DrillSubmitRequest(BaseModel):
+    topic_id: str
+    difficulty: int
+    fact_pattern: str
+    embedded_issues: list[EmbeddedIssue] = []
+    student_issues: list[str] = []
+    time_taken_sec: int = 0
+
+
+class DrillSubmitResponse(BaseModel):
+    matched: list[str] = []
+    missed: list[EmbeddedIssue] = []
+    false_positives: list[str] = []
+    score_pct: int = 0
+    feedback: str = ""
+    disclaimer: str = (
+        "This drill evaluation is for educational purposes only. "
         "It should not be relied upon as legal advice."
     )

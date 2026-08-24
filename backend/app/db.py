@@ -69,6 +69,8 @@ def init_db():
             topic_id TEXT NOT NULL,
             question TEXT NOT NULL,
             got_it INTEGER NOT NULL,
+            box_level INTEGER DEFAULT 1,
+            next_due TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE (user_id, topic_id, question),
             FOREIGN KEY (user_id) REFERENCES users (id)
@@ -85,6 +87,20 @@ def init_db():
             wrong_count INTEGER NOT NULL,
             total_questions INTEGER NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    """)
+
+    # One resumable session per user (latest wins). The payload is an opaque
+    # JSON blob owned by the frontend — the backend stores and serves it
+    # without interpreting it.
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS active_sessions (
+            user_id INTEGER PRIMARY KEY,
+            topic_id TEXT NOT NULL,
+            mode TEXT NOT NULL,
+            payload TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
@@ -111,6 +127,23 @@ def init_db():
         cursor.execute("ALTER TABLE documents ADD COLUMN file_size INTEGER")
     except Exception:
         pass
+
+    # Spaced-repetition upgrade (Leitner boxes). SQLite rejects non-constant
+    # defaults in ALTER TABLE, so next_due is added nullable and backfilled:
+    # every pre-existing weak card becomes due immediately, preserving the old
+    # "weak cards are always in the queue" behavior after the migration.
+    try:
+        cursor.execute("ALTER TABLE review_progress ADD COLUMN box_level INTEGER DEFAULT 1")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE review_progress ADD COLUMN next_due TIMESTAMP")
+    except Exception:
+        pass
+    cursor.execute(
+        "UPDATE review_progress SET next_due = CURRENT_TIMESTAMP "
+        "WHERE next_due IS NULL AND got_it = 0"
+    )
 
     conn.commit()
     conn.close()

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, MCQuestion, MCAnswerResponse, CurriculumCard, api } from '@/lib/api';
+import { User, TutorTopic, TutorStartResponse, TutorQuestion, HypotheticalGenerateResponse, HypotheticalEvaluateResponse, MCQuestion, MCAnswerResponse, CurriculumCard, ActiveSession, api } from '@/lib/api';
+import IssueDrill from './tutor/IssueDrill';
+import HoverTip, { dueCardsTip } from './HoverTip';
 
 const IRAC_TEMPLATE = '<span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Issue:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Rule:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Application:</span><br><br><br><br><span contenteditable="false" style="font-weight:700;color:#032147;font-size:0.95rem">Conclusion:</span><br><br><br><br>';
 
@@ -57,6 +59,10 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [practiceEditorKey, setPracticeEditorKey] = useState(0);
 
   const [mcMode, setMcMode] = useState(false);
+  const [mcSource, setMcSource] = useState<'free' | 'ai'>('free');
+  const [drillMode, setDrillMode] = useState(false);
+  const [resumable, setResumable] = useState<ActiveSession | null>(null);
+  const [dueTipOpen, setDueTipOpen] = useState(false);
   const [mcQuestion, setMcQuestion] = useState<MCQuestion | null>(null);
   const [mcResult, setMcResult] = useState<MCAnswerResponse | null>(null);
   const [mcDifficulty, setMcDifficulty] = useState(3);
@@ -78,6 +84,11 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
   const [reviewSessionMarked, setReviewSessionMarked] = useState<string[]>([]);
 
   const [reviewDifficulty, setReviewDifficulty] = useState(0);
+  const [dueCount, setDueCount] = useState(0);
+
+  const refreshDueCount = useCallback(() => {
+    api.tutor.reviewDueCount().then(res => setDueCount(res.due_count)).catch(() => {});
+  }, []);
 
   const cancelRef = useRef<AbortController | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -88,10 +99,15 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
 
   useEffect(() => {
     api.tutor.listTopics().then(res => setTopics(res.topics)).catch(() => onError('Failed to load topics'));
+    refreshDueCount();
+    api.tutor.getResume()
+      .then(res => setResumable(res.session))
+      .catch(() => {});
     const draft = localStorage.getItem('tutor_hypothetical_draft');
     if (draft) {
       try { JSON.parse(draft); setPracticeHasDraft(true); } catch { localStorage.removeItem('tutor_hypothetical_draft'); }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const savePracticeDraft = useCallback(() => {
@@ -460,12 +476,15 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     localStorage.removeItem('tutor_hypothetical_draft');
   }
 
-  async function startMCQuiz(topicId: string) {
+  async function startMCQuiz(topicId: string, forceAI?: boolean) {
+    const useAI = forceAI ?? mcSource === 'ai';
     setMcShowCost(false);
     setMcLoading(true);
     onError('');
     try {
-      const res = await api.tutor.startMCQuiz(topicId, mcDifficulty, cancelRef.current?.signal);
+      const res = useAI
+        ? await api.tutor.startMCQuiz(topicId, mcDifficulty, cancelRef.current?.signal)
+        : await api.tutor.startOfflineMCQuiz(topicId, cancelRef.current?.signal);
       setMcTopicId(res.topic_id);
       setMcTopicName(res.topic_name);
       setMcTotalQuestions(res.total_questions);
@@ -537,7 +556,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setMcSaving(true);
     try {
       const lines: string[] = [];
-      lines.push(`## MC Quiz: ${mcTopicName} (Difficulty ${mcDifficulty}/5)`);
+      const sourceLabel = mcSource === 'ai' ? `Difficulty ${mcDifficulty}/5` : 'Free practice';
+      lines.push(`## MC Quiz: ${mcTopicName} (${sourceLabel})`);
       lines.push(`**Score:** ${mcResult?.score ?? 0}/${mcHistory.length}\n`);
       mcHistory.forEach((h, i) => {
         lines.push(`### Question ${i + 1}`);
@@ -550,7 +570,7 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         lines.push(`\n${h.questionExplanation}\n`);
       });
       await api.documents.create(
-        `MC Quiz: ${mcTopicName} (Difficulty ${mcDifficulty})`,
+        `MC Quiz: ${mcTopicName} (${sourceLabel})`,
         lines.join('\n'),
         'other',
       );
@@ -589,6 +609,131 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
     setPracticeHasDraft(false);
     localStorage.removeItem('tutor_hypothetical_draft');
     resetMC();
+    setDrillMode(false);
+    api.tutor.clearResume().catch(() => {});
+    setResumable(null);
+  }
+
+  // ---- Session resume -------------------------------------------------
+  // Only quiz and review sessions are snapshotted: both are fully
+  // reconstructible client-side (the whole question array is delivered at
+  // start; review marks ride along). The backend stores the blob opaquely.
+
+  function buildResumeSnapshot(): { topic_id: string; mode: 'quiz' | 'review'; payload: Record<string, unknown> } | null {
+    if (!session || session.questions.length === 0) return null;
+    if (!practiceMode && !mcMode && !drillMode && !reviewMode && !isComplete) {
+      if (!currentQuestion) return null;
+      return {
+        topic_id: session.topic_id,
+        mode: 'quiz',
+        payload: {
+          topic_name: session.topic_name,
+          questions: session.questions,
+          current_index: currentIndex,
+          history,
+          correct_count: correctCount,
+          wrong_count: wrongCount,
+        },
+      };
+    }
+    if (reviewMode && !reviewComplete) {
+      return {
+        topic_id: session.topic_id,
+        mode: 'review',
+        payload: {
+          topic_name: session.topic_name,
+          questions: session.questions,
+          marked: reviewSessionMarked,
+          correct: reviewCorrect,
+          wrong: reviewWrong,
+        },
+      };
+    }
+    return null;
+  }
+
+  useEffect(() => {
+    const snap = buildResumeSnapshot();
+    if (snap) api.tutor.saveResume(snap.topic_id, snap.mode, snap.payload).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, currentIndex, history.length, isComplete, reviewMode, reviewComplete, reviewSessionMarked.length]);
+
+  // A finished session no longer needs its snapshot.
+  useEffect(() => {
+    if (isComplete || reviewComplete) {
+      api.tutor.clearResume().catch(() => {});
+      setResumable(null);
+    }
+  }, [isComplete, reviewComplete]);
+
+  function resumeSaved() {
+    if (!resumable) return;
+    const p = resumable.payload as {
+      topic_name?: string;
+      questions?: TutorQuestion[];
+      current_index?: number;
+      history?: { question: string; answer: string; evaluation: string; explanation: string; missed_concepts: string[]; expected_concepts: string[] }[];
+      correct_count?: number;
+      wrong_count?: number;
+      marked?: string[];
+      correct?: number;
+      wrong?: number;
+    };
+    const questions = Array.isArray(p.questions) ? p.questions : [];
+    if (questions.length === 0) {
+      discardSaved();
+      return;
+    }
+    const idx = Math.min(Math.max(p.current_index ?? 0, 0), questions.length - 1);
+    const topicName = p.topic_name
+      || topics.find(t => t.id === resumable.topic_id)?.name
+      || resumable.topic_id;
+    setSession({
+      topic_id: resumable.topic_id,
+      topic_name: topicName,
+      topic_description: '',
+      total_questions: questions.length,
+      current_question: questions[idx],
+      current_index: idx,
+      questions,
+    });
+    if (resumable.mode === 'review') {
+      setReviewMode(true);
+      setReviewSessionMarked(Array.isArray(p.marked) ? p.marked : []);
+      setReviewCorrect(p.correct ?? 0);
+      setReviewWrong(p.wrong ?? 0);
+      setReviewFlipped(false);
+      setReviewComplete(false);
+      setReviewRelatedCards({});
+    } else {
+      setCurrentIndex(idx);
+      setCurrentQuestion(questions[idx]);
+      setTotalQuestions(questions.length);
+      setHistory(Array.isArray(p.history) ? p.history : []);
+      setCorrectCount(p.correct_count ?? 0);
+      setWrongCount(p.wrong_count ?? 0);
+      setIsComplete(false);
+      setAnswer('');
+      setShowHint(false);
+      setShowRubric(false);
+      setAttemptsUsed(0);
+      setMaxAttempts(3);
+      setAttemptsExceeded(false);
+      setCorrectAnswerRevealed(null);
+      setRevealQuestion(null);
+      setQuizRelated(null);
+    }
+    setPracticeMode(false);
+    setMcMode(false);
+    setDrillMode(false);
+    setLoading(false);
+    setResumable(null);
+    onError('');
+  }
+
+  function discardSaved() {
+    api.tutor.clearResume().catch(() => {});
+    setResumable(null);
   }
 
   if (loading && !session) {
@@ -612,6 +757,22 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <p style={{ color: 'var(--gray-text)', marginBottom: '1rem' }}>
           Pick a topic to begin an interactive Socratic tutoring session.
         </p>
+        {resumable && (
+          <div className="card" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: '#fff8e1', border: '1px solid var(--accent-yellow)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.9rem' }}>
+              📌 Unfinished <strong>{resumable.mode === 'review' ? 'review session' : 'quiz'}</strong> in{' '}
+              <strong>{resumable.payload?.topic_name as string || topics.find(t => t.id === resumable.topic_id)?.name || resumable.topic_id}</strong> — pick up where you left off.
+            </span>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={resumeSaved}>
+                Resume
+              </button>
+              <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={discardSaved}>
+                Discard
+              </button>
+            </div>
+          </div>
+        )}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
           {topics.map((topic) => {
             const isDynamicConfirming = dynamicConfirmTopic === topic.id;
@@ -671,38 +832,64 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid #ccc', borderRadius: '6px', overflow: 'hidden' }}>
             <button
-              className={`btn ${!reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(false); setPracticeMode(false); setMcMode(false); setShowHint(false); setShowRubric(false); }}
+              className={`btn ${!reviewMode && !practiceMode && !mcMode && !drillMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setReviewMode(false); setPracticeMode(false); setMcMode(false); setDrillMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Quiz
             </button>
             <button
               className={`btn ${mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setMcMode(true); setPracticeMode(false); setReviewMode(false); setDrillMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               MC Quiz
             </button>
             <button
               className={`btn ${practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setPracticeMode(true); setMcMode(false); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setPracticeMode(true); setMcMode(false); setDrillMode(false); setShowHint(false); setShowRubric(false); }}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Practice
             </button>
             <button
               className={`btn ${reviewMode && !practiceMode && !mcMode ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setReviewSessionMarked([]); setShowHint(false); setShowRubric(false); }}
+              onClick={() => { setReviewMode(true); setPracticeMode(false); setMcMode(false); setDrillMode(false); setReviewCorrect(0); setReviewWrong(0); setReviewFlipped(false); setReviewComplete(false); setReviewRelatedCards({}); setReviewQueueCards(null); setReviewSessionMarked([]); setShowHint(false); setShowRubric(false); refreshDueCount(); }}
+              onMouseEnter={() => setDueTipOpen(true)}
+              onMouseLeave={() => setDueTipOpen(false)}
+              onFocus={() => setDueTipOpen(true)}
+              onBlur={() => setDueTipOpen(false)}
+              aria-label={dueCount > 0 ? `Review, ${dueCount} card${dueCount === 1 ? '' : 's'} due today` : undefined}
               style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
             >
               Review
+              {dueCount > 0 && (
+                <HoverTip tip={dueCardsTip(dueCount)} show={dueTipOpen}>
+                  <span
+                    aria-hidden="true"
+                    style={{ marginLeft: '0.35rem', background: 'var(--accent-yellow)', color: '#032147', fontWeight: 700, borderRadius: '999px', padding: '0 0.4rem', fontSize: '0.7rem' }}
+                  >
+                    {dueCount}
+                  </span>
+                </HoverTip>
+              )}
+            </button>
+            <button
+              className={`btn ${drillMode ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => { setDrillMode(true); setMcMode(false); setPracticeMode(false); setReviewMode(false); setShowHint(false); setShowRubric(false); }}
+              title="Timed issue-spotting drill over one fact pattern"
+              style={{ borderRadius: 0, border: 'none', fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
+            >
+              Issue-Spotting Drill
             </button>
           </div>
           <button className="btn btn-outline" onClick={resetSession}>Change Topic</button>
         </div>
       </div>
 
+      {drillMode ? (
+        <IssueDrill topicId={session.topic_id} topicName={session.topic_name} onError={onError} />
+      ) : (<>
       {!practiceMode && !mcMode && (
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <div className="card" style={{ flex: 1, minWidth: '200px', padding: '0.5rem 1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -920,26 +1107,57 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
             Test your knowledge of <strong>{session.topic_name}</strong> with multiple-choice questions. Each question presents a legal scenario with 4 answer choices. You&apos;ll get instant feedback explaining why each option is right or wrong.
           </p>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--dark-navy)', display: 'block', marginBottom: '0.3rem' }}>Difficulty: {mcDifficulty}/5</label>
-            <input
-              type="range" min="1" max="5" value={mcDifficulty}
-              onChange={(e) => setMcDifficulty(Number(e.target.value))}
-              style={{ width: '100%', maxWidth: '300px' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '300px', fontSize: '0.75rem', color: 'var(--gray-text)' }}>
-              <span>Beginner</span><span>Expert</span>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--dark-navy)', display: 'block', marginBottom: '0.3rem' }}>Question source</label>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button
+                className={`btn ${mcSource === 'free' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setMcSource('free')}
+                style={{ fontSize: '0.8rem', padding: '0.3rem 0.9rem' }}
+                title="Questions assembled from the curated curriculum — no AI cost"
+              >
+                Free practice (10 questions)
+              </button>
+              <button
+                className={`btn ${mcSource === 'ai' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setMcSource('ai')}
+                style={{ fontSize: '0.8rem', padding: '0.3rem 0.9rem' }}
+                title="AI-generated scenario questions — uses API credits"
+              >
+                AI-generated (5 questions)
+              </button>
             </div>
           </div>
-          <button className="btn btn-primary" onClick={() => setMcShowCost(true)}>
-            Start MC Quiz
-          </button>
+          {mcSource === 'ai' && (
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--dark-navy)', display: 'block', marginBottom: '0.3rem' }}>Difficulty: {mcDifficulty}/5</label>
+              <input
+                type="range" min="1" max="5" value={mcDifficulty}
+                onChange={(e) => setMcDifficulty(Number(e.target.value))}
+                style={{ width: '100%', maxWidth: '300px' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '300px', fontSize: '0.75rem', color: 'var(--gray-text)' }}>
+                <span>Beginner</span><span>Expert</span>
+              </div>
+            </div>
+          )}
+          {mcSource === 'free'
+            ? (
+              <button className="btn btn-primary" onClick={() => startMCQuiz(session.topic_id)}>
+                Start Free MC Quiz
+              </button>
+            )
+            : (
+              <button className="btn btn-primary" onClick={() => setMcShowCost(true)}>
+                Start AI MC Quiz
+              </button>
+            )}
           {mcShowCost && (
             <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '0.85rem' }}>
               <p style={{ margin: '0 0 0.5rem 0', color: '#856404' }}>
                 This will use AI API calls (~$0.03 per question) to generate a 5-question quiz on <strong>{session.topic_name}</strong>. Continue?
               </p>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startMCQuiz(session.topic_id)}>Yes, start</button>
+                <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => startMCQuiz(session.topic_id, true)}>Yes, start</button>
                 <button className="btn btn-outline" style={{ fontSize: '0.85rem', padding: '0.35rem 1rem' }} onClick={() => setMcShowCost(false)}>Cancel</button>
               </div>
             </div>
@@ -1438,6 +1656,8 @@ export default function TutorView({ user, onError }: { user: User; onError: (err
           </div>
         );
       })()}
+
+      </>)}
 
       <div className="card" style={{ background: '#f8f9fa', marginTop: '0.5rem' }}>
         <p style={{ fontSize: '0.8rem', color: 'var(--gray-text)', margin: 0 }}>

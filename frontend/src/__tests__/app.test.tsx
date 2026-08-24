@@ -59,6 +59,7 @@ jest.mock('@/lib/api', () => {
         evaluateHypothetical: mockFn,
         startMCQuiz: mockFn,
         submitMCAnswer: mockFn,
+        reviewDueCount: jest.fn().mockResolvedValue({ due_count: 0 }),
       },
       templates: { list: mockFn },
       doctrine: { map: jest.fn().mockResolvedValue({ doctrines: [] }) },
@@ -95,21 +96,8 @@ const MOCK_STATS = {
 
 const MOCK_TODAY = {
   case_of_the_day: { case_name: 'Marbury v. Madison', citation: '5 U.S. 137', year: 1803, date_filed: null },
-  citation_drill: {
-    raw: '5 U.S. 137',
-    formatted: 'Marbury v. Madison, 5 U.S. 137 (1803)',
-    case_name: 'Marbury v. Madison',
-    year: 1803,
-    options: [
-      { text: 'Marbury v. Madison, 5 U.S. 137', is_correct: false, rule_note: 'Wrong — missing year (Rule 10.6).' },
-      { text: 'Marbury v. Madison, 5 U.S. 137 (1803)', is_correct: true, rule_note: 'Correct — full Bluebook form.' },
-      { text: 'Marbury vs. Madison, 5 U.S. 137 (1803)', is_correct: false, rule_note: 'Wrong — use "v." (Rule 10.2.1).' },
-      { text: 'Marbury v. Madison, 5 US 137 (1803)', is_correct: false, rule_note: 'Wrong — reporter periods (Rule 10.3).' },
-    ],
-  },
   term_of_the_day: { term: 'actus reus', definition: 'The physical act of a crime.', related_terms: [] },
   question_of_the_day: { question: 'What is consideration?', topic_id: 'contracts', topic_name: 'Contracts', difficulty: 2 },
-  issue_prompt_of_the_day: { prompt: 'Spot the issues.', case_name: 'Marbury v. Madison' },
   suggested_focus: null,
 };
 

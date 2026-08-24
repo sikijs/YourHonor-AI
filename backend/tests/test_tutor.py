@@ -695,11 +695,13 @@ def test_review_mark_and_queue_round_trip(client, auth_headers):
         resp = client.get("/api/tutor/review/queue", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    assert data["total"] == 1
-    card = data["cards"][0]
-    assert card["question"] == weak.question
-    assert card["topic_id"] == "contracts"
-    assert len(card["expected_concepts"]) > 0
+    # Spaced repetition: both cards stay in rotation ("Got it" promotes the
+    # strong card to box 2 rather than removing it), ordered by soonest due.
+    assert data["total"] == 2
+    assert data["cards"][0]["question"] == weak.question
+    assert data["cards"][1]["question"] == strong.question
+    assert data["cards"][0]["topic_id"] == "contracts"
+    assert len(data["cards"][0]["expected_concepts"]) > 0
 
 
 def test_review_mark_overwrites_previous_self_assessment(client, auth_headers):
@@ -803,12 +805,15 @@ def test_review_queue_excludes_mastered_cards_from_enrichment(client, auth_heade
         client.post("/api/tutor/review/mark", headers=auth_headers, json={
             "question": weak.question, "topic_id": "contracts", "got_it": False,
         })
-        client.post("/api/tutor/review/mark", headers=auth_headers, json={
-            "question": TOPICS["contracts"]["questions"][2].question,
-            "topic_id": "contracts", "got_it": True,
-        })
+        # Five consecutive "Got it" passes walk the card through every
+        # Leitner box until it graduates (got_it = 1) and leaves rotation.
+        for _ in range(5):
+            client.post("/api/tutor/review/mark", headers=auth_headers, json={
+                "question": TOPICS["contracts"]["questions"][2].question,
+                "topic_id": "contracts", "got_it": True,
+            })
 
-    # Enrichment would surface the mastered card, but the queue must skip it
+    # Enrichment would surface the graduated card, but the queue must skip it
     with patch("app.services.tutor.retrieve_curriculum", return_value=[mastered_card]):
         resp = client.get("/api/tutor/review/queue", headers=auth_headers)
     data = resp.json()

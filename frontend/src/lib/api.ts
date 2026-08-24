@@ -270,10 +270,25 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ topic_id: topicId, difficulty, fact_pattern: factPattern, student_answer: studentAnswer }),
       }, signal, 180000),
+    generateDrill: (topicId: string, difficulty: number, signal?: AbortSignal) =>
+      fetchApi<DrillGenerateResponse>('/api/tutor/drill/generate', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId, difficulty }),
+      }, signal, 180000),
+    submitDrill: (payload: { topic_id: string; difficulty: number; fact_pattern: string; embedded_issues: EmbeddedIssue[]; student_issues: string[]; time_taken_sec: number }, signal?: AbortSignal) =>
+      fetchApi<DrillSubmitResponse>('/api/tutor/drill/submit', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }, signal, 180000),
     startMCQuiz: (topicId: string, difficulty: number, signal?: AbortSignal) =>
       fetchApi<MCStartResponse>('/api/tutor/mc/start', {
         method: 'POST',
         body: JSON.stringify({ topic_id: topicId, difficulty }),
+      }, signal, 180000),
+    startOfflineMCQuiz: (topicId: string, signal?: AbortSignal) =>
+      fetchApi<MCStartResponse>('/api/tutor/mc-offline/start', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId }),
       }, signal, 180000),
     submitMCAnswer: (selectedIndex: number, signal?: AbortSignal) =>
       fetchApi<MCAnswerResponse>('/api/tutor/mc/answer', {
@@ -286,7 +301,7 @@ export const api = {
         body: JSON.stringify({ question, exclude_topic: excludeTopic, top_k: topK ?? 4 }),
       }),
     markReview: (question: string, topicId: string, gotIt: boolean) =>
-      fetchApi<{ status: string; question: string; got_it: boolean }>('/api/tutor/review/mark', {
+      fetchApi<{ status: string; question: string; got_it: boolean; box_level: number; graduated: boolean; max_box: number }>('/api/tutor/review/mark', {
         method: 'POST',
         body: JSON.stringify({ question, topic_id: topicId, got_it: gotIt }),
       }),
@@ -294,6 +309,17 @@ export const api = {
       fetchApi<{ cards: CurriculumCard[]; total: number }>(
         `/api/tutor/review/queue${difficulty !== undefined ? `?difficulty=${difficulty}` : ''}`
       ),
+    reviewDueCount: () =>
+      fetchApi<{ due_count: number }>('/api/tutor/review/due-count'),
+    getResume: () =>
+      fetchApi<{ session: ActiveSession | null }>('/api/tutor/resume'),
+    saveResume: (topicId: string, mode: 'quiz' | 'review', payload: Record<string, unknown>) =>
+      fetchApi<{ status: string }>('/api/tutor/resume', {
+        method: 'POST',
+        body: JSON.stringify({ topic_id: topicId, mode, payload }),
+      }),
+    clearResume: () =>
+      fetchApi<{ status: string }>('/api/tutor/resume', { method: 'DELETE' }),
   },
 
   templates: {
@@ -340,6 +366,8 @@ export const api = {
 
   dashboard: {
     today: () => fetchApi<DashboardToday>('/api/dashboard/today'),
+    citationDrill: () => fetchApi<CitationDrillData>('/api/dashboard/citation-drill'),
+    issuePrompt: () => fetchApi<IssuePromptData>('/api/dashboard/issue-prompt'),
     todayAnswer: () => fetchApi<QuestionAnswer>('/api/dashboard/today/answer'),
     todayIssueAnswer: () => fetchApi<IssueAnswer>('/api/dashboard/today/issue-answer'),
   },
@@ -644,6 +672,7 @@ export interface TutorReviewStats {
   total_reviewed: number;
   mastered: number;
   weak: number;
+  due_now: number;
   weak_topics: WeakTopic[];
 }
 
@@ -695,17 +724,6 @@ export interface DashboardToday {
     date_filed: string | null;
     case_summary: string;
   };
-  citation_drill: {
-    raw: string;
-    formatted: string;
-    case_name: string;
-    year: number | null;
-    options: {
-      text: string;
-      is_correct: boolean;
-      rule_note: string;
-    }[];
-  };
   term_of_the_day: {
     term: string;
     definition: string;
@@ -717,15 +735,28 @@ export interface DashboardToday {
     topic_name: string;
     difficulty: number;
   };
-  issue_prompt_of_the_day: {
-    prompt: string;
-    case_name: string;
-  };
   suggested_focus: {
     topic_id: string;
     topic_name: string;
     weak_count: number;
   } | null;
+}
+
+export interface CitationDrillData {
+  raw: string;
+  formatted: string;
+  case_name: string;
+  year: number | null;
+  options: {
+    text: string;
+    is_correct: boolean;
+    rule_note: string;
+  }[];
+}
+
+export interface IssuePromptData {
+  prompt: string;
+  case_name: string;
 }
 
 export interface QuestionAnswer {
@@ -831,6 +862,35 @@ export interface MCQuestion {
   explanation: string;
   option_explanations: string[];
   difficulty: number;
+}
+
+export interface EmbeddedIssue {
+  issue: string;
+  rule: string;
+  fact_trigger: string;
+}
+
+export interface DrillGenerateResponse {
+  fact_pattern: string;
+  embedded_issues: EmbeddedIssue[];
+  key_concepts: string[];
+  suggested_minutes: number;
+}
+
+export interface DrillSubmitResponse {
+  matched: string[];
+  missed: EmbeddedIssue[];
+  false_positives: string[];
+  score_pct: number;
+  feedback: string;
+  disclaimer: string;
+}
+
+export interface ActiveSession {
+  topic_id: string;
+  mode: 'quiz' | 'review';
+  payload: Record<string, unknown>;
+  updated_at: string;
 }
 
 export interface MCStartResponse {

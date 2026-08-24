@@ -6,6 +6,7 @@ import { friendlyDocType } from '@/lib/docTypes';
 import { skillBarPercent, skillLevel, SKILL_PRACTICE } from '@/lib/skills';
 import ReviewQueueView from '@/components/ReviewQueueView';
 import TodayPracticePanel from '@/components/TodayPracticePanel';
+import HoverTip, { dueCardsTip } from '@/components/HoverTip';
 import {
   IconFile,
   IconPencil,
@@ -138,7 +139,7 @@ export default function DashboardView({
           <div className="icon-chip icon-chip--navy icon-chip--center"><IconRefresh /></div>
           <p className="stat-label">Review Queue</p>
           <p className="stat-value">{review.weak}</p>
-          <p className="stat-sub">cards to restudy</p>
+          <p className="stat-sub">{review.due_now > 0 ? `${review.due_now} due today` : 'cards in your review rotation'}</p>
         </div>
         <div className="card stat-card">
           <div className="icon-chip icon-chip--navy icon-chip--center"><IconChat /></div>
@@ -187,9 +188,20 @@ export default function DashboardView({
               <div className="progress-track">
                 <div className="progress-fill" style={{ width: `${reviewPct}%`, background: 'var(--purple-secondary)' }} />
               </div>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', flexWrap: 'wrap' }}>
                 <span style={{ color: '#1b7f3a' }}>✓ {review.mastered} mastered</span>
-                <span style={{ color: '#c62828' }}>✗ {review.weak} weak</span>
+                {review.due_now > 0 && (
+                  <HoverTip tip={dueCardsTip(review.due_now)}>
+                    <span
+                      tabIndex={0}
+                      aria-label={`${review.due_now} card${review.due_now === 1 ? '' : 's'} due today. ${dueCardsTip(review.due_now)}`}
+                      style={{ background: 'var(--accent-yellow)', color: '#032147', fontWeight: 700, borderRadius: '999px', padding: '0.05rem 0.6rem', fontSize: '0.8rem', cursor: 'help' }}
+                    >
+                      ⏰ {review.due_now} due today
+                    </span>
+                  </HoverTip>
+                )}
+                <span style={{ color: '#c62828' }}>✗ {review.weak - review.due_now} scheduled</span>
               </div>
             </>
           )}
@@ -219,7 +231,11 @@ export default function DashboardView({
               disabled={review.weak === 0}
               style={{ width: '100%' }}
             >
-              {review.weak > 0 ? `Review all ${review.weak} card${review.weak === 1 ? '' : 's'} in queue` : 'Review Queue (empty)'}
+              {review.weak > 0
+                ? review.due_now > 0
+                  ? `Review ${review.due_now} due card${review.due_now === 1 ? '' : 's'} (${review.weak} in rotation)`
+                  : `Review all ${review.weak} card${review.weak === 1 ? '' : 's'} in rotation`
+                : 'Review Queue (empty)'}
             </button>
           </div>
         </div>

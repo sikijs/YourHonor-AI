@@ -18,6 +18,8 @@ from app.services.retrieval import (
     curriculum_card_from_payload,
 )
 from app.services.llm_errors import friendly_llm_error
+from app.services import mc_bank
+from app.services.spaced_repetition import MAX_BOX, schedule_mark
 from app.services.tutor_data import TOPICS
 from app import db
 
@@ -487,33 +489,51 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
 
         Stored in SQLite (review_progress) so marks survive page refreshes
         within the container's lifetime; upsert keeps one row per card.
+        Scheduling is Leitner-based (see services/spaced_repetition.py):
+        "Got it" promotes the card's box and pushes its due date out,
+        "Need to Study" resets it to box 1 due tomorrow.
         """
         from app import db
         conn = db.get_db()
         try:
+            row = conn.execute(
+                "SELECT box_level FROM review_progress WHERE user_id = ? AND topic_id = ? AND question = ?",
+                (user_id, topic_id, question),
+            ).fetchone()
+            new_got_it, new_box, next_due = schedule_mark(got_it, row["box_level"] if row else 1)
             conn.execute(
                 """
-                INSERT INTO review_progress (user_id, topic_id, question, got_it, updated_at)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                INSERT INTO review_progress (user_id, topic_id, question, got_it, box_level, next_due, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(user_id, topic_id, question)
-                DO UPDATE SET got_it = excluded.got_it, updated_at = CURRENT_TIMESTAMP
+                DO UPDATE SET got_it = excluded.got_it, box_level = excluded.box_level,
+                              next_due = excluded.next_due, updated_at = CURRENT_TIMESTAMP
                 """,
-                (user_id, topic_id, question, 1 if got_it else 0),
+                (user_id, topic_id, question, new_got_it, new_box, next_due),
             )
             conn.commit()
         finally:
             conn.close()
-        return {"status": "ok", "question": question, "got_it": got_it}
+        return {
+            "status": "ok",
+            "question": question,
+            "got_it": bool(new_got_it),
+            "box_level": new_box,
+            "graduated": new_got_it == 1,
+            "max_box": MAX_BOX,
+        }
 
     def get_review_queue(self, user_id: int, limit: int = 10, difficulty: Optional[int] = None) -> list[CurriculumCard]:
-        """Cards marked "need to study", enriched with similar curriculum cards.
+        """Cards in the spaced-repetition rotation, due ones first.
 
-        Always returns ALL of the student's own weak cards (most recently
-        marked first) so nothing they flagged is dropped. The `limit` only
+        Every card the student has not yet graduated (got_it = 0) is
+        returned — nothing they flagged is dropped — but ordered so cards
+        whose Leitner due date has passed come first (most overdue first),
+        followed by scheduled cards by soonest due date. The `limit` only
         bounds the enrichment padding: when the student has fewer than
-        `limit` weak cards, the queue is extended with semantically similar
-        cards retrieved over the weak cards' expected concepts so re-study
-        covers related material. Deduplicated by question text.
+        `limit` rotation cards, the queue is extended with semantically
+        similar cards retrieved over the weak cards' expected concepts so
+        re-study covers related material. Deduplicated by question text.
 
         An optional `difficulty` (1-4) narrows both the weak cards and the
         enrichment to that exact curriculum level (None = everything).
@@ -525,7 +545,7 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                 """
                 SELECT topic_id, question FROM review_progress
                 WHERE user_id = ? AND got_it = 0
-                ORDER BY updated_at DESC
+                ORDER BY (next_due <= CURRENT_TIMESTAMP) DESC, next_due ASC, updated_at DESC
                 """,
                 (user_id,),
             ).fetchall()
@@ -577,6 +597,22 @@ Evaluate this answer and provide a follow-up or determine if the student has mas
                 logger.warning(f"Review queue enrichment failed: {e}")
 
         return cards
+
+    def get_due_count(self, user_id: int) -> int:
+        """How many rotation cards have a Leitner due date in the past."""
+        conn = db.get_db()
+        try:
+            row = conn.execute(
+                """
+                SELECT COUNT(*) AS count FROM review_progress
+                WHERE user_id = ? AND got_it = 0
+                  AND next_due IS NOT NULL AND next_due <= CURRENT_TIMESTAMP
+                """,
+                (user_id,),
+            ).fetchone()
+        finally:
+            conn.close()
+        return row["count"]
 
     def _next_difficulty(self, session: TutorSession) -> int:
         if len(session.questions) == 0:
@@ -827,6 +863,39 @@ Return valid JSON with these exact keys:
             question=q,
         )
 
+    def start_offline_mc_quiz(self, topic_id: str, user_id: int) -> MCStartResponse:
+        """Free tier: questions assembled locally from the curated bank.
+
+        Same session shape and submit endpoint as the AI quiz — the only
+        differences are the question source (mc_bank, zero LLM calls), the
+        longer run (10 questions), and the persisted mode ("mc_offline").
+        """
+        if topic_id not in TOPICS:
+            raise ValueError(f"Unknown topic: {topic_id}")
+        session = MCQuizSession(topic_id, difficulty=0, offline=True)
+        self._mc_sessions[user_id] = session
+
+        q, stem = mc_bank.build_question(topic_id, session.used_stems)
+        session.used_stems.add(stem)
+        session.questions.append(q)
+        session.current_question = q
+
+        return MCStartResponse(
+            topic_id=topic_id,
+            topic_name=session.topic_data["name"],
+            difficulty=0,
+            total_questions=session.total_questions,
+            question=q,
+        )
+
+    def _next_mc_question(self, session: MCQuizSession) -> MCQuestion:
+        """Dispatch to the right generator for the session's source."""
+        if session.offline:
+            q, stem = mc_bank.build_question(session.topic_id, session.used_stems)
+            session.used_stems.add(stem)
+            return q
+        return self._generate_mc_question(session)
+
     def submit_mc_answer(self, selected_index: int, user_id: int) -> MCAnswerResponse:
         session = self._mc_sessions.get(user_id)
         if not session or not session.current_question:
@@ -843,14 +912,15 @@ Return valid JSON with these exact keys:
         is_complete = session.answered >= session.total_questions
 
         if is_complete:
+            mode = "mc_offline" if session.offline else "mc"
             self._persist_session(
-                user_id, session.topic_id, "mc",
+                user_id, session.topic_id, mode,
                 session.correct_count,
                 session.answered - session.correct_count,
                 session.answered,
             )
         else:
-            next_q = self._generate_mc_question(session)
+            next_q = self._next_mc_question(session)
             session.questions.append(next_q)
             session.current_question = next_q
             next_question = next_q
@@ -939,11 +1009,15 @@ Return valid JSON with these exact keys:
 
 
 class MCQuizSession:
-    def __init__(self, topic_id: str, difficulty: int):
+    def __init__(self, topic_id: str, difficulty: int, offline: bool = False):
         self.topic_id = topic_id
         self.topic_data = TOPICS.get(topic_id)
         self.difficulty = difficulty
-        self.total_questions = 5
+        # Free offline runs draw from the curated bank (no LLM) and run
+        # longer than the paid AI quiz.
+        self.offline = offline
+        self.total_questions = mc_bank.OFFLINE_MC_QUESTIONS if offline else 5
+        self.used_stems: set[str] = set()
         self.questions: list[MCQuestion] = []
         self.current_question: Optional[MCQuestion] = None
         self.answered = 0

@@ -74,6 +74,7 @@ def test_stats_empty_state(client, auth_headers):
         "total_reviewed": 0,
         "mastered": 0,
         "weak": 0,
+        "due_now": 0,
         "weak_topics": [],
     }
     assert data["tutor_sessions"] == {
@@ -118,13 +119,17 @@ def test_stats_tutor_review(client, auth_headers):
     _mark_review(client, auth_headers, "Q1", "contracts", False)
     _mark_review(client, auth_headers, "Q2", "contracts", False)
     _mark_review(client, auth_headers, "Q3", "torts", False)
-    _mark_review(client, auth_headers, "Q4", "contracts", True)
+    # Five "Got it" passes walk Q4 through every Leitner box to graduation;
+    # a single pass would only promote it to box 2 (still in rotation).
+    for _ in range(5):
+        _mark_review(client, auth_headers, "Q4", "contracts", True)
 
     resp = client.get("/api/stats/me", headers=auth_headers)
     review = resp.json()["tutor_review"]
     assert review["total_reviewed"] == 4
     assert review["mastered"] == 1
     assert review["weak"] == 3
+    assert review["due_now"] == 0  # freshly marked cards are due tomorrow
     assert review["weak_topics"] == [
         {"topic_id": "contracts", "topic_name": "Contracts", "weak_count": 2},
         {"topic_id": "torts", "topic_name": "Torts", "weak_count": 1},

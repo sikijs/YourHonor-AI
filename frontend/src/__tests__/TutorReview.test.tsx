@@ -10,8 +10,12 @@ jest.mock('@/lib/api', () => ({
       relatedConcepts: jest.fn(),
       markReview: jest.fn(),
       reviewQueue: jest.fn(),
+      reviewDueCount: jest.fn(),
       startMCQuiz: jest.fn(),
       submitMCAnswer: jest.fn(),
+      getResume: jest.fn(() => Promise.resolve({ session: null })),
+      saveResume: jest.fn(() => Promise.resolve({ status: 'ok' })),
+      clearResume: jest.fn(() => Promise.resolve({ status: 'ok' })),
     },
   },
 }));
@@ -24,6 +28,7 @@ const mockStartSession = api.tutor.startSession;
 const mockRelatedConcepts = api.tutor.relatedConcepts;
 const mockMarkReview = api.tutor.markReview;
 const mockReviewQueue = api.tutor.reviewQueue;
+const mockReviewDueCount = api.tutor.reviewDueCount;
 
 type UserEvent = ReturnType<typeof userEvent.setup>;
 
@@ -70,6 +75,7 @@ describe('TutorView Review pass (cumulative to session length)', () => {
     mockRelatedConcepts.mockResolvedValue({ cards: [] });
     mockMarkReview.mockResolvedValue({});
     mockReviewQueue.mockResolvedValue({ cards: [], total: 0 });
+    mockReviewDueCount.mockResolvedValue({ due_count: 0 });
   });
 
   it('keeps the progress bar max at the session size when filtering by difficulty', async () => {
@@ -126,5 +132,29 @@ describe('TutorView Review pass (cumulative to session length)', () => {
     expect(screen.getByText(/You marked 2 of 3 cards correct \(67%\)\./)).toBeInTheDocument();
     expect(mockMarkReview).toHaveBeenCalledTimes(3);
     expect(mockMarkReview).toHaveBeenNthCalledWith(2, Q_D3_A.question, 'contracts', false);
+  });
+
+  it('shows a due-count pill whose tooltip explains spaced repetition', async () => {
+    mockReviewDueCount.mockResolvedValue({ due_count: 3 });
+    const user = userEvent.setup();
+    render(<TutorView user={USER} onError={jest.fn()} />);
+    await waitFor(() => expect(screen.getByText(TOPIC.name)).toBeInTheDocument());
+    await user.click(await screen.findByRole('button', { name: 'Start' }));
+
+    // Pill renders and the button carries an accessible due count.
+    const reviewButton = await screen.findByRole('button', { name: 'Review, 3 cards due today' });
+    expect(reviewButton).toHaveTextContent('3');
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    // Keyboard focus on the tab reveals the explainer bubble.
+    // (Walk focus forward until the Review tab owns it.)
+    for (let i = 0; i < 8 && document.activeElement !== reviewButton; i++) {
+      await user.tab();
+    }
+    expect(document.activeElement).toBe(reviewButton);
+    expect(screen.getByRole('tooltip')).toHaveTextContent('3 cards you flagged are due again today');
+
+    await user.tab(); // focus moves on, bubble hides
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 });

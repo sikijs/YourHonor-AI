@@ -6,6 +6,8 @@ from app.models.tutor import (
     HypotheticalGenerateRequest, HypotheticalGenerateResponse,
     HypotheticalEvaluateRequest, HypotheticalEvaluateResponse,
     MCStartRequest, MCStartResponse, MCAnswerRequest, MCAnswerResponse,
+    OfflineMCStartRequest,
+    DrillGenerateRequest, DrillGenerateResponse, DrillSubmitRequest, DrillSubmitResponse,
 )
 from app.models.legal_glossary import CurriculumCard
 from app.services.auth import decode_token
@@ -183,6 +185,48 @@ def submit_mc_answer(
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
 
+@router.post("/mc-offline/start", response_model=MCStartResponse)
+def start_offline_mc_quiz(
+    request: OfflineMCStartRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    """Free tier: start a locally-assembled MC quiz (no LLM calls)."""
+    try:
+        service = get_tutor_service()
+        return service.start_offline_mc_quiz(request.topic_id, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/drill/generate", response_model=DrillGenerateResponse)
+def generate_drill(request: DrillGenerateRequest, user_id: int = Depends(get_current_user_id)):
+    """Issue-spotting drill: one fact pattern with hidden embedded issues."""
+    try:
+        from app.services.issue_drill import generate_drill as generate
+        return DrillGenerateResponse(**generate(request.topic_id, request.difficulty))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/drill/submit", response_model=DrillSubmitResponse)
+def submit_drill(request: DrillSubmitRequest, user_id: int = Depends(get_current_user_id)):
+    """Grade a drill submission into matched / missed / false positives."""
+    try:
+        from app.services.issue_drill import evaluate_drill
+        return evaluate_drill(
+            request.topic_id, request.fact_pattern,
+            request.embedded_issues, request.student_issues,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
 @router.post("/related", response_model=RelatedConceptsResponse)
 def related_concepts(
     request: RelatedConceptsRequest,
@@ -219,5 +263,58 @@ def review_queue(
         service = get_tutor_service()
         cards = service.get_review_queue(user_id, difficulty=difficulty)
         return ReviewQueueResponse(cards=cards, total=len(cards))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/review/due-count")
+def review_due_count(user_id: int = Depends(get_current_user_id)):
+    """Number of review cards whose spaced-repetition due date has passed."""
+    try:
+        service = get_tutor_service()
+        return {"due_count": service.get_due_count(user_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+class ResumeSaveRequest(BaseModel):
+    topic_id: str
+    mode: str
+    payload: dict
+
+
+@router.get("/resume")
+def get_resume(user_id: int = Depends(get_current_user_id)):
+    """The user's saved resumable session, or null."""
+    from app.services import session_resume
+
+    try:
+        return {"session": session_resume.get_active_session(user_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.post("/resume")
+def save_resume(request: ResumeSaveRequest, user_id: int = Depends(get_current_user_id)):
+    """Snapshot the user's in-progress quiz/review session for later resume."""
+    from app.services import session_resume
+
+    try:
+        session_resume.save_active_session(user_id, request.topic_id, request.mode, request.payload)
+        return {"status": "ok"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.delete("/resume")
+def clear_resume(user_id: int = Depends(get_current_user_id)):
+    """Discard the saved snapshot (session finished or explicitly dropped)."""
+    from app.services import session_resume
+
+    try:
+        session_resume.clear_active_session(user_id)
+        return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")

@@ -93,6 +93,15 @@ def get_user_stats(user_id: int) -> dict:
             (user_id,),
         ).fetchall()
 
+        due_now = conn.execute(
+            """
+            SELECT COUNT(*) AS count FROM review_progress
+            WHERE user_id = ? AND got_it = 0
+              AND next_due IS NOT NULL AND next_due <= CURRENT_TIMESTAMP
+            """,
+            (user_id,),
+        ).fetchone()["count"]
+
         session_rows = conn.execute(
             """
             SELECT topic_id, COUNT(*) AS sessions,
@@ -180,6 +189,7 @@ def get_user_stats(user_id: int) -> dict:
             "total_reviewed": mastered + weak,
             "mastered": mastered,
             "weak": weak,
+            "due_now": due_now,
             "weak_topics": [
                 {
                     "topic_id": r["topic_id"],

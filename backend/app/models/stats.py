@@ -18,6 +18,7 @@ class TutorReviewStats(BaseModel):
     total_reviewed: int
     mastered: int
     weak: int
+    due_now: int = 0
     weak_topics: list[WeakTopic] = []
 
 
