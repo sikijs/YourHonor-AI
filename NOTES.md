@@ -1,6 +1,6 @@
 # Notes
 
-> **Version 1.6.0**
+> **Version 1.6.1**
 
 Quick reference for managing YourHonor AI.
 
@@ -12,7 +12,25 @@ Reverse-chronological history of what changed in each release. Details and
 user-facing writeups live in `docs/about.md` ("What's New" sections) and the
 phase notes in `AGENTS.md`.
 
-### Unreleased
+### v1.6.1
+- Dashboard slimmed to the student loop: the **Citation Drill** card moved out of
+  "Today's Legal Practice" into the Citations view as a third **Daily Drill** tab
+  (`CitationDrillView.tsx` — same interactive quiz, plus an in-tab jump to the
+  Bluebook Formatter), and the **Issue-Spotting Prompt** moved into the Issue
+  Spotter view as a collapsible **"Daily warm-up"** card (`DailyWarmupCard.tsx`)
+  with subject-hint / reveal buttons and a one-click "Spot issues in this case"
+  button that pastes the day's case into the textarea; it hides itself if the
+  prompt fails to load so the main tool never breaks
+- New endpoints `GET /api/dashboard/citation-drill` and `GET /api/dashboard/issue-prompt`
+  share the day-seeded case pick with `/api/dashboard/today` through one
+  `_today_case()` helper, so Case of the Day, the drill, and the warm-up can never
+  drift within a day; `citation_drill` / `issue_prompt_of_the_day` removed from the
+  `/today` payload (asserted absent in tests)
+- Citations tabs are now URL-addressable: `#citations?tab=drill|map|bluebook`
+  survives refresh/bookmarks (same pattern as the drafting/atlas tabs)
+- Backend suite 331 passed, frontend 187 passed
+
+### v1.6.0
 - AI Tutor: 13th topic added — **International Law** (20 curated public-international-law
   cards: sources of law, custom formation, jus cogens, VCLT interpretation/reservations/
   termination, ICJ jurisdiction and enforcement, statehood, attribution, reparations,
@@ -150,12 +168,12 @@ CourtListener (courtlistener.com) is a free, public database of real US court op
 4. **Fetch the opinion** — with the matched case's opinion ID, the app downloads the full opinion from `/opinions/{id}/`. Opinions arrive in several formats; the app tries plain text first, then HTML variants (tags stripped), then Harvard XML — whichever yields readable text wins
 5. **Store for next time** — metadata + full text are written into the SQLite cache, so the same case is never downloaded twice. Two smaller in-memory caches (HTTP responses and opinion text, both ~5 minutes) cover repeat lookups within a session
 
-**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 85 landmark cases are pre-ingested carefully — all 85 ship pre-seeded in the Docker image (`landmark_seed.json`), so boot needs no network at all; runtime fetching is only a fallback for cases CourtListener cannot resolve.
+**Playing nice with the API:** CourtListener rate-limits requests (HTTP 429). The connector waits out the `Retry-After` delay (capped at 15 seconds) and retries twice before giving up. The same courtesy is why the 92 landmark cases are pre-ingested carefully — all 92 ship pre-seeded in the Docker image (`landmark_seed.json`), so boot needs no network at all; runtime fetching is only a fallback for cases CourtListener cannot resolve.
 
 **Where it shows up in the app:**
 - **Case Briefs** — the main consumer: library miss → CourtListener fetch → AI brief written from the real opinion text
 - **Memoranda** — searches CourtListener for reference materials to ground the memo
-- **Landmark pre-ingestion** — on startup the app embeds all 85 famous cases (all 85 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
+- **Landmark pre-ingestion** — on startup the app embeds all 92 famous cases (all 92 shipped pre-seeded in the image) into the Qdrant library, which is why cases like Miranda and Roe v. Wade are available instantly (and offline of CourtListener) afterwards
 
 **Small variations by tool:**
 - **Chat** keeps a conversation history (last 10 messages), so step 4 also includes what you and the AI said earlier
@@ -169,7 +187,7 @@ CourtListener (courtlistener.com) is a free, public database of real US court op
 **Where things live:**
 
 - **SQLite** (`backend/app/data/yourhonor.db`) — accounts, saved documents, citation cache. Recreated fresh each time the container starts
-- **Qdrant** (`data/qdrant_storage/`) — embedded text: 85 landmark cases, the tutor's question cards, glossary definitions, your uploaded PDFs
+- **Qdrant** (`data/qdrant_storage/`) — embedded text: 92 landmark cases, the tutor's question cards, glossary definitions, your uploaded PDFs
 - **Templates** (`templates/` + `catalog.json`) — the 24 document templates used by Generate Document
 - **The frontend is pre-built** — the React app is compiled into static files that FastAPI serves directly, so the whole app runs as one server (plus one Qdrant container)
 
@@ -181,7 +199,7 @@ The app stores things in two places, and they do *different* jobs. If you need t
 |---|---|---|
 | **Kind of database** | Relational (SQL) — data sits in tables of rows and columns | Vector — data sits in "points", each a list of numbers plus attached metadata |
 | **What it stores** | `users` (email, password hash), `documents` (saved briefs, memos, notes), `opinions_cache` (CourtListener results, with a `qdrant_ingested` flag tracking whether the case was already embedded), `review_progress` (AI Tutor progress) | Embedded *chunks* of legal text: each case opinion is cut into ~512-token pieces (with 128-token overlap so context isn't lost at the seams), and each chunk is embedded into a 384-number vector by the all-MiniLM-L6-v2 model, stored together with a payload of metadata — title, source, chunk index, citation, court, date filed, doc type |
-| **How it's stored** | One single file on disk (`yourhonor.db`) — every row in a table | A separate database container (`data/qdrant_storage/`) holding three collections: `legal_documents` (~2,200 chunks from 85 landmark cases + user uploads), `tutor_curriculum` (240 study cards), `glossary_seed` (123 glossary terms) |
+| **How it's stored** | One single file on disk (`yourhonor.db`) — every row in a table | A separate database container (`data/qdrant_storage/`) holding three collections: `legal_documents` (~2,600 chunks from 92 landmark cases + user uploads), `tutor_curriculum` (260 study cards), `glossary_seed` (123 glossary terms) |
 | **How it's indexed** | Primary keys and unique constraints (B-tree indexes) on the exact-value columns: user id, email, document id, cache query key | HNSW (approximate nearest-neighbour) index over the 384-dimension vectors, plus keyword payload indexes on `title` and `source` so filtered lookups don't scan everything |
 | **How it's retrieved** | SQL queries with `WHERE` clauses — exact equality: "find the row where `query_key = 'miranda v arizona'`" | The query itself is embedded into a vector, then Qdrant finds the vectors closest to it by cosine similarity, returning only hits above a score threshold (e.g. top 10, score ≥ 0.5) |
 | **Example question it answers** | "Does user 3 own document 12?" — precise, requires an exact match | "Which chunks talk about *this* legal concept?" — fuzzy, matches by meaning, so synonyms and paraphrases work |
@@ -198,7 +216,7 @@ Like texting a tutor. Type any legal question and the AI answers conversationall
 
 ### Legal Drafting
 Four drafting tools under one roof (tabs: **Case Brief, Summary, Arguments, Memorandum**):
-- **Case Briefs** — the "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (85 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**.
+- **Case Briefs** — the "cliff notes" of a court case. Type a case name (e.g. "Miranda v. Arizona") or pick one of your uploaded PDFs, and the app finds the opinion text — first by searching its own library (92 landmark cases + user uploads), and if that misses, by fetching the real opinion from CourtListener (fetched only once per case thanks to caching). The AI then fills in all 10 standard brief sections: **Facts, Procedural History, Issues, Holding, Reasoning, Rule of Law, Concurrence, Dissent, Significance, and Sources**.
 - **Summaries** — a condensed overview of any legal topic, in four flavours — pick one from the dropdown, and the output adapts:
   - **General** — a balanced overview of anything (overview, key findings, legal principles, impact, key points)
   - **Case Summary** — parties, procedural posture, issue, holding, reasoning, disposition
@@ -210,7 +228,7 @@ Four drafting tools under one roof (tabs: **Case Brief, Summary, Arguments, Memo
 **Use it for** exam prep, grasping cases, understanding both sides' theories, and practicing the standard internal legal-analysis format used in real law firms.
 
 ### Citations
-The family tree of the law. Give it a case, and it maps every authority the opinion cites: **cases** (full citation, why it was cited, and how it was treated — followed, distinguished, overruled, abrogated...), **statutes**, and **constitutional provisions**, plus a total count and which single authority was the key precedent and why. The same view also hosts the **Bluebook Formatter** tab — paste raw citations and get them reformatted to proper Bluebook style, with rule references and confidence ratings for each entry. **Use it for** seeing how a case fits into a doctrine and finding its most important authority.
+The family tree of the law. Give it a case, and it maps every authority the opinion cites: **cases** (full citation, why it was cited, and how it was treated — followed, distinguished, overruled, abrogated...), **statutes**, and **constitutional provisions**, plus a total count and which single authority was the key precedent and why. The same view hosts two more tabs: the **Bluebook Formatter** — paste raw citations and get them reformatted to proper Bluebook style, with rule references and confidence ratings for each entry — and the **Daily Drill**, one Bluebook quiz question per day drawn from the built-in landmark-case library, where each wrong option explains the rule it violates. **Use it for** seeing how a case fits into a doctrine, finding its most important authority, and a 30-second daily citation workout.
 
 ### Debate
 Argues both sides of a legal question for you. State a position (e.g. "schools may search student phones without a warrant") and it returns **supporting arguments and opposing arguments** — each with its reasoning, authorities, a strength rating (strong/moderate/weak), and a *counter-rebuttal* showing how the other side would respond — plus key doctrines, a **predicted winner**, the rationale, and practice tips for arguing each side. **Use it for** finding the weak spots in your own position and prepping for oral advocacy.
@@ -219,10 +237,10 @@ Argues both sides of a legal question for you. State a position (e.g. "schools m
 A visual map of landmark US law. Browse **36 doctrines** across **92 famous cases** (Miranda, Roe, Heller, Citizens United...), each with its one-line holding — as a searchable card grid or a timeline by era, filtered by subject (Constitutional Law, Criminal Procedure, First Amendment...). Click any case to generate a full case brief right there. A second **Case Guide** tab holds a plain-English reference tour of all 92 cases. No AI involved: it's curated static data, so it loads instantly and works whether you're signed in or not. **Use it for** seeing how a doctrine evolved and how cases connect before diving into a full brief.
 
 ### Issue Spotter
-Exam practice. Paste a fact pattern — a story full of legal problems — and it identifies **every issue** in it. Each issue gets the full treatment: **Issue, Rule, Application, Conclusion, Missing Information, and Relevant Authorities**, and results are grouped by legal area (e.g. Fourth Amendment, Contracts, Torts) with an overview and tips for writing the exam answer. It's deliberately thorough: in law school exams, missing an issue costs more than over-identifying one. **Use it for** drilling exam-style fact patterns.
+Exam practice. Paste a fact pattern — a story full of legal problems — and it identifies **every issue** in it. Each issue gets the full treatment: **Issue, Rule, Application, Conclusion, Missing Information, and Relevant Authorities**, and results are grouped by legal area (e.g. Fourth Amendment, Contracts, Torts) with an overview and tips for writing the exam answer. It's deliberately thorough: in law school exams, missing an issue costs more than over-identifying one. A collapsible **"Daily warm-up"** card above the form offers a smaller daily exercise — phrase today's landmark case as a single issue sentence, with a subject hint and the court's own issue/holding on demand. **Use it for** drilling exam-style fact patterns and a quick daily issue-spotting rep.
 
 ### AI Tutor
-Socratic dialogue. Pick one of 12 subjects (240+ curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
+Socratic dialogue. Pick one of 13 subjects (260 curated questions) and click **Start**, or click **AI Quick Start** to have the AI generate fresh questions on the spot. The tutor asks a question, you answer in your own words, and it **evaluates your answer against the card's model answer** (the reference answer is hidden — it's only used for grading), scores you, and adapts: follow-up scaffolding questions, difficulty scaling from 2–4, and up to 3 attempts before the correct answer is revealed. Progress is tracked and reviewable later. **Use it for** active-recall practice and self-testing.
 
 ### Study Dashboard
 Your study stats at a glance: saved documents broken down by type, notes count, AI Tutor review progress with your weakest topics, **live tutor session accuracy** (completed sessions, answers, and % correct per topic), and skills & competencies with your work portfolio. **Use it for** checking overall progress without digging through every tool.
@@ -258,9 +276,9 @@ YourHonor AI/
 ├── backend/                # Python FastAPI server
 │   ├── app/
 │   │   ├── main.py         # App entry point, version constant, router registration
-│   │   ├── api/            # 11 route files (thin layer — delegates to services)
-│   │   ├── services/       # 25 service files (all business logic lives here)
-│   │   ├── models/         # 16 Pydantic schemas (request/response types)
+│   │   ├── api/            # 14 route files (thin layer — delegates to services)
+│   │   ├── services/       # 34 service files (all business logic lives here)
+│   │   ├── models/         # 21 Pydantic schemas (request/response types)
 │   │   ├── data/           # SQLite database (yourhonor.db)
 │   │   ├── static/         # Built frontend (copied from frontend/out/)
 │   │   └── uploads/        # User-uploaded PDFs
@@ -271,7 +289,7 @@ YourHonor AI/
 ├── frontend/               # Next.js React app
 │   ├── src/
 │   │   ├── app/            # page.tsx (SPA), layout.tsx, globals.css
-│   │   ├── components/     # 33 view components (one per tool + shared UI)
+│   │   ├── components/     # 38 view components (one per tool + shared UI)
 │   │   └── lib/            # api.ts (typed API client), print.ts, sources.ts, hashRouter.ts
 │   ├── public/             # Static assets (logo, favicon, md files)
 │   ├── next.config.js      # Frontend version constant
@@ -352,7 +370,7 @@ The app is a single page with no router library. Views are mapped to the URL has
 (`frontend/src/lib/hashRouter.ts`): `#dashboard`, `#drafting?tab=summary&q=Marbury%20v.%20Madison`, etc.
 
 - Nav clicks and Home cards push a history entry (`location.hash = ...`), so the browser **Back/Forward buttons move between views**; refresh and bookmarks restore the view.
-- Legal Drafting tab switches use `location.replace` (no history noise) but the tab is encoded in the URL, so a shared/refreshed `#drafting?tab=...` link lands on the right tab. The tab state lives in `page.tsx` (`draftTab`) and is passed to `DraftingView` via `initialTab`/`onTabChange`.
+- Legal Drafting tab switches use `location.replace` (no history noise) but the tab is encoded in the URL, so a shared/refreshed `#drafting?tab=...` link lands on the right tab. The tab state lives in `page.tsx` (`draftTab`) and is passed to `DraftingView` via `initialTab`/`onTabChange`. The Citations view works the same way (`#citations?tab=map|bluebook|drill`), as does the Case Law Atlas (`#doctrines?tab=map|guide`).
 - Public views (`home`, `about`, `doctrines`, `resources`, `auth`) load when signed out; any other hash sends a signed-out visitor to the Sign In view.
 - The `navigate()` alias map in `page.tsx` (`briefs`/`summaries`/`arguments`/`memoranda` → `drafting` + tab) is unchanged — deep links like the Doctrine Explorer "brief this case" now also update the URL.
 
@@ -483,7 +501,7 @@ Then drag the `YourHonor-AI-main` folder into Terminal and press Enter.
 | Signed out after restarting the app | JWT secret is auto-generated and changes every boot | Normal — just sign in again. Your saved documents are still there |
 | Scripts won't run on Mac (quarantine warning) | macOS blocks unsigned `.command` files from the internet | Run: `xattr -dr com.apple.quarantine /path/to/YourHonor-AI-main` then try again |
 | Qdrant connection refused on startup | Qdrant is slower to start than the backend | Normal — the health check retries up to 5 times over 60 seconds. Wait a moment and refresh |
-| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 85 landmark cases is still running (all 85 ship pre-seeded in the image; only rare cases may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
+| App slow / landmark cases missing right after startup or a wipe | Background pre-ingestion of the 92 landmark cases is still running (all 92 ship pre-seeded in the image; only rare cases may be fetched from CourtListener, 12 seconds apart — takes a few minutes) | Normal — wait a few minutes, then refresh. Cases like Miranda and Roe v. Wade become available as ingestion completes |
 | Case Brief returns "No case information found" | Library miss + no CourtListener token configured | Add `COURTLISTENER_TOKEN` to `.env` (free at courtlistener.com), then restart. Without it the app can only search metadata, not download full opinions |
 | Case Brief has metadata but thin/no opinion detail | "Set COURTLISTENER_TOKEN for full opinion text" — token missing | Same fix: add the token and restart. The full opinion text is only downloadable with a token |
 | CourtListener lookups failing (401) | Token invalid or expired | Log in at courtlistener.com and regenerate the token, update `.env`, restart |
@@ -498,7 +516,7 @@ Run these checks in order when you want to confirm the app is healthy:
 
 **1. Health endpoint** — open `http://localhost:8000/api/health` in your browser. Should return:
 ```json
-{"status":"healthy","version":"1.6.0"}
+{"status":"healthy","version":"1.6.1"}
 ```
 
 **2. Containers running** — run `docker ps`. Should show 2 containers:

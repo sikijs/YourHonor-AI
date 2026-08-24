@@ -70,8 +70,6 @@ class SuggestedFocus(BaseModel):
 
 class DashboardTodayResponse(BaseModel):
     case_of_the_day: CaseOfTheDay
-    citation_drill: CitationDrill
     term_of_the_day: TermOfTheDay
     question_of_the_day: QuestionOfTheDay
-    issue_prompt_of_the_day: IssuePromptOfTheDay
     suggested_focus: Optional[SuggestedFocus] = None

@@ -10,6 +10,9 @@ jest.mock('@/lib/api', () => ({
       citations: jest.fn(),
       bluebookFormat: jest.fn(),
     },
+    dashboard: {
+      citationDrill: jest.fn(),
+    },
   },
 }));
 
@@ -51,12 +54,25 @@ describe('CitationsView', () => {
       sources_consulted: [],
       disclaimer: 'Educational only.',
     });
+    api.dashboard.citationDrill.mockResolvedValue({
+      raw: '5 U.S. 137',
+      formatted: 'Marbury v. Madison, 5 U.S. 137 (1803)',
+      case_name: 'Marbury v. Madison',
+      year: 1803,
+      options: [
+        { text: 'Marbury v. Madison, 5 U.S. 137', is_correct: false, rule_note: 'Wrong — the decision year is required (Rule 10.6).' },
+        { text: 'Marbury v. Madison, 5 U.S. 137 (1803)', is_correct: true, rule_note: 'Correct — full case name, "v." (Rule 10.2.1), reporter periods (Rule 10.3), year (Rule 10.6).' },
+        { text: 'Marbury vs. Madison, 5 U.S. 137 (1803)', is_correct: false, rule_note: 'Wrong — party names use "v.", never "vs." (Rule 10.2.1).' },
+        { text: 'Marbury v. Madison, 5 US 137 (1803)', is_correct: false, rule_note: 'Wrong — reporter abbreviations keep periods (Rule 10.3).' },
+      ],
+    });
   });
 
-  it('renders the citation map by default with both tabs available', async () => {
+  it('renders the citation map by default with all three tabs available', async () => {
     render(<CitationsView user={USER} onError={jest.fn()} />);
     expect(await screen.findByRole('button', { name: 'Citation Map' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Bluebook Formatter' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Daily Drill' })).toBeInTheDocument();
     expect(await screen.findByText('Generate Map')).toBeInTheDocument();
   });
 
@@ -76,5 +92,31 @@ describe('CitationsView', () => {
     await user.click(await screen.findByRole('button', { name: 'Citation Map' }));
     await waitFor(() => expect(screen.getByText('Generate Map')).toBeInTheDocument());
     expect(screen.queryByText('Bluebook Citation Formatter')).not.toBeInTheDocument();
+  });
+
+  it('renders the daily drill with today\'s quiz', async () => {
+    render(<CitationsView user={USER} onError={jest.fn()} />);
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Daily Drill' }));
+
+    expect(await screen.findByText(/Which of these is the correct Bluebook citation for/)).toBeInTheDocument();
+    expect(screen.getByText('5 U.S. 137')).toBeInTheDocument();
+    expect(api.dashboard.citationDrill).toHaveBeenCalled();
+    expect(
+      screen.getByRole('button', { name: 'Marbury v. Madison, 5 U.S. 137 (1803)' }),
+    ).toBeInTheDocument();
+  });
+
+  it('scores a drill answer and jumps to the formatter from the drill', async () => {
+    const user = userEvent.setup();
+    render(<CitationsView user={USER} onError={jest.fn()} />);
+
+    await user.click(await screen.findByRole('button', { name: 'Daily Drill' }));
+    await user.click(await screen.findByRole('button', { name: 'Marbury vs. Madison, 5 U.S. 137 (1803)' }));
+
+    expect(screen.getByText(/Not quite/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Marbury v. Madison, 5 U.S. 137 (1803) ✓' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: /Format your own citations/ }));
+    expect(await screen.findByText('Bluebook Citation Formatter')).toBeInTheDocument();
   });
 });

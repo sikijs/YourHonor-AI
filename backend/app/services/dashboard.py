@@ -2,8 +2,12 @@
 
 Everything here is deterministic and offline: content is seeded by the day of
 the year into the app's curated libraries (92 landmark cases, 260 tutor cards,
-123 glossary terms), so the endpoint is instant, free, and never calls an LLM.
+123 glossary terms), so the endpoints are instant, free, and never call an LLM.
 The only per-user data is the suggested-focus topic from the review queue.
+
+The same day-seeded case pick also powers two tool-specific drills served from
+here: the Citations view's Daily Drill (GET /api/dashboard/citation-drill) and
+the Issue Spotter view's daily warm-up (GET /api/dashboard/issue-prompt).
 """
 
 import json
@@ -242,6 +246,35 @@ def _suggested_focus(user_id: int) -> Optional[SuggestedFocus]:
     )
 
 
+def _today_case() -> dict:
+    """Today's deterministic landmark-case pick, shared by /today, the
+    citation drill endpoint, and the issue prompt endpoint so all three can
+    never drift apart within a single day."""
+    cases = _load_cases()
+    return cases[_day_index(len(cases))] if cases else {}
+
+
+def get_citation_drill() -> CitationDrill:
+    """Today's Bluebook citation quiz for the Citations view's Daily Drill tab.
+
+    Same day-seeded case pick as /today's Case of the Day; one correct option
+    plus three deterministic distractors built from the case's real citation.
+    Zero LLM.
+    """
+    return _build_drill(_today_case())
+
+
+def get_issue_prompt() -> IssuePromptOfTheDay:
+    """Today's issue-spotting warm-up for the Issue Spotter view.
+
+    Asks the student to write the day's featured case as a single issue
+    sentence. The subject hint and the court's own issue/holding stay behind
+    the on-demand /api/dashboard/today/issue-answer endpoint. Zero LLM.
+    """
+    case = _today_case()
+    return _issue_prompt(case) if case else IssuePromptOfTheDay(prompt="", case_name="")
+
+
 def get_today(user_id: int) -> DashboardTodayResponse:
     cases = _load_cases()
     case = cases[_day_index(len(cases))] if cases else {}
@@ -250,8 +283,6 @@ def get_today(user_id: int) -> DashboardTodayResponse:
     term = glossary[_day_index(len(glossary))] if glossary else {}
 
     card = _today_card()
-
-    drill = _build_drill(case)
 
     case_summary = _case_doctrine_entries().get(case.get("name", ""), {}).get("plain_holding", "")
 
@@ -263,7 +294,6 @@ def get_today(user_id: int) -> DashboardTodayResponse:
             date_filed=case.get("date_filed"),
             case_summary=case_summary,
         ),
-        citation_drill=drill,
         term_of_the_day=TermOfTheDay(
             term=term.get("term", ""),
             definition=term.get("definition", ""),
@@ -275,7 +305,6 @@ def get_today(user_id: int) -> DashboardTodayResponse:
             topic_name=card.get("topic_name", ""),
             difficulty=card.get("difficulty", 1),
         ),
-        issue_prompt_of_the_day=_issue_prompt(case) if case else IssuePromptOfTheDay(prompt="", case_name=""),
         suggested_focus=_suggested_focus(user_id),
     )
 

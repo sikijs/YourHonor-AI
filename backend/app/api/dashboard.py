@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException
 from typing import Optional
 
-from app.models.dashboard import DashboardTodayResponse, IssueAnswerResponse, QuestionAnswerResponse
+from app.models.dashboard import (
+    CitationDrill,
+    DashboardTodayResponse,
+    IssueAnswerResponse,
+    IssuePromptOfTheDay,
+    QuestionAnswerResponse,
+)
 from app.services import dashboard as dashboard_service
 from app.services.auth import decode_token
 
@@ -24,6 +30,24 @@ def get_current_user_id(access_token: Optional[str] = Cookie(None)) -> int:
 def get_today(user_id: int = Depends(get_current_user_id)):
     try:
         return dashboard_service.get_today(user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/citation-drill", response_model=CitationDrill)
+def get_citation_drill(user_id: int = Depends(get_current_user_id)):
+    """Today's Bluebook quiz for the Citations view's Daily Drill tab."""
+    try:
+        return dashboard_service.get_citation_drill()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.get("/issue-prompt", response_model=IssuePromptOfTheDay)
+def get_issue_prompt(user_id: int = Depends(get_current_user_id)):
+    """Today's issue-spotting warm-up prompt for the Issue Spotter view."""
+    try:
+        return dashboard_service.get_issue_prompt()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 

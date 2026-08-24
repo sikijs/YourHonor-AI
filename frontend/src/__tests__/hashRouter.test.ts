@@ -53,6 +53,26 @@ describe('parseHash', () => {
     expect(parseHash('#doctrines?tab=summary')).toEqual({ view: 'doctrines' });
   });
 
+  test('parses citations tab param on the citations view', () => {
+    expect(parseHash('#citations?tab=drill')).toEqual({
+      view: 'citations',
+      citationsTab: 'drill',
+    });
+    expect(parseHash('#citations?tab=bluebook')).toEqual({
+      view: 'citations',
+      citationsTab: 'bluebook',
+    });
+    expect(parseHash('#citations?tab=map')).toEqual({
+      view: 'citations',
+      citationsTab: 'map',
+    });
+  });
+
+  test('ignores invalid citations tab values', () => {
+    expect(parseHash('#citations?tab=nope')).toEqual({ view: 'citations' });
+    expect(parseHash('#citations?tab=guide')).toEqual({ view: 'citations' });
+  });
+
   test('does not treat trailing slash as a view', () => {
     expect(parseHash('#dashboard/')).toBeNull();
   });
@@ -89,6 +109,18 @@ describe('viewToHash', () => {
   test('round-trips the atlas tab through parseHash', () => {
     const hash = viewToHash('doctrines', { atlasTab: 'guide' });
     expect(parseHash(hash)).toEqual({ view: 'doctrines', atlasTab: 'guide' });
+  });
+
+  test('builds citations hashes with tab', () => {
+    expect(viewToHash('citations')).toBe('#citations');
+    expect(viewToHash('citations', { citationsTab: 'map' })).toBe('#citations?tab=map');
+    expect(viewToHash('citations', { citationsTab: 'bluebook' })).toBe('#citations?tab=bluebook');
+    expect(viewToHash('citations', { citationsTab: 'drill' })).toBe('#citations?tab=drill');
+  });
+
+  test('round-trips the citations tab through parseHash', () => {
+    const hash = viewToHash('citations', { citationsTab: 'drill' });
+    expect(parseHash(hash)).toEqual({ view: 'citations', citationsTab: 'drill' });
   });
 });
 

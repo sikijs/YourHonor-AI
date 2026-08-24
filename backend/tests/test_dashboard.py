@@ -26,6 +26,16 @@ def test_today_issue_answer_requires_auth(client):
     assert resp.status_code == 401
 
 
+def test_citation_drill_requires_auth(client):
+    resp = client.get("/api/dashboard/citation-drill")
+    assert resp.status_code == 401
+
+
+def test_issue_prompt_requires_auth(client):
+    resp = client.get("/api/dashboard/issue-prompt")
+    assert resp.status_code == 401
+
+
 def test_today_answer_matches_today_question(client, auth_headers):
     today = client.get("/api/dashboard/today", headers=auth_headers).json()
     card = today["question_of_the_day"]
@@ -76,10 +86,24 @@ def test_today_shape(client, auth_headers):
     assert data["case_of_the_day"]["case_name"]
     assert data["case_of_the_day"]["citation"]
     assert data["case_of_the_day"]["case_summary"]
-    drill = data["citation_drill"]
+    assert data["term_of_the_day"]["term"]
+    assert data["term_of_the_day"]["definition"]
+    assert data["question_of_the_day"]["question"]
+    assert data["question_of_the_day"]["topic_id"]
+    assert data["question_of_the_day"]["topic_name"]
+    assert data["suggested_focus"] is None
+    # The citation drill and issue prompt moved to their own tool endpoints.
+    assert "citation_drill" not in data
+    assert "issue_prompt_of_the_day" not in data
+
+
+def test_citation_drill_shape(client, auth_headers):
+    resp = client.get("/api/dashboard/citation-drill", headers=auth_headers)
+    assert resp.status_code == 200
+    drill = resp.json()
     assert drill["raw"]
     assert drill["formatted"]
-    assert drill["case_name"] == data["case_of_the_day"]["case_name"]
+    assert drill["case_name"]
     options = drill["options"]
     assert 3 <= len(options) <= 4
     assert len({o["text"] for o in options}) == len(options)
@@ -89,13 +113,37 @@ def test_today_shape(client, auth_headers):
     for option in options:
         assert option["text"]
         assert option["rule_note"]
-    assert data["term_of_the_day"]["term"]
-    assert data["term_of_the_day"]["definition"]
-    assert data["question_of_the_day"]["question"]
-    assert data["question_of_the_day"]["topic_id"]
-    assert data["question_of_the_day"]["topic_name"]
-    assert data["issue_prompt_of_the_day"]["prompt"]
-    assert data["suggested_focus"] is None
+
+
+def test_citation_drill_matches_today_case(client, auth_headers):
+    today = client.get("/api/dashboard/today", headers=auth_headers).json()
+    case = today["case_of_the_day"]
+
+    drill = client.get("/api/dashboard/citation-drill", headers=auth_headers).json()
+    assert drill["case_name"] == case["case_name"]
+    assert drill["raw"] == case["citation"]
+
+
+def test_issue_prompt_shape(client, auth_headers):
+    today = client.get("/api/dashboard/today", headers=auth_headers).json()
+    case = today["case_of_the_day"]
+
+    resp = client.get("/api/dashboard/issue-prompt", headers=auth_headers)
+    assert resp.status_code == 200
+    prompt = resp.json()
+    assert prompt["case_name"] == case["case_name"]
+    assert prompt["prompt"]
+    assert case["case_name"] in prompt["prompt"]
+
+
+def test_new_drill_endpoints_are_deterministic_same_day(client, auth_headers):
+    first = client.get("/api/dashboard/citation-drill", headers=auth_headers).json()
+    second = client.get("/api/dashboard/citation-drill", headers=auth_headers).json()
+    assert first == second
+
+    first = client.get("/api/dashboard/issue-prompt", headers=auth_headers).json()
+    second = client.get("/api/dashboard/issue-prompt", headers=auth_headers).json()
+    assert first == second
 
 
 def test_drill_distractors_never_equal_correct():

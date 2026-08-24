@@ -8,6 +8,7 @@ import {
   ViewName,
   DraftingTabName,
   AtlasTabName,
+  CitationsTabName,
   ParsedHash,
   PUBLIC_VIEWS,
   VIEW_NAMES,
@@ -40,6 +41,7 @@ export default function Home() {
   const [draftQuery, setBriefQuery] = useState('');
   const [draftTab, setDraftTab] = useState<DraftingTabName>('brief');
   const [atlasTab, setAtlasTab] = useState<AtlasTabName>('map');
+  const [citationsTab, setCitationsTab] = useState<CitationsTabName>('map');
 
   // Apply a parsed hash route to state, gating non-public views on auth.
   function applyRoute(parsed: ParsedHash, isAuthed: boolean) {
@@ -49,6 +51,7 @@ export default function Home() {
     }
     if (parsed.draftTab) setDraftTab(parsed.draftTab);
     if (parsed.atlasTab) setAtlasTab(parsed.atlasTab);
+    if (parsed.citationsTab) setCitationsTab(parsed.citationsTab);
     if (parsed.query) setBriefQuery(parsed.query);
     setView(parsed.view);
   }
@@ -70,6 +73,11 @@ export default function Home() {
     setAtlasTab(tab);
     // location.replace keeps tab switches out of history (no Back noise).
     window.location.replace(viewToHash('doctrines', { atlasTab: tab }));
+  }
+
+  function handleCitationsTabChange(tab: CitationsTabName) {
+    setCitationsTab(tab);
+    window.location.replace(viewToHash('citations', { citationsTab: tab }));
   }
 
   function navigate(v: string, q?: string) {
@@ -221,7 +229,12 @@ export default function Home() {
         )}
 
         {view === 'citations' && user && (
-          <CitationsView user={user} onError={setError} />
+          <CitationsView
+            user={user}
+            onError={setError}
+            initialTab={citationsTab}
+            onTabChange={handleCitationsTabChange}
+          />
         )}
 
         {view === 'tutor' && user && (

@@ -12,6 +12,8 @@ export type DraftingTabName = 'brief' | 'summary' | 'arguments' | 'memorandum';
 
 export type AtlasTabName = 'map' | 'guide';
 
+export type CitationsTabName = 'map' | 'bluebook' | 'drill';
+
 export const ATLAS_TABS: AtlasTabName[] = ['map', 'guide'];
 
 export const VIEW_NAMES = [
@@ -46,10 +48,13 @@ export const PUBLIC_VIEWS: ReadonlyArray<ViewName> = [
 
 export const DRAFTING_TABS: DraftingTabName[] = ['brief', 'summary', 'arguments', 'memorandum'];
 
+export const CITATIONS_TABS: CitationsTabName[] = ['map', 'bluebook', 'drill'];
+
 export interface ParsedHash {
   view: ViewName;
   draftTab?: DraftingTabName;
   atlasTab?: AtlasTabName;
+  citationsTab?: CitationsTabName;
   query?: string;
 }
 
@@ -70,19 +75,24 @@ export function parseHash(hash: string): ParsedHash | null {
     view === 'doctrines' && tabParam && ATLAS_TABS.includes(tabParam as AtlasTabName)
       ? (tabParam as AtlasTabName)
       : undefined;
+  const citationsTab =
+    view === 'citations' && tabParam && CITATIONS_TABS.includes(tabParam as CitationsTabName)
+      ? (tabParam as CitationsTabName)
+      : undefined;
   const query = params.get('q') || undefined;
 
   return {
     view,
     draftTab,
     atlasTab,
+    citationsTab,
     query: query || undefined,
   };
 }
 
 export function viewToHash(
   view: string,
-  opts?: { draftTab?: DraftingTabName; atlasTab?: AtlasTabName; query?: string },
+  opts?: { draftTab?: DraftingTabName; atlasTab?: AtlasTabName; citationsTab?: CitationsTabName; query?: string },
 ): string {
   let hash = `#${view}`;
   if (view === 'drafting' && (opts?.draftTab || opts?.query)) {
@@ -94,6 +104,11 @@ export function viewToHash(
   if (view === 'doctrines' && opts?.atlasTab) {
     const params = new URLSearchParams();
     params.set('tab', opts.atlasTab);
+    hash += `?${params.toString()}`;
+  }
+  if (view === 'citations' && opts?.citationsTab) {
+    const params = new URLSearchParams();
+    params.set('tab', opts.citationsTab);
     hash += `?${params.toString()}`;
   }
   return hash;

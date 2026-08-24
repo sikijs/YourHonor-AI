@@ -6,6 +6,7 @@ import { useLegalTool } from '@/hooks/useLegalTool';
 import SourcePanel from '@/components/SourcePanel';
 import ActionBar from '@/components/ActionBar';
 import LoadingStatus from '@/components/LoadingStatus';
+import DailyWarmupCard from '@/components/DailyWarmupCard';
 
 export default function IssueSpotterView({ user, onError }: { user: User; onError: (err: string) => void }) {
   const {
@@ -29,6 +30,7 @@ export default function IssueSpotterView({ user, onError }: { user: User; onErro
       <p style={{ color: 'var(--gray-text)' }}>
         Enter a fact pattern, hypothetical, or describe a legal scenario.
       </p>
+      <DailyWarmupCard onUseCaseName={setQuery} />
       <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
         <textarea
           value={query}
